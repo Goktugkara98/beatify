@@ -1,0 +1,66 @@
+{%extends "base.html"%}
+
+{%block style%}
+{%endblock style%}
+
+{%block head%}
+    <!-- page name -->
+    <title>Giriş Yap</title>
+{%endblock head%}
+
+{%block preloader%}
+{%endblock preloader%}
+
+{%block content%}
+<!-- content -->
+ <!-- Flash Mesajlarını Göster -->
+<div class="mil-content">
+    <div id="swupMain" class="mil-main-transition">
+        <!-- banner -->
+        <section class="mil-banner mil-soft-bg">
+            <div class="mi-invert-fix">
+                <div class="mil-animation-frame">
+                    <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                    <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                    <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                </div>
+
+                <div class="mil-gradient"></div>
+
+                <div class="container d-flex justify-content-center align-items-start">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="login-container">
+                                <h2 class="login-title">Giriş Yap</h2>
+                                <form class="login-form" method="POST">
+                                    <div class="form-group">
+                                        <input type="username" name="username" placeholder="Kullanıcı Adı" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="password" placeholder="Şifre" required>
+                                    </div>
+                                    <div class="form-group remember-forgot">
+                                        <label>
+                                            <input type="checkbox" name="remember">
+                                            <span>Beni Hatırla</span>
+                                        </label>
+                                        <a href="#" class="forgot-password">Şifremi Unuttum</a>
+                                    </div>
+                                    <button type="submit" class="login-button">Giriş Yap</button>
+                                </form>
+                                <div class="sign-up-link">
+                                    Hesabınız yok mu? <a href="register">Kayıt Ol</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{%endblock content%}
+
+{%block script%}
+
+{%endblock script%}

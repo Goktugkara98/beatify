@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/widget-manager/widget_manager_style.css') }}">
+{% endblock style %}
+
+{% block content %}
+<div class="mil-content">
+    <div id="swupMain" class="mil-main-transition">
+        <div class="mil-inner-banner mil-dark-bg">
+            <div class="mil-banner-content mil-up">
+                <div class="container">
+                    <ul class="mil-breadcrumbs mil-mb-60">
+                        <li><a href="{{ url_for('homepage') }}">Anasayfa</a></li>
+                        <li><a href="{{ url_for('spotify_dashboard') }}">Spotify Dashboard</a></li>
+                        <li><a href="#">Spotify Widget Yöneticisi</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="beatify-page mil-dark-bg spotify-dashboard">
+            <div class="mi-invert-fix">
+                <div class="container beatify-inner-border">
+                    <div class="row">
+                        <div class="col-12">
+                            <!--Content-->
+                            <div class="widget-creator">
+                                <div class="widget-creator-header">
+                                    <h1>Widget Creator</h1>
+                                    <p>Spotify verilerinizi gösterecek özel widget'lar oluşturun ve paylaşın</p>
+                                </div>
+                                
+                                <div class="widget-creator-container">
+                                    <!-- Widget Selection Panel -->
+                                    <div class="row">
+                                        <div class="col-12 ">
+                                            <div class="widget-selection-panel">
+                                                <div class="panel-header">
+                                                    <h2>Widget Türü Seçin</h2>
+                                                    <p>Oluşturmak istediğiniz widget türünü seçin</p>
+                                                </div>
+                                                
+                                                <div class="widget-types-container">
+                                                    <div class="widget-type-card selected" data-widget-type="now-playing">
+                                                        <div class="widget-type-icon">
+                                                            <i class="fas fa-music"></i>
+                                                        </div>
+                                                        <div class="widget-type-info">
+                                                            <h3>Şu An Çalan</h3>
+                                                            <p>Şu an dinlediğiniz şarkıyı gösteren widget</p>
+                                                        </div>
+                                                        <div class="widget-type-overlay">
+                                                            <span>Seçildi</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="widget-type-card" data-widget-type="recently-played">
+                                                        <div class="widget-type-icon">
+                                                            <i class="fas fa-history"></i>
+                                                        </div>
+                                                        <div class="widget-type-info">
+                                                            <h3>Son Çalanlar</h3>
+                                                            <p>Son dinlediğiniz şarkıları gösteren widget</p>
+                                                        </div>
+                                                        <div class="widget-type-overlay">
+                                                            <span>Seçildi</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="widget-type-card" data-widget-type="top-tracks">
+                                                        <div class="widget-type-icon">
+                                                            <i class="fas fa-chart-line"></i>
+                                                        </div>
+                                                        <div class="widget-type-info">
+                                                            <h3>En Çok Dinlenenler</h3>
+                                                            <p>En çok dinlediğiniz şarkıları gösteren widget</p>
+                                                        </div>
+                                                        <div class="widget-type-overlay">
+                                                            <span>Seçildi</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="widget-type-card" data-widget-type="top-artists">
+                                                        <div class="widget-type-icon">
+                                                            <i class="fas fa-user-music"></i>
+                                                        </div>
+                                                        <div class="widget-type-info">
+                                                            <h3>En Çok Dinlenen Sanatçılar</h3>
+                                                            <p>En çok dinlediğiniz sanatçıları gösteren widget</p>
+                                                        </div>
+                                                        <div class="widget-type-overlay">
+                                                            <span>Seçildi</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="widget-type-card coming-soon" data-widget-type="playlist-showcase">
+                                                        <div class="widget-type-icon">
+                                                            <i class="fas fa-list-ul"></i>
+                                                        </div>
+                                                        <div class="widget-type-info">
+                                                            <h3>Çalma Listesi Vitrini</h3>
+                                                            <p>Çalma listelerinizi gösteren widget</p>
+                                                            <span class="coming-soon-badge">Yakında</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="widget-type-navigation">
+                                                    <button id="prev-widget-type" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+
+                                                    <button id="next-widget-type" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Widget Selection End-->
+                                </div>
+                                <!-- Widget Customization-->
+                                <div class="widget-customization-container">
+                                    <div class="row">
+                                        <!-- Widget Preview Area -->
+                                        <div class="col-lg-6 col-md-12 mb-4">
+                                            <div class="customization-panel preview-panel">
+                                                <div class="panel-header">
+                                                    <h3><i class="fas fa-eye"></i> Widget Önizleme</h3>
+                                                    <div class="panel-actions">
+                                                        <button class="action-button" id="refresh-preview" title="Önizlemeyi Yenile">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </button>
+                                                        <button class="action-button" id="toggle-theme" title="Tema Değiştir">
+                                                            <i class="fas fa-moon"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-area">
+                                                    <div class="device-frame">
+                                                        <div class="widget-preview" id="widget-preview">
+                                                            <!-- Widget preview will be loaded here -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="device-switcher">
+                                                    <button class="device-button active" data-device="desktop">
+                                                        <i class="fas fa-desktop"></i>
+                                                        <span>Masaüstü</span>
+                                                    </button>
+                                                    <button class="device-button" data-device="tablet">
+                                                        <i class="fas fa-tablet-alt"></i>
+                                                        <span>Tablet</span>
+                                                    </button>
+                                                    <button class="device-button" data-device="mobile">
+                                                        <i class="fas fa-mobile-alt"></i>
+                                                        <span>Mobil</span>
+                                                    </button>
+                                                </div>
+                                                <div class="preview-actions">
+                                                    <button class="action-button primary" id="get-embed-code">
+                                                        <i class="fas fa-code"></i> Embed Kodu Al
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Widget Customization Area -->
+                                        <div class="col-lg-6 col-md-12 mb-4">
+                                            <div class="customization-panel options-panel">
+                                                <div class="panel-header">
+                                                    <h3><i class="fas fa-sliders-h"></i> Özelleştirme</h3>
+                                                </div>
+                                                <div class="customization-tabs">
+                                                    <button class="tab-button active" data-tab="appearance">Görünüm</button>
+                                                    <button class="tab-button" data-tab="content">İçerik</button>
+                                                    <button class="tab-button" data-tab="advanced">Gelişmiş</button>
+                                                </div>
+                                                
+                                                <!-- Appearance Tab -->
+                                                <div class="tab-content active" id="appearance-tab">
+                                                    <div class="option-group">
+                                                        <h4>Boyut ve Şekil</h4>
+                                                        <div class="option-row">
+                                                            <label>Widget Boyutu</label>
+                                                            <div class="size-selector">
+                                                                <button class="size-option active" data-size="small">Küçük</button>
+                                                                <button class="size-option" data-size="medium">Orta</button>
+                                                                <button class="size-option" data-size="large">Büyük</button>
+                                                                <button class="size-option" data-size="custom">Özel</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row custom-size-row" style="display: none;">
+                                                            <div class="custom-size-inputs">
+                                                                <div class="input-group">
+                                                                    <label for="width-input">Genişlik</label>
+                                                                    <div class="input-with-unit">
+                                                                        <input type="number" id="width-input" min="100" max="1000" value="300">
+                                                                        <span class="unit">px</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="input-group">
+                                                                    <label for="height-input">Yükseklik</label>
+                                                                    <div class="input-with-unit">
+                                                                        <input type="number" id="height-input" min="100" max="1000" value="150">
+                                                                        <span class="unit">px</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Köşe Yuvarlaklığı</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="border-radius" min="0" max="30" value="12" class="slider">
+                                                                <span class="slider-value">12px</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="option-group">
+                                                        <h4>Renkler</h4>
+                                                        <div class="option-row">
+                                                            <label>Arkaplan Rengi</label>
+                                                            <div class="color-picker-container">
+                                                                <div class="color-preview" id="bg-color-preview"></div>
+                                                                <input type="color" id="background-color" value="#121212">
+                                                                <div class="color-presets" data-for="background-color">
+                                                                    <span class="color-preset" style="background-color: #121212;"></span>
+                                                                    <span class="color-preset" style="background-color: #1E1E1E;"></span>
+                                                                    <span class="color-preset" style="background-color: #2E2E2E;"></span>
+                                                                    <span class="color-preset" style="background-color: #1DB954;"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Arkaplan Opaklığı</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="background-opacity" min="0" max="100" value="80" class="slider">
+                                                                <span class="slider-value">80%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Metin Rengi</label>
+                                                            <div class="color-picker-container">
+                                                                <div class="color-preview" id="text-color-preview"></div>
+                                                                <input type="color" id="text-color" value="#FFFFFF">
+                                                                <div class="color-presets" data-for="text-color">
+                                                                    <span class="color-preset" style="background-color: #FFFFFF;"></span>
+                                                                    <span class="color-preset" style="background-color: #E0E0E0;"></span>
+                                                                    <span class="color-preset" style="background-color: #B3B3B3;"></span>
+                                                                    <span class="color-preset" style="background-color: #000000;"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Vurgu Rengi</label>
+                                                            <div class="color-picker-container">
+                                                                <div class="color-preview" id="accent-color-preview"></div>
+                                                                <input type="color" id="accent-color" value="#1DB954">
+                                                                <div class="color-presets" data-for="accent-color">
+                                                                    <span class="color-preset" style="background-color: #1DB954;"></span>
+                                                                    <span class="color-preset" style="background-color: #3D91F4;"></span>
+                                                                    <span class="color-preset" style="background-color: #F43D3D;"></span>
+                                                                    <span class="color-preset" style="background-color: #F4C83D;"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="option-group">
+                                                        <h4>Tipografi</h4>
+                                                        <div class="option-row">
+                                                            <label>Yazı Tipi</label>
+                                                            <div class="select-container">
+                                                                <select id="font-family" class="custom-select">
+                                                                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                                                                    <option value="'Roboto', sans-serif">Roboto</option>
+                                                                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                                                                    <option value="'Poppins', sans-serif">Poppins</option>
+                                                                    <option value="'Inter', sans-serif">Inter</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Yazı Boyutu</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="font-size" min="12" max="24" value="16" class="slider">
+                                                                <span class="slider-value">16px</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Content Tab -->
+                                                <div class="tab-content" id="content-tab">
+                                                    <div class="option-group">
+                                                        <h4>Görüntülenecek Öğeler</h4>
+                                                        <div class="option-row">
+                                                            <label>Albüm Kapağı</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="show-album-art" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Şarkı Adı</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="show-track-name" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Sanatçı Adı</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="show-artist-name" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>İlerleme Çubuğu</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="show-progress-bar" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Spotify Logosu</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="show-spotify-logo" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Advanced Tab -->
+                                                <div class="tab-content" id="advanced-tab">
+                                                    <div class="option-group">
+                                                        <h4>Efektler</h4>
+                                                        <div class="option-row">
+                                                            <label>Gölge Efekti</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="enable-shadow" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Gölge Yoğunluğu</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="shadow-intensity" min="0" max="30" value="15" class="slider">
+                                                                <span class="slider-value">15px</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Bulanıklık Efekti</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="enable-blur" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Bulanıklık Miktarı</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="blur-amount" min="0" max="20" value="5" class="slider">
+                                                                <span class="slider-value">5px</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Animasyonlar</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="enable-animations" checked>
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="option-group">
+                                                        <h4>Kenarlık</h4>
+                                                        <div class="option-row">
+                                                            <label>Kenarlık</label>
+                                                            <div class="toggle-switch">
+                                                                <input type="checkbox" id="enable-border">
+                                                                <span class="toggle-slider"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Kenarlık Kalınlığı</label>
+                                                            <div class="slider-control">
+                                                                <input type="range" id="border-width" min="1" max="10" value="1" class="slider">
+                                                                <span class="slider-value">1px</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="option-row">
+                                                            <label>Kenarlık Rengi</label>
+                                                            <div class="color-picker-container">
+                                                                <div class="color-preview" id="border-color-preview"></div>
+                                                                <input type="color" id="border-color" value="#333333">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Embed Code Modal -->
+                                <div class="modal-overlay" id="embed-modal">
+                                    <div class="modal-container">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">Widget Embed Kodu</h3>
+                                            <button class="modal-close"><i class="fas fa-times"></i></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Aşağıdaki kodu web sitenize ekleyerek widget'ı görüntüleyebilirsiniz:</p>
+                                            <div class="code-container">
+                                                <div class="code-header">
+                                                    <span class="code-title"><i class="fas fa-code"></i> HTML</span>
+                                                    <button class="copy-btn"><i class="fas fa-copy"></i> Kopyala</button>
+                                                </div>
+                                                <div class="code-content" id="embed-code">
+                                                    <!-- Embed code will be generated here -->
+                                                </div>
+                                            </div>
+                                            <div class="instruction-list">
+                                                <h4>Nasıl Kullanılır?</h4>
+                                                <ol>
+                                                    <li>Yukarıdaki kodu kopyalayın.</li>
+                                                    <li>Web sitenizin HTML koduna yapıştırın.</li>
+                                                    <li>Widget otomatik olarak yüklenecektir.</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="secondary-btn modal-close-btn">Kapat</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Widget Customization End-->
+                            <!--Content  End-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/spotify/widget-manager/widget_manager_js.js') }}"></script>
+{% endblock script %}
