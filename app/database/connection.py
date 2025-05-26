@@ -1,57 +1,73 @@
-# app/database/connection.py
-import mysql.connector
-from mysql.connector import Error
-from app.config import DB_CONFIG # app.config'den import edildiğini varsayıyorum
+# App/connection.py
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
-class DatabaseConnection:
-    def __init__(self):
-        self.connection = None
-        self.cursor = None
-        self.db_config = DB_CONFIG # DB_CONFIG'in doğru import edildiğinden emin olun
+# Veritabanı bağlantı URL'si.
+# Örnek olarak SQLite kullanılmıştır. Kendi veritabanınıza göre düzenleyin.
+# MySQL için: "mysql+mysqlconnector://user:password@host/dbname"
+# PostgreSQL için: "postgresql://user:password@host/dbname"
+# DB_CONFIG'i app.config dosyanızdan almanız gerekecek.
+# Şimdilik sabit bir değerle devam edelim veya config dosyanızın yapısına göre güncelleyelim.
+# from app.config import DB_CONFIG # Eğer DB_CONFIG burada tanımlıysa
 
-    def connect(self):
-        try:
-            self.connection = mysql.connector.connect(**self.db_config)
-            self.cursor = self.connection.cursor()
-            print("Veritabanı bağlantısı başarılı.") # Bağlantı durumunu kontrol için eklendi
-        except Error as e:
-            print(f"Veritabanı bağlantı hatası: {e}") # Hata mesajını yazdır
-            raise # Hatanın yukarıya fırlatılması önemli
+# Örnek DB_CONFIG (kendi config dosyanızdan almalısınız)
+# DB_CONFIG = {
+# 'host': 'localhost',
+# 'user': 'your_user',
+# 'password': 'your_password',
+# 'database': 'your_database'
+# }
+# SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
 
-    def close(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
-        self.cursor = None
-        self.connection = None
-        print("Veritabanı bağlantısı kapatıldı.")
+# Geçici olarak SQLite kullanalım, DB_CONFIG entegrasyonunu sonra yapabilirsiniz.
+SQLALCHEMY_DATABASE_URL = "sqlite:///./beatify_app.db"
+# Eğer MySQL kullanmaya devam edecekseniz ve DB_CONFIG app.config'de ise:
+# from app.config import DB_CONFIG # Bu satırı aktif edin
+# SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
 
-    def _ensure_connection(self):
-        if not self.connection or not self.cursor or not self.connection.is_connected():
-            print("Bağlantı yok veya kapalı, yeniden bağlanılıyor.")
-            self.connect()
 
-    def create_all_tables(self, app_context=None): # app_context import döngülerini kırmak için eklenebilir
-        """
-        Veritabanındaki tüm uygulama tablolarını oluşturur.
-        Bu fonksiyon, import döngülerini önlemek için repository'leri doğrudan burada import edebilir
-        veya app_context üzerinden dolaylı yoldan erişebilir.
-        """
-        self._ensure_connection()
-        print("Tablolar oluşturuluyor...")
+# SQLAlchemy motorunu (engine) oluştur.
+# `echo=True` ile SQL sorgularını konsolda görebilirsiniz (geliştirme için faydalı).
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, 
+    # connect_args={"check_same_thread": False} # Sadece SQLite için gereklidir.
+    echo=True 
+)
 
-        # Doğrudan import (eğer döngü oluşturmuyorsa):
-        from app.repositories.beatify_repository import BeatifyUserRepository
-        from app.repositories.spotify_repository import SpotifyUserRepository
+# Veritabanı oturumları (sessions) oluşturmak için bir SessionLocal sınıfı tanımla.
+# - autocommit=False: Oturumları manuel olarak commit etmeniz gerekir.
+# - autoflush=False: Sorgu yapmadan önce oturumdaki değişiklikleri veritabanına göndermez.
+# - bind=engine: Bu oturumların hangi veritabanı motorunu kullanacağını belirtir.
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-        beatify_user_repo = BeatifyUserRepository(self)
-        spotify_user_repo = SpotifyUserRepository(self)
+# Modellerin (veritabanı tablolarının Python temsilleri) miras alacağı temel sınıf.
+Base = declarative_base()
 
-        beatify_user_repo.create_beatify_users_table()
-        beatify_user_repo.create_beatify_auth_tokens_table()
-        spotify_user_repo.create_spotify_users_table() # Bu metot SpotifyUserRepository içinde olmalı
+def get_db():
+    """
+    Dependency injector for database sessions.
+    Her istek için bir veritabanı oturumu oluşturur ve istek bittiğinde kapatır.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-        print("Tablolar başarıyla oluşturuldu veya zaten mevcut.")
-        if self.connection: # Commit sadece bağlantı varsa yapılmalı
-            self.connection.commit()
+def create_database_tables():
+    """
+    Veritabanında tanımlı tüm tabloları oluşturur.
+    Bu fonksiyon, Base metadata'sını kullanarak tabloları oluşturur.
+    """
+    # Modellerinizin (beatify_models.py, spotify_models.py) Base'i miras aldığından emin olun.
+    # Modellerin bu dosyada import edilmesi gerekebilir ya da Base'in modeller tarafından
+    # paylaşıldığı bir yapı kurulabilir.
+    # Örnek:
+    # from App.Models import beatify_models, spotify_models # Modellerinizi import edin
+    Base.metadata.create_all(bind=engine)
+    print("Veritabanı tabloları oluşturuldu (eğer yoksa).")
+
+# Uygulama başlangıcında tabloları oluşturmak için bu fonksiyonu çağırabilirsiniz.
+# if __name__ == "__main__":
+#     create_database_tables()

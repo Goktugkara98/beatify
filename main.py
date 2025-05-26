@@ -18,7 +18,7 @@
 # 1. Imports
 # -----------------------------------------------------------------------------
 from flask import Flask
-from app.models.database import DatabaseConnection
+from app.database.models.database import DatabaseConnection
 from app.routes import main_routes, auth_routes
 import datetime
 from app.routes.spotify_routes import spotify_routes
