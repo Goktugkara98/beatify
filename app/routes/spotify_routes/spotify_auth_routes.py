@@ -17,7 +17,7 @@ from flask import request, redirect, url_for, session, flash
 import requests
 from datetime import datetime, timedelta
 from app.services.spotify_services.spotify_auth_service import SpotifyAuthService
-from app.models.database import SpotifyRepository
+from app.database.models.database import SpotifyRepository
 from app.services.auth_service import session_is_user_logged_in
 
 # -----------------------------------------------------------------------------

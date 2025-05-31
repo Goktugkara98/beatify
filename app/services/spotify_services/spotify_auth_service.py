@@ -19,7 +19,7 @@ import requests
 from datetime import datetime, timedelta
 from flask import session
 from app.config.spotify_config import SpotifyConfig
-from app.models.database import SpotifyRepository
+from app.database.models.database import SpotifyRepository
 
 # -----------------------------------------------------------------------------
 # 2. SpotifyAuthService Class

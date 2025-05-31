@@ -11,7 +11,7 @@
 # -----------------------------------------------------------------------------
 # 1. Imports
 # -----------------------------------------------------------------------------
-from app.models.database import SpotifyRepository
+from app.database.models.database import SpotifyRepository
 from app.services.spotify_services.spotify_api_service import SpotifyApiService
 
 # -----------------------------------------------------------------------------

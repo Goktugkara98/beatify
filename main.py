@@ -31,9 +31,8 @@ import os
 def create_app():
     # 2.1. Flask App Initialization
     app = Flask(__name__, 
-                static_folder='static',
-                static_url_path='/static',
-                template_folder='templates')
+                static_folder=os.path.join('app', 'static'),
+                template_folder=os.path.join('app', 'templates'))
     
     # 2.2. Database Connection
     database = DatabaseConnection()

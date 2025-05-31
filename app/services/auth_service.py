@@ -24,7 +24,7 @@
 # 1. Imports
 # -----------------------------------------------------------------------------
 from flask import session, request, redirect, url_for, flash, make_response
-from app.models.database import UserRepository
+from app.database.models.database import UserRepository
 from app.config import DEBUG
 from functools import wraps
 from typing import Optional

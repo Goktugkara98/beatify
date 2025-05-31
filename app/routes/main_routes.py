@@ -15,7 +15,7 @@
 # 1. Imports
 # -----------------------------------------------------------------------------
 from flask import render_template, request, redirect, url_for, session, flash
-from app.models.database import UserRepository, SpotifyRepository
+from app.database.models.database import UserRepository, SpotifyRepository
 from app.services.auth_service import session_is_user_logged_in
 from app.services.spotify_services.spotify_service import update_client_id_and_secret_data
 from app.services.profile_services import handle_get_request

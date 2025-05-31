@@ -13,7 +13,7 @@
 # 1. Imports
 # -----------------------------------------------------------------------------
 import logging
-from app.models.database import UserRepository, SpotifyRepository
+from app.database.models.database import UserRepository, SpotifyRepository
 from app.services.spotify_services.spotify_api_service import SpotifyApiService
 from app.services.spotify_services.spotify_service import create_default_spotify_data
 
