@@ -118,7 +118,7 @@ def init_main_routes(app: Flask) -> None:
         if not username:
             flash("Profil sayfanıza erişmek için lütfen giriş yapın.", "warning")
             # print("Yetkisiz erişim denemesi: /profile (oturum yok)") # Geliştirme için log
-            return redirect(url_for('auth_bp.login_page')) # Uygun giriş sayfası endpoint'i
+            return redirect(url_for('login')) # Uygun giriş sayfası endpoint'i
 
         # Her istek için (GET veya POST) depo örnekleri gerekebilir.
         # Ancak, POST isteği için zaten oluşturuluyor. GET için profile_services içinde yönetiliyor olabilir.
@@ -141,25 +141,46 @@ def init_main_routes(app: Flask) -> None:
                 # handle_get_request muhtemelen (user_data, spotify_credentials, spotify_link_status) döndürüyor
                 # Orijinal kodda spotify_data diye bir değişken vardı, bu muhtemelen bağlantı durumu veya daha fazlası.
                 # Servis tanımına göre bu kısmı ayarlamak gerekebilir.
-                # Şimdilik orijinal koddaki gibi bırakıyorum, ancak spotify_data'nın içeriği belirsiz.
-                # handle_get_request'in ne döndürdüğüne bağlı olarak bu kısım güncellenmeli.
-                # Varsayım: handle_get_request -> (user_data, spotify_credentials, is_spotify_connected_flag)
+                user_data, spotify_credentials, spotify_data = handle_get_request(username)
                 
-                user_data, spotify_credentials, is_spotify_connected = handle_get_request(username)
+                # Debug için verileri yazdır
+                print(f"[DEBUG] user_data tipi: {type(user_data)}, boş mu: {not bool(user_data)}")
+                print(f"[DEBUG] spotify_credentials tipi: {type(spotify_credentials)}, boş mu: {not bool(spotify_credentials)}")
+                print(f"[DEBUG] spotify_data tipi: {type(spotify_data)}, boş mu: {not bool(spotify_data)}")
                 
-                # print(f"Profil sayfası için veriler alındı: Kullanıcı={username}") # Geliştirme için log
-                return render_template('profile.html',
-                                     title=f"{username} - Profil",
-                                     user_data=user_data,
-                                     spotify_credentials=spotify_credentials,
-                                     is_spotify_connected=is_spotify_connected) # Şablona bağlantı durumu iletiliyor
-
+                # Kullanıcı verisi yoksa hata ver ve çıkış yap
+                if not user_data:
+                    error_msg = "Kullanıcı verisi bulunamadı. Oturum sonlandırılıyor..."
+                    print(f"[ERROR] {error_msg}")
+                    flash("Kullanıcı bilgileriniz alınamadı. Lütfen tekrar giriş yapın.", "error")
+                    return redirect(url_for('logout'))
+                
+                # Spotify veri durumunu kontrol et ve logla
+                spotify_status = spotify_data.get('spotify_data_status', 'Bilinmiyor')
+                print(f"[DEBUG] Spotify bağlantı durumu: {spotify_status}")
+                
+                # Spotfy bağlantısı yoksa veya hata varsa kullanıcıya bilgi ver
+                if spotify_status in ['Veri Yok', 'Hata (API Erişimi)', 'Hata (API Bağlantısı)']:
+                    print(f"[INFO] Kullanıcı için Spotify bağlantısı yok veya hata var: {spotify_status}")
+                    if spotify_status == 'Veri Yok':
+                        flash("Spotify hesabınız bağlı değil. Müzik özelliklerini kullanmak için lütfen Spotify hesabınıza bağlanın.", "info")
+                    else:
+                        flash(f"Spotify bağlantınızda bir sorun oluştu: {spotify_status}", "warning")
+                
+                # Şablonu render et
+                return render_template(
+                    'profile.html',
+                    user_data=user_data or {},
+                    spotify_credentials=spotify_credentials or {},
+                    spotify_data=spotify_data or {}
+                )
+                
             except Exception as e:
-                flash(f"Profil bilgileri yüklenirken bir veritabanı hatası oluştu: {str(e)}", "danger")
-                # print(f"Profil sayfası (GET) yüklenirken hata ({username}): {str(e)}") # Geliştirme için log
-                # import traceback
-                # print(traceback.format_exc()) # Detaylı hata için
-                return redirect(url_for('homepage')) # Ana sayfaya yönlendir
+                error_msg = f"Profil sayfası yüklenirken beklenmeyen bir hata oluştu: {str(e)}"
+                print(f"[ERROR] {error_msg}")
+                print(traceback.format_exc())  # Detaylı hata izi
+                flash(error_msg, "danger")
+                return redirect(url_for('homepage'))
 
         # ---------------------------------------------------------------------
         # 4.1.2. POST İsteği Yönetimi (POST Request Handling - Spotify Bilgileri)
@@ -183,7 +204,7 @@ def init_main_routes(app: Flask) -> None:
                 if not client_id or not client_secret or not client_id.strip() or not client_secret.strip():
                     flash("Spotify Client ID ve Client Secret alanları boş bırakılamaz.", "warning")
                     # print("Spotify kimlik bilgileri güncelleme hatası: Alanlar boş.") # Geliştirme için log
-                    return redirect(url_for('user_bp.profile_page')) # user_bp.profile_page veya uygun profil sayfası
+                    return redirect(url_for('profile'))
 
                 # Servis katmanı veya doğrudan repository kullanarak güncelleme.
                 # Orijinal kodda doğrudan repository kullanılıyor.
@@ -201,16 +222,16 @@ def init_main_routes(app: Flask) -> None:
                     flash('Spotify bilgileri güncellenirken bir sorun oluştu. Lütfen tekrar deneyin.', 'danger')
                     # print(f"Spotify kimlik bilgileri güncellenemedi (repo False döndürdü): {username}") # Geliştirme için log
 
-                return redirect(url_for('user_bp.profile_page'))
+                return redirect(url_for('profile'))
             except Exception as e:
                 flash(f"Spotify kimlik bilgileri güncellenirken bir hata oluştu: {str(e)}", "danger")
                 # print(f"Spotify kimlik bilgileri güncellenirken beklenmedik hata ({username}): {str(e)}") # Geliştirme için log
                 # import traceback
                 # print(traceback.format_exc()) # Detaylı hata için
-                return redirect(url_for('user_bp.profile_page'))
+                return redirect(url_for('profile'))
         
         # Eğer ne GET ne de POST ise (teorik olarak olmamalı ama Flask esnek)
-        return redirect(url_for('general_bp.homepage'))
+        return redirect(url_for('homepage'))
 
 
     # print("Ana rotalar başarıyla yüklendi.") # Geliştirme için log

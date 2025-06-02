@@ -165,7 +165,7 @@ def init_auth_routes(app: Flask) -> None:
                 
                 # Varsayılan yönlendirme (ana sayfa veya profil)
                 # print("Giriş sonrası ana sayfaya yönlendiriliyor.") # Geliştirme için log
-                return redirect(url_for('general_bp.homepage')) # general_bp.homepage veya uygun ana sayfa
+                return redirect(url_for('homepage')) # homepage veya uygun ana sayfa
 
             except ValueError as ve: # Servis tarafından fırlatılan beklenen hatalar (örn: yanlış parola)
                 flash(str(ve), 'danger')
@@ -181,7 +181,7 @@ def init_auth_routes(app: Flask) -> None:
 
     # -------------------------------------------------------------------------
     # 3.3. logout() : Kullanıcının oturumunu sonlandırır.
-    #      Rota: /logout (GET)
+    #      Rota: /logout (GET)s
     # -------------------------------------------------------------------------
     @app.route('/logout', methods=['GET']) # Genellikle POST olmalı ama basitlik için GET bırakılmış olabilir.
     def logout() -> Any: # redirect Response döndürür
@@ -196,7 +196,7 @@ def init_auth_routes(app: Flask) -> None:
         if not username:
             # print("Çıkış isteği: Kullanıcı zaten giriş yapmamış.") # Geliştirme için log
             # Zaten çıkış yapmışsa veya oturum yoksa ana sayfaya yönlendir
-            return redirect(url_for('general_bp.homepage'))
+            return redirect(url_for('homepage'))
 
         try:
             # print(f"Kullanıcı '{username}' çıkış yapıyor...") # Geliştirme için log
@@ -209,7 +209,7 @@ def init_auth_routes(app: Flask) -> None:
             session.clear()
             flash('Başarıyla çıkış yaptınız (hata oluştu, oturum temizlendi).', 'info')
         
-        return redirect(url_for('general_bp.homepage'))
+        return redirect(url_for('homepage'))
 
     # -------------------------------------------------------------------------
     # 3.4. reset_password() : Parola sıfırlama sayfasını gösterir (gelecekte).

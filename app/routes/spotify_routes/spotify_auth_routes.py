@@ -98,7 +98,7 @@ def init_spotify_auth_routes(app: Flask):
                spotify_credentials['client_secret'].strip() == "":
                 flash("Lütfen profil sayfanızdan Spotify Client ID ve Client Secret bilgilerinizi girin.", "error")
                 # print(f"Spotify kimlik bilgileri eksik veya geçersiz: {username}") # Geliştirme için log
-                return redirect(url_for('user_bp.profile_page')) # user_bp.profile_page veya uygun profil sayfası rotası
+                return redirect(url_for('profile')) # profile veya uygun profil sayfası rotası
 
             # SpotifyAuthService üzerinden yetkilendirme URL'sini al
             auth_url: str = spotify_auth_service.get_authorization_url(
@@ -112,7 +112,7 @@ def init_spotify_auth_routes(app: Flask):
         except Exception as e:
             flash(f"Spotify bağlantısı sırasında bir hata oluştu: {str(e)}", "error")
             # print(f"Spotify yetkilendirme hatası ({username}): {str(e)}") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page')) # Hata durumunda profil sayfasına yönlendir
+            return redirect(url_for('profile')) # Hata durumunda profil sayfasına yönlendir
 
     # -------------------------------------------------------------------------
     # 3.2. spotify_callback() : Spotify OAuth geri çağrısını işler.
@@ -131,19 +131,19 @@ def init_spotify_auth_routes(app: Flask):
         if error:
             flash(f"Spotify yetkilendirme hatası: {error}. Lütfen tekrar deneyin.", "error")
             # print(f"Spotify callback hatası (parametre): {error}") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
         auth_code: Optional[str] = request.args.get('code')
         if not auth_code:
             flash("Spotify yetkilendirme kodu alınamadı. Bağlantı başarısız.", "error")
             # print("Spotify callback: Yetkilendirme kodu (code) eksik.") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
         username: Optional[str] = session.get('username')
         if not username:
             flash("Kullanıcı oturumu zaman aşımına uğramış olabilir. Lütfen tekrar giriş yapın.", "warning")
             # print("Spotify callback: Kullanıcı oturumu bulunamadı.") # Geliştirme için log
-            return redirect(url_for('auth_bp.login_page'))
+            return redirect(url_for('login_page'))
 
         try:
             # print(f"Spotify callback: Kullanıcı={username}, Kod={auth_code[:10]}...") # Geliştirme için log
@@ -152,7 +152,7 @@ def init_spotify_auth_routes(app: Flask):
             if not spotify_credentials or not spotify_credentials.get('client_id') or not spotify_credentials.get('client_secret'):
                 flash("Spotify kimlik bilgileri (Client ID/Secret) bulunamadı. Lütfen profil sayfanızdan kontrol edin.", "error")
                 # print(f"Spotify callback: Kimlik bilgileri eksik ({username}).") # Geliştirme için log
-                return redirect(url_for('user_bp.profile_page'))
+                return redirect(url_for('profile'))
 
             client_id: str = spotify_credentials['client_id']
             client_secret: str = spotify_credentials['client_secret']
@@ -164,7 +164,7 @@ def init_spotify_auth_routes(app: Flask):
             if not token_info or 'access_token' not in token_info:
                 flash("Spotify erişim token'ı alınamadı. Bağlantı başarısız.", "error")
                 # print(f"Spotify callback: Token değişimi başarısız ({username}). Token info: {token_info}") # Geliştirme için log
-                return redirect(url_for('user_bp.profile_page'))
+                return redirect(url_for('profile'))
 
             access_token: str = token_info['access_token']
             # refresh_token her zaman gelmeyebilir, özellikle ilk yetkilendirmeden sonraki akışlarda.
@@ -206,20 +206,20 @@ def init_spotify_auth_routes(app: Flask):
             if not spotify_user_id:
                 flash("Spotify kullanıcı ID'si alınamadı veya kaydedilemedi.", "error")
                 # print(f"Spotify callback: Spotify kullanıcı ID'si alınamadı/kaydedilemedi ({username}).") # Geliştirme için log
-                return redirect(url_for('user_bp.profile_page'))
+                return redirect(url_for('profile'))
 
             flash("Spotify hesabınız başarıyla bağlandı!", "success")
             # print(f"Spotify callback: Hesap başarıyla bağlandı ({username}, SpotifyID: {spotify_user_id}).") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
         except requests.exceptions.RequestException as req_err:
             flash(f"Spotify ile iletişim sırasında bir ağ hatası oluştu: {str(req_err)}", "error")
             # print(f"Spotify callback ({username}) ağ hatası: {str(req_err)}") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
         except Exception as e:
             flash(f"Spotify bağlantısı sırasında beklenmedik bir hata oluştu: {str(e)}", "error")
             # print(f"Spotify callback ({username}) genel hata: {str(e)}") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
     # -------------------------------------------------------------------------
     # 3.3. spotify_unlink() : Kullanıcının Spotify hesap bağlantısını keser.
@@ -238,7 +238,7 @@ def init_spotify_auth_routes(app: Flask):
         if not username: # Orijinal kodda session.get('logged_in') vardı, username daha doğru.
             flash("Bu işlemi yapmak için lütfen önce giriş yapın.", "warning")
             # print("Yetkisiz erişim denemesi: /spotify/unlink (oturum yok)") # Geliştirme için log
-            return redirect(url_for('auth_bp.login_page'))
+            return redirect(url_for('ogin'))
 
         try:
             # print(f"Spotify hesap bağlantısı kesiliyor: Kullanıcı={username}") # Geliştirme için log
@@ -257,12 +257,12 @@ def init_spotify_auth_routes(app: Flask):
                 flash("Spotify hesap bağlantısı kaldırılırken bir sorun oluştu veya zaten bağlı değildi.", "error")
                 # print(f"Spotify hesap bağlantısı kesilemedi ({username}).") # Geliştirme için log
 
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
         except Exception as e:
             flash(f"Spotify bağlantısı kesilirken bir hata oluştu: {str(e)}", "error")
             # print(f"Spotify bağlantısı kesme hatası ({username}): {str(e)}") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page'))
+            return redirect(url_for('profile'))
 
     # print("Spotify kimlik doğrulama rotaları başarıyla yüklendi.") # Geliştirme için log
 # =============================================================================

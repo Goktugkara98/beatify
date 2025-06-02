@@ -69,11 +69,12 @@ def handle_get_request(username: str) -> Tuple[Optional[Dict[str, Any]], Optiona
                                             oluşturulmuş ve bağlantı durumunu içerir.
     """
     logger.info(f"Profil sayfası için GET isteği işleniyor: Kullanıcı={username}")
-    # print(f"ProfileService: handle_get_request çağrıldı - Kullanıcı={username}") # Geliştirme için log
+    print(f"[DEBUG] ProfileService: handle_get_request çağrıldı - Kullanıcı={username}")
 
-    user_data: Optional[Dict[str, Any]] = None
-    spotify_credentials: Optional[Dict[str, Any]] = None
-    spotify_profile_display_data: Dict[str, Any]
+    # Varsayılan değerler
+    user_data: Dict[str, Any] = {}
+    spotify_credentials: Dict[str, Any] = {}
+    spotify_profile_display_data: Dict[str, Any] = {}
 
     try:
         # Adım 1: Kullanıcının temel verilerini al
@@ -81,63 +82,93 @@ def handle_get_request(username: str) -> Tuple[Optional[Dict[str, Any]], Optiona
         user_data = user_repo.beatify_get_user_data(username)
 
         if not user_data:
-            logger.error(f"Kullanıcı verisi bulunamadı: {username}. Profil sayfası için varsayılan veri döndürülüyor.")
-            # Kullanıcı bulunamazsa, diğer bilgileri de boş/varsayılan döndür
-            return None, None, create_default_spotify_data('Veri Yok')
+            error_msg = f"Kullanıcı verisi bulunamadı: {username}"
+            logger.error(error_msg)
+            # Kullanıcı bulunamazsa, boş bir kullanıcı sözlüğü ve varsayılan spotify verisi döndür
+            return ({}, {}, create_default_spotify_data('Veri Yok'))
 
         # Adım 2: Kullanıcının Spotify kimlik bilgilerini (Client ID/Secret) al
         spotify_repo = SpotifyRepository()
-        spotify_credentials = spotify_repo.spotify_get_user_data(username) # Bu metot Spotify tokenlarını vb. de içerir.
-
+        spotify_credentials = spotify_repo.spotify_get_user_data(username) or {}
+        
+        # Spotify kimlik bilgileri yoksa veya boşsa
         if not spotify_credentials:
             logger.warning(f"Kullanıcı ({username}) için Spotify kimlik bilgisi (Client ID/Secret) bulunamadı.")
-            # Kimlik bilgileri yoksa, Spotify'a bağlı olamaz.
-            spotify_profile_display_data = create_default_spotify_data('Veri Yok') # Veya 'Kimlik Bilgisi Yok'
-            return user_data, {}, spotify_profile_display_data # spotify_credentials için boş dict
+            # Varsayılan kimlik bilgisi yapısını oluştur
+            spotify_credentials = {
+                'client_id': None,
+                'client_secret': None,
+                'spotify_user_id': None,
+                'access_token': None,
+                'refresh_token': None,
+                'token_expires_at': None,
+                'spotify_data_status': 'Veri Yok'
+            }
+            spotify_profile_display_data = create_default_spotify_data('Veri Yok')
+            return user_data, spotify_credentials, spotify_profile_display_data
 
-        # Adım 3: Spotify API'sinden güncel profil verilerini al (eğer bağlıysa)
-        # `is_spotify_connected` flag'i `user_data` içinde olmalı veya
-        # `spotify_credentials` içinde `spotify_user_id` varlığı kontrol edilmeli.
-        # Orijinal kodda `spotify_credentials.get('spotify_user_id')` kontrolü yapılıyor.
+        # Adım 3: Spotify bağlantı durumunu kontrol et ve uygun veriyi hazırla
+        is_actually_connected_via_oauth = bool(
+            spotify_credentials.get('spotify_user_id') and 
+            spotify_credentials.get('refresh_token')
+        )
         
-        is_actually_connected_via_oauth = bool(spotify_credentials.get('spotify_user_id') and spotify_credentials.get('refresh_token'))
-        # `beatify_users` tablosundaki `is_spotify_connected` flag'i de kontrol edilebilir:
-        # is_flagged_as_connected = user_data.get('is_spotify_connected', False)
-
-
+        # Kullanıcının Client ID/Secret bilgileri var mı kontrol et
+        has_credentials = bool(
+            spotify_credentials.get('client_id') and 
+            spotify_credentials.get('client_secret')
+        )
+        
+        print(f"[DEBUG] Spotify bağlantı durumu - OAuth: {is_actually_connected_via_oauth}, Kimlik Bilgileri: {has_credentials}")
+        
         if is_actually_connected_via_oauth:
+            # Kullanıcı Spotify'a bağlı, API'den güncel verileri al
             logger.info(f"Kullanıcı ({username}) Spotify'a bağlı görünüyor. API'den profil verileri çekiliyor...")
-            api_service = SpotifyApiService()
-            # get_user_profile, geçerli token ile API isteği yapar.
-            live_spotify_data: Optional[Dict[str, Any]] = api_service.get_user_profile(username)
+            try:
+                api_service = SpotifyApiService()
+                live_spotify_data = api_service.get_user_profile(username) or {}
+                
+                if not live_spotify_data.get("error"):
+                    logger.info(f"Kullanıcı ({username}) için Spotify API'den profil verisi başarıyla alındı.")
+                    spotify_profile_display_data = live_spotify_data
+                    spotify_profile_display_data['spotify_data_status'] = 'Bağlı'
+                    
+                    # Profil resmini ayarla
+                    images = spotify_profile_display_data.get('images', [])
+                    if images and isinstance(images, list) and images[0].get('url'):
+                        spotify_profile_display_data['image_url'] = images[0]['url']
+                    else:
+                        spotify_profile_display_data['image_url'] = '/static/img/default_profile.png'
+                else:
+                    # API'den hata döndü
+                    logger.warning(f"Spotify API'sinden hata yanıtı alındı: {live_spotify_data}")
+                    spotify_profile_display_data = create_default_spotify_data('Hata (API Erişimi)')
+                    
+            except Exception as api_error:
+                logger.error(f"Spotify API'sine bağlanırken hata oluştu: {str(api_error)}", exc_info=True)
+                spotify_profile_display_data = create_default_spotify_data('Hata (API Bağlantısı)')
+                
+        elif has_credentials:
+            # Kullanıcının kimlik bilgileri var ama OAuth bağlantısı yok
+            logger.info(f"Kullanıcı ({username}) Spotify kimlik bilgilerine sahip ama OAuth ile bağlı değil.")
+            spotify_profile_display_data = create_default_spotify_data('Bağlı Değil (OAuth Gerekli)')
+        else:
+            # Hiçbir bağlantı yok
+            logger.info(f"Kullanıcı ({username}) için Spotify bağlantısı bulunamadı.")
+            spotify_profile_display_data = create_default_spotify_data('Veri Yok')
 
-            if live_spotify_data and not live_spotify_data.get("error"):
-                logger.info(f"Kullanıcı ({username}) için Spotify API'den profil verisi başarıyla alındı.")
-                spotify_profile_display_data = live_spotify_data
-                spotify_profile_display_data['spotify_data_status'] = 'Bağlı'
-                # Gelen verideki resim listesini kontrol et ve varsa ilkini kullan
-                images = spotify_profile_display_data.get('images', [])
-                spotify_profile_display_data['image_url'] = images[0]['url'] if images and isinstance(images, list) and images[0].get('url') else '/static/img/default_profile.png'
 
-            else: # API'den veri alınamadı veya hata döndü
-                logger.warning(f"Kullanıcı ({username}) Spotify'a bağlı olmasına rağmen API'den profil verisi alınamadı veya hata içeriyor. Yanıt: {live_spotify_data}")
-                spotify_profile_display_data = create_default_spotify_data('Hata (API Erişimi)')
-                # Bu durumda, kullanıcının bağlantısını kontrol etmesi için bir mesaj gösterilebilir.
-        else: # Spotify'a OAuth ile bağlanmamış
-            logger.info(f"Kullanıcı ({username}) Spotify'a OAuth ile bağlanmamış.")
-            # Client ID/Secret girilmiş olabilir ama OAuth akışı tamamlanmamış olabilir.
-            if spotify_credentials.get('client_id') and spotify_credentials.get('client_secret'):
-                 spotify_profile_display_data = create_default_spotify_data('Bağlı Değil (OAuth Gerekli)')
-            else: # Ne OAuth ne de Client ID/Secret var
-                 spotify_profile_display_data = create_default_spotify_data('Veri Yok')
-
-
-        return user_data, spotify_credentials, spotify_profile_display_data
+        print(f"[DEBUG] Profil verileri başarıyla hazırlandı: user_data={bool(user_data)}, spotify_credentials={bool(spotify_credentials)}")
+        return (user_data or {}, 
+                spotify_credentials or {}, 
+                spotify_profile_display_data or create_default_spotify_data('Veri Yok'))
 
     except Exception as e:
-        logger.error(f"Profil verileri işlenirken genel bir hata oluştu (Kullanıcı: {username}): {str(e)}", exc_info=True)
-        # Hata durumunda tüm veriler için varsayılan/boş değerler döndür
-        return None, None, create_default_spotify_data('Hata (Genel)')
+        error_msg = f"Profil verileri işlenirken genel bir hata oluştu (Kullanıcı: {username}): {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        print(f"[ERROR] {error_msg}")
+        # Hata durumunda boş veri yapıları döndür
+        return ({}, {}, create_default_spotify_data('Hata (Genel)'))
 
 # =============================================================================
 # 3.0 YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)

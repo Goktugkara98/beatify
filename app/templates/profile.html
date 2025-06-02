@@ -624,7 +624,7 @@
                         <!-- Spotify Integration Card -->
                         <div class="col-lg-8">
                             <div class="beatify-profile-card">
-                                {% if spotify_data['spotify_data_status'] == 'No Data' %}
+                                {% if spotify_data is none or spotify_data.get('spotify_data_status') == 'Veri Yok' %}
                                     <div class="text-center">
                                         
                                         <h3 class="profile-info mb-3">API Bağlantısı Gerekli</h3>
@@ -637,12 +637,12 @@
                                             <form action="profile" method="POST" class="col-md-8 mx-auto">
                                                 <div class="input-group">
                                                     <label class="input-label" for="client_id">Client ID</label>
-                                                    <input type="text" id="client_id" name="client_id" placeholder="Client ID" value="{{spotify_credentials['client_id']}}" required>
+                                                    <input type="text" id="client_id" name="client_id" placeholder="Client ID" value="{{ spotify_credentials.get('client_id', '') }}" required>
                                                     <span class="input-info">Spotify API Client ID'nizi girin.</span>
                                                 </div>
                                                 <div class="input-group">
                                                     <label class="input-label" for="client_secret">Client Secret</label>
-                                                    <input type="password" id="client_secret" name="client_secret" placeholder="Client Secret" value="{{spotify_credentials['client_secret']}}" required>
+                                                    <input type="password" id="client_secret" name="client_secret" placeholder="Client Secret" value="{{ spotify_credentials.get('client_secret', '') }}" required>
                                                     <span class="input-info">Spotify API Client Secret'nizi girin.</span>
                                                 </div>
                                                 <div class="text-center">
@@ -653,7 +653,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                {% elif spotify_data['spotify_data_status'] == 'Not Connected' %}
+                                {% elif spotify_data is not none and spotify_data.get('spotify_data_status') == 'Bağlı Değil (OAuth Gerekli)' %}
                                     <div class="text-center">
                                         
                                         <h3 class="profile-info mb-3">Spotify Bağlantısı Gerekli</h3>
@@ -667,12 +667,12 @@
                                             <form action="profile" method="POST" class="col-md-8 mx-auto">
                                                 <div class="input-group">
                                                     <label class="input-label" for="client_id">Client ID</label>
-                                                    <input type="text" id="client_id" name="client_id" placeholder="Client ID" value="{{ spotify_credentials['client_id'] }}" required>
+                                                    <input type="text" id="client_id" name="client_id" placeholder="Client ID" value="{{ spotify_credentials.get('client_id', '') }}" required>
                                                     <span class="input-info">Spotify API Client ID'nizi girin.</span>
                                                 </div>
                                                 <div class="input-group">
                                                     <label class="input-label" for="client_secret">Client Secret</label>
-                                                    <input type="password" id="client_secret" name="client_secret" placeholder="Client Secret" value="{{ spotify_credentials['client_secret'] }}" required>
+                                                    <input type="password" id="client_secret" name="client_secret" placeholder="Client Secret" value="{{ spotify_credentials.get('client_secret', '') }}" required>
                                                     <span class="input-info">Spotify API Client Secret'nizi girin.</span>
                                                 </div>
                                                 <div class="text-center w-100">
@@ -694,7 +694,7 @@
                                         <div class="profile-image-container">
                                             <div class="vinyl-effect"></div>
                                             <div class="profile-image-wrapper">
-                                                <img src="{% if spotify_data['images'] and spotify_data['images']|length > 0 %}{{spotify_data['images'][0]['url']}}{% else %}/static/img/photo/dj.png{% endif %}" alt="Spotify Profil Fotoğrafı" class="profile-image">
+                                                <img src="{% if spotify_data and spotify_data.get('images') and spotify_data['images']|length > 0 %}{{ spotify_data['images'][0]['url'] }}{% else %}/static/img/photo/dj.png{% endif %}" alt="Spotify Profil Fotoğrafı" class="profile-image">
                                             </div>
                                             <div class="vinyl-center"></div>
                                         </div>
