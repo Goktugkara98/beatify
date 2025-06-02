@@ -83,7 +83,7 @@ def widget_manager() -> str:
     # if not username:
     #     flash("Widget yöneticisine erişmek için lütfen giriş yapın.", "warning")
     #     return redirect(url_for('auth_bp.login_page'))
-    return render_template('spotify/widget-manager.html', title="Spotify Widget Yöneticisi")
+    return render_template('widget-manager.html', title="Spotify Widget Yöneticisi")
 
 # -----------------------------------------------------------------------------
 # 3.2. spotify_widget(widget_token) : Belirli bir widget'ı render eder.
@@ -183,12 +183,28 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         # Şu anki `SpotifyApiService` muhtemelen global veya tekil bir yapılandırma kullanıyor.
         # Bu, çok kullanıcılı bir sistemde sorun yaratır. Servislerin kullanıcı bazlı olması gerekir.
         
-        # Bu örnekte, `SpotifyApiService`'in kullanıcıya özel tokenları yönetebildiğini
-        # veya widget token'dan kullanıcıyı çözümleyip o kullanıcının token'larını
-        # kullandığını varsayıyoruz.
-        # Gerçek bir senaryoda, `widget_token`'dan `beatify_username` elde edilmeli.
+        # GELIŞTIRME AMAÇLI: API çağrısını atlayıp test verisi döndürüyoruz
+        # Gerçek uygulamada bu kısım kaldırılmalı ve gerçek API çağrısı yapılmalı
+        
+        # Test verisi oluştur
+        playback_data = {
+            "is_playing": True,
+            "item": {
+                "name": "Test Şarkısı",
+                "artists": [{"name": "Test Sanatçı", "external_urls": {"spotify": "https://open.spotify.com/artist/test"}}],
+                "album": {
+                    "images": [{"url": "https://i.scdn.co/image/ab67616d0000b273c5716278abba6a77916d0fe7"}],
+                    "external_urls": {"spotify": "https://open.spotify.com/album/test"}
+                },
+                "duration_ms": 180000,  # 3 dakika
+                "external_urls": {"spotify": "https://open.spotify.com/track/test"}
+            },
+            "progress_ms": 45000  # 45 saniye
+        }
+        
+        # Gerçek API çağrısı (şu an devre dışı)
+        '''
         beatify_username_for_widget: str = "serseriyim1" # Bu, token'dan çözümlenmeli.
-
         spotify_api_service = SpotifyApiService() # Bu servis kullanıcıya özel olmalı.
         # print(f"Widget verisi için Spotify API çağrısı yapılıyor. Kullanıcı: {beatify_username_for_widget}, Token: {widget_token}") # Geliştirme için log
         
@@ -202,8 +218,10 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
             # print(f"Spotify API'den veri alınırken hata (Token: {widget_token}, Kullanıcı: {beatify_username_for_widget}): {str(api_call_error)}") # Geliştirme için log
             # API'den hata gelirse veya bağlantı kurulamazsa, "bir şey çalmıyor" durumu döndür.
             pass # Hata durumunda playback_data None kalacak ve aşağıda işlenecek.
+        '''
 
-        if playback_data and playback_data.get("item") and playback_data.get("is_playing"):
+        # Test verisi için her zaman True olacak, gerçek API için kontrol gerekli
+        if playback_data and playback_data.get("item"):
             item: Dict[str, Any] = playback_data.get("item", {})
             artists: List[Dict[str, Any]] = item.get("artists", [{}])
             album_images: List[Dict[str, Any]] = item.get("album", {}).get("images", [{}])

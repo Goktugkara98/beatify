@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Base Widget Styles */
+        :root {
+            /* Tema değişkenleri - JavaScript tarafından güncellenecek */
+            --bg-color: {{ '#121212' if config.theme == 'dark' else '#ffffff' }};
+            --text-color: {{ '#ffffff' if config.theme == 'dark' else '#121212' }};
+            --secondary-text-color: {{ '#b3b3b3' if config.theme == 'dark' else '#666666' }};
+            --accent-color: #1DB954; /* Spotify yeşili */
+            --border-color: {{ '#333333' if config.theme == 'dark' else '#e0e0e0' }};
+            
+            /* Font boyutu değişkenleri */
+            --font-size-base: {{ '14px' if config.font_size == 'small' else '16px' if config.font_size == 'medium' else '18px' }};
+            --font-size-title: {{ '16px' if config.font_size == 'small' else '18px' if config.font_size == 'medium' else '20px' }};
+            --font-size-artist: {{ '13px' if config.font_size == 'small' else '15px' if config.font_size == 'medium' else '17px' }};
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--font-size-base);
+            line-height: 1.5;
+            padding: 16px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .widget-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .widget-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .widget-title {
+            font-weight: 600;
+            font-size: var(--font-size-title);
+        }
+        
+        .widget-logo {
+            height: 24px;
+            width: auto;
+        }
+        
+        .widget-content {
+            padding: 16px;
+        }
+        
+        .track-list {
+            list-style: none;
+            counter-reset: track-counter;
+        }
+        
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        
+        .track-item:before {
+            counter-increment: track-counter;
+            content: counter(track-counter);
+            font-weight: bold;
+            min-width: 24px;
+            text-align: center;
+            color: var(--secondary-text-color);
+        }
+        
+        .track-item-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            margin: 0 12px;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            display: {{ 'block' if config.show_album_art else 'none' }};
+        }
+        
+        .track-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        
+        .track-name {
+            font-weight: 600;
+            font-size: var(--font-size-title);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .artist-name {
+            font-size: var(--font-size-artist);
+            color: var(--secondary-text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .widget-footer {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--secondary-text-color);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .widget-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .widget-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive ayarlamalar */
+        @media (max-width: 400px) {
+            .track-item-art {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-header">
+            <div class="widget-title">En Çok Dinlenenler</div>
+            <img src="{{ url_for('static', filename='img/spotify-logo.svg') }}" alt="Spotify" class="widget-logo">
+        </div>
+        
+        <div class="widget-content">
+            <ul id="top-tracks-list" class="track-list">
+                <li class="track-item">
+                    <img class="track-item-art" src="" alt="">
+                    <div class="track-info">
+                        <div class="track-name">Yükleniyor...</div>
+                        <div class="artist-name">-</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="widget-footer">
+            Powered by <a href="https://spotify.com" target="_blank">Spotify</a>
+        </div>
+    </div>
+
+    <script>
+        // Widget yapılandırması
+        const config = {
+            type: '{{ config.type }}',
+            theme: '{{ config.theme }}',
+            showAlbumArt: {{ 'true' if config.show_album_art else 'false' }},
+            fontSize: '{{ config.font_size }}',
+            dataEndpoint: '{{ config.dataEndpoint }}',
+            widgetToken: '{{ config.widgetToken }}'
+        };
+        
+        // DOM elementleri
+        const topTracksList = document.getElementById('top-tracks-list');
+        
+        // Widget verilerini yükle
+        async function loadWidgetData() {
+            try {
+                const response = await fetch(config.dataEndpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateWidget(data);
+            } catch (error) {
+                console.error('Widget verisi yüklenirken hata oluştu:', error);
+                topTracksList.innerHTML = `
+                    <li class="track-item">
+                        <div class="track-info">
+                            <div class="track-name">Veri yüklenemedi</div>
+                            <div class="artist-name">Lütfen daha sonra tekrar deneyin</div>
+                        </div>
+                    </li>
+                `;
+            }
+        }
+        
+        // Widget'ı güncelle
+        function updateWidget(data) {
+            if (data.tracks && data.tracks.length > 0) {
+                topTracksList.innerHTML = '';
+                data.tracks.forEach(track => {
+                    const li = document.createElement('li');
+                    li.className = 'track-item';
+                    
+                    let html = '';
+                    if (config.showAlbumArt && track.album_image_url) {
+                        html += `<img class="track-item-art" src="${track.album_image_url}" alt="${track.track_name}">`;
+                    }
+                    
+                    html += `
+                        <div class="track-info">
+                            <div class="track-name">${track.track_name}</div>
+                            <div class="artist-name">${track.artist_name}</div>
+                        </div>
+                    `;
+                    
+                    li.innerHTML = html;
+                    topTracksList.appendChild(li);
+                });
+            } else {
+                topTracksList.innerHTML = `
+                    <li class="track-item">
+                        <div class="track-info">
+                            <div class="track-name">Henüz veri yok</div>
+                            <div class="artist-name">-</div>
+                        </div>
+                    </li>
+                `;
+            }
+        }
+        
+        // Sayfa yüklendiğinde widget verilerini yükle
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWidgetData();
+            
+            // Periyodik olarak widget verilerini güncelle (günde bir)
+            setInterval(loadWidgetData, 24 * 60 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

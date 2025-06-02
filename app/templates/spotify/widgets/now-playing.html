@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Widget</title>
+    <style>
+        /* Base Widget Styles */
+        :root {
+            /* Tema değişkenleri - JavaScript tarafından güncellenecek */
+            /* IDE-IGNORE-START */
+            --bg-color: {% if config.theme == 'dark' %}#121212{% else %}#ffffff{% endif %};
+            --text-color: {% if config.theme == 'dark' %}#ffffff{% else %}#121212{% endif %};
+            --secondary-text-color: {% if config.theme == 'dark' %}#b3b3b3{% else %}#666666{% endif %};
+            /* IDE-IGNORE-END */
+            --accent-color: #1DB954; /* Spotify yeşili */
+            /* IDE-IGNORE-START */
+            --border-color: {% if config.theme == 'dark' %}#333333{% else %}#e0e0e0{% endif %};
+            
+            /* Font boyutu değişkenleri */
+            --font-size-base: {% if config.font_size == 'small' %}14px{% elif config.font_size == 'medium' %}16px{% else %}18px{% endif %};
+            --font-size-title: {% if config.font_size == 'small' %}16px{% elif config.font_size == 'medium' %}18px{% else %}20px{% endif %};
+            --font-size-artist: {% if config.font_size == 'small' %}13px{% elif config.font_size == 'medium' %}15px{% else %}17px{% endif %};
+            /* IDE-IGNORE-END */
+            
+            /* IDE-FRIENDLY-START - These values are for IDE only and will be overridden by Jinja2 */
+            --bg-color-ide: #121212;
+            --text-color-ide: #ffffff;
+            --secondary-text-color-ide: #b3b3b3;
+            --border-color-ide: #333333;
+            --font-size-base-ide: 16px;
+            --font-size-title-ide: 18px;
+            --font-size-artist-ide: 15px;
+            /* IDE-FRIENDLY-END */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--font-size-base);
+            line-height: 1.5;
+            padding: 16px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .widget-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .widget-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .widget-title {
+            font-weight: 600;
+            font-size: var(--font-size-title);
+        }
+        
+        .widget-logo {
+            height: 24px;
+            width: auto;
+        }
+        
+        .widget-content {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .album-art {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            /* For IDE validation only */
+            display: block;
+            /* The actual template code is below - will be used in production 
+            display: {% if config.show_album_art %}block{% else %}none{% endif %};
+            */
+        }
+        
+        .track-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        
+        .track-name {
+            font-weight: 600;
+            font-size: var(--font-size-title);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .artist-name {
+            font-size: var(--font-size-artist);
+            color: var(--secondary-text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%; /* JavaScript tarafından güncellenecek */
+            transition: width 1s linear;
+        }
+        
+        .widget-footer {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--secondary-text-color);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .widget-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .widget-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive ayarlamalar */
+        @media (max-width: 400px) {
+            .widget-content {
+                /* Responsive styles will be set via JavaScript */
+                /* IDE-IGNORE-START */
+                flex-direction: row;
+                align-items: center;
+                /* IDE-IGNORE-END */
+            }
+            
+            .album-art {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        /* Widget tipi özel stilleri */
+        /* Şu an çalan widget'ı için özel stiller */
+        /* Son çalınanlar widget'ı için özel stiller */
+        .track-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+        
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        
+        .track-item-art {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 12px;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            /* For IDE validation only */
+            display: block;
+            /* The actual template code is below - will be used in production 
+            display: {% if config.show_album_art %}block{% else %}none{% endif %};
+            */
+        }
+        /* En çok dinlenenler widget'ı için özel stiller */
+        .track-list {
+            list-style: none;
+            counter-reset: track-counter;
+            margin-top: 12px;
+        }
+        
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        
+        .track-item:before {
+            counter-increment: track-counter;
+            content: counter(track-counter);
+            font-weight: bold;
+            min-width: 24px;
+            text-align: center;
+            color: var(--secondary-text-color);
+        }
+        
+        .track-item-art {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin: 0 12px;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            /* For IDE validation only */
+            display: block;
+            /* The actual template code is below - will be used in production 
+            display: {% if config.show_album_art %}block{% else %}none{% endif %};
+            */
+        }
+        /* Çalma listesi widget'ı için özel stiller */
+        .playlist-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .playlist-cover {
+            width: 100px;
+            height: 100px;
+            border-radius: 4px;
+            margin-right: 16px;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            /* For IDE validation only */
+            display: block;
+            /* The actual template code is below - will be used in production 
+            display: {% if config.show_album_art %}block{% else %}none{% endif %};
+            */
+        }
+        
+        .playlist-info {
+            flex-grow: 1;
+        }
+        
+        .playlist-name {
+            font-weight: 600;
+            font-size: var(--font-size-title);
+            margin-bottom: 4px;
+        }
+        
+        .playlist-owner {
+            font-size: var(--font-size-artist);
+            color: var(--secondary-text-color);
+        }
+        
+        .playlist-tracks {
+            list-style: none;
+        }
+        
+        .playlist-track {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .playlist-track:last-child {
+            border-bottom: none;
+        }
+        {% endif %}
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-header">
+            <div class="widget-title">
+                {% if config.type == 'now-playing' %}
+                    Şu An Çalan
+                {% elif config.type == 'recently-played' %}
+                    Son Çalınanlar
+                {% elif config.type == 'top-tracks' %}
+                    En Çok Dinlenenler
+                {% elif config.type == 'playlist' %}
+                    Çalma Listesi
+                {% else %}
+                    Spotify Widget
+                {% endif %}
+            </div>
+            <img src="{{ url_for('static', filename='img/spotify-logo.svg') }}" alt="Spotify" class="widget-logo">
+        </div>
+        
+        <div class="widget-content">
+            {% if config.type == 'now-playing' %}
+                <!-- Şu an çalan widget içeriği -->
+                <img id="album-art" class="album-art" src="" alt="Album Art">
+                <div class="track-info">
+                    <div id="track-name" class="track-name">Bir şey çalmıyor</div>
+                    <div id="artist-name" class="artist-name">-</div>
+                    <div class="progress-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+            {% elif config.type == 'recently-played' %}
+                <!-- Son çalınanlar widget içeriği -->
+                <div class="track-info">
+                    <div class="track-name">Son Çalınanlar</div>
+                    <ul id="recently-played-list" class="track-list">
+                        <li class="track-item">
+                            <img class="track-item-art" src="" alt="">
+                            <div>
+                                <div class="track-name">Yükleniyor...</div>
+                                <div class="artist-name">-</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            {% elif config.type == 'top-tracks' %}
+                <!-- En çok dinlenenler widget içeriği -->
+                <div class="track-info">
+                    <div class="track-name">En Çok Dinlenenler</div>
+                    <ul id="top-tracks-list" class="track-list">
+                        <li class="track-item">
+                            <img class="track-item-art" src="" alt="">
+                            <div>
+                                <div class="track-name">Yükleniyor...</div>
+                                <div class="artist-name">-</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            {% elif config.type == 'playlist' %}
+                <!-- Çalma listesi widget içeriği -->
+                <div class="track-info">
+                    <div class="playlist-header">
+                        <img id="playlist-cover" class="playlist-cover" src="" alt="Playlist Cover">
+                        <div class="playlist-info">
+                            <div id="playlist-name" class="playlist-name">Yükleniyor...</div>
+                            <div id="playlist-owner" class="playlist-owner">-</div>
+                        </div>
+                    </div>
+                    <ul id="playlist-tracks" class="playlist-tracks">
+                        <li class="playlist-track">
+                            <div>
+                                <div class="track-name">Yükleniyor...</div>
+                                <div class="artist-name">-</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="widget-footer">
+            Powered by <a href="https://spotify.com" target="_blank">Spotify</a>
+        </div>
+    </div>
+
+    <script>
+        // Widget yapılandırması
+        /* IDE-FRIENDLY JavaScript - This version is for IDE validation only */
+        // The actual values will be replaced by Jinja2 when rendered
+        const config = {
+            type: 'now-playing', // Default for IDE
+            theme: 'dark',
+            showAlbumArt: true,
+            fontSize: 'medium',
+            dataEndpoint: '/spotify/api/widget-data/abcd',
+            widgetToken: 'abcd'
+        };
+        
+        /* Actual template code is below - will be used in production
+        const config = {
+            type: '{{ config.type }}',
+            theme: '{{ config.theme }}',
+            showAlbumArt: {{ 'true' if config.show_album_art else 'false' }},
+            fontSize: '{{ config.font_size }}',
+            dataEndpoint: '{{ config.dataEndpoint }}',
+            widgetToken: '{{ config.widgetToken }}'
+        };
+        */
+        
+        // DOM elementleri
+        // DOM elements for different widget types
+        let albumArt, trackName, artistName, progressBar, progressInterval, currentProgress = 0, totalDuration = 0;
+        let recentlyPlayedList, topTracksList, playlistCover, playlistName, playlistOwner, playlistTracks;
+        
+        // Initialize the correct elements based on widget type
+        if (config.type === 'now-playing') {
+            albumArt = document.getElementById('album-art');
+            trackName = document.getElementById('track-name');
+            artistName = document.getElementById('artist-name');
+            progressBar = document.getElementById('progress-bar');
+        } else if (config.type === 'recently-played') {
+            recentlyPlayedList = document.getElementById('recently-played-list');
+        } else if (config.type === 'top-tracks') {
+            topTracksList = document.getElementById('top-tracks-list');
+        } else if (config.type === 'playlist') {
+            playlistCover = document.getElementById('playlist-cover');
+            playlistName = document.getElementById('playlist-name');
+            playlistOwner = document.getElementById('playlist-owner');
+            playlistTracks = document.getElementById('playlist-tracks');
+        }
+        
+        // Widget verilerini yükle
+        async function loadWidgetData() {
+            try {
+                const response = await fetch(config.dataEndpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateWidget(data);
+            } catch (error) {
+                console.error('Widget verisi yüklenirken hata oluştu:', error);
+                // Hata durumunda UI'ı güncelle
+                if (config.type === 'now-playing') {
+                    trackName.textContent = 'Veri yüklenemedi';
+                    artistName.textContent = 'Lütfen daha sonra tekrar deneyin';
+                }
+            }
+        }
+        
+        // Widget'ı güncelle
+        function updateWidget(data) {
+            {% if config.type == 'now-playing' %}
+            // Şu an çalan widget'ını güncelle
+            if (data.is_playing) {
+                trackName.textContent = data.track_name;
+                artistName.textContent = data.artist_name;
+                if (config.showAlbumArt && data.album_image_url) {
+                    albumArt.src = data.album_image_url;
+                    albumArt.alt = `${data.track_name} album art`;
+                }
+                
+                // İlerleme çubuğunu güncelle
+                currentProgress = data.progress_ms;
+                totalDuration = data.duration_ms;
+                updateProgressBar();
+                
+                // İlerleme çubuğu için interval başlat
+                clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                    currentProgress += 1000; // Her saniye 1000ms ekle
+                    if (currentProgress >= totalDuration) {
+                        // Parça bittiğinde yeni veri yükle
+                        clearInterval(progressInterval);
+                        setTimeout(loadWidgetData, 1000);
+                    } else {
+                        updateProgressBar();
+                    }
+                }, 1000);
+            } else {
+                trackName.textContent = 'Bir şey çalmıyor';
+                artistName.textContent = '-';
+                albumArt.src = '';
+                progressBar.style.width = '0%';
+                clearInterval(progressInterval);
+            }
+            {% elif config.type == 'recently-played' %}
+            // Son çalınanlar widget'ını güncelle
+            if (data.tracks && data.tracks.length > 0) {
+                recentlyPlayedList.innerHTML = '';
+                data.tracks.forEach(track => {
+                    const li = document.createElement('li');
+                    li.className = 'track-item';
+                    
+                    let html = '';
+                    if (config.showAlbumArt && track.album_image_url) {
+                        html += `<img class="track-item-art" src="${track.album_image_url}" alt="${track.track_name}">`;
+                    }
+                    
+                    html += `
+                        <div>
+                            <div class="track-name">${track.track_name}</div>
+                            <div class="artist-name">${track.artist_name}</div>
+                        </div>
+                    `;
+                    
+                    li.innerHTML = html;
+                    recentlyPlayedList.appendChild(li);
+                });
+            } else {
+                recentlyPlayedList.innerHTML = `
+                    <li class="track-item">
+                        <div>
+                            <div class="track-name">Veri bulunamadı</div>
+                            <div class="artist-name">-</div>
+                        </div>
+                    </li>
+                `;
+            }
+            {% elif config.type == 'top-tracks' %}
+            // En çok dinlenenler widget'ını güncelle
+            if (data.tracks && data.tracks.length > 0) {
+                topTracksList.innerHTML = '';
+                data.tracks.forEach(track => {
+                    const li = document.createElement('li');
+                    li.className = 'track-item';
+                    
+                    let html = '';
+                    if (config.showAlbumArt && track.album_image_url) {
+                        html += `<img class="track-item-art" src="${track.album_image_url}" alt="${track.track_name}">`;
+                    }
+                    
+                    html += `
+                        <div>
+                            <div class="track-name">${track.track_name}</div>
+                            <div class="artist-name">${track.artist_name}</div>
+                        </div>
+                    `;
+                    
+                    li.innerHTML = html;
+                    topTracksList.appendChild(li);
+                });
+            } else {
+                topTracksList.innerHTML = `
+                    <li class="track-item">
+                        <div>
+                            <div class="track-name">Veri bulunamadı</div>
+                            <div class="artist-name">-</div>
+                        </div>
+                    </li>
+                `;
+            }
+            {% elif config.type == 'playlist' %}
+            // Çalma listesi widget'ını güncelle
+            if (data.playlist) {
+                playlistName.textContent = data.playlist.name;
+                playlistOwner.textContent = data.playlist.owner;
+                
+                if (config.showAlbumArt && data.playlist.image_url) {
+                    playlistCover.src = data.playlist.image_url;
+                    playlistCover.alt = `${data.playlist.name} cover`;
+                }
+                
+                if (data.playlist.tracks && data.playlist.tracks.length > 0) {
+                    playlistTracks.innerHTML = '';
+                    data.playlist.tracks.forEach(track => {
+                        const li = document.createElement('li');
+                        li.className = 'playlist-track';
+                        
+                        li.innerHTML = `
+                            <div>
+                                <div class="track-name">${track.track_name}</div>
+                                <div class="artist-name">${track.artist_name}</div>
+                            </div>
+                        `;
+                        
+                        playlistTracks.appendChild(li);
+                    });
+                } else {
+                    playlistTracks.innerHTML = `
+                        <li class="playlist-track">
+                            <div>
+                                <div class="track-name">Bu çalma listesinde parça bulunamadı</div>
+                                <div class="artist-name">-</div>
+                            </div>
+                        </li>
+                    `;
+                }
+            } else {
+                playlistName.textContent = 'Çalma listesi bulunamadı';
+                playlistOwner.textContent = '-';
+                playlistTracks.innerHTML = `
+                    <li class="playlist-track">
+                        <div>
+                            <div class="track-name">Veri bulunamadı</div>
+                            <div class="artist-name">-</div>
+                        </div>
+                    </li>
+                `;
+            }
+            {% endif %}
+        }
+        
+        {% if config.type == 'now-playing' %}
+        // İlerleme çubuğunu güncelle
+        function updateProgressBar() {
+            if (totalDuration > 0) {
+                const progressPercent = (currentProgress / totalDuration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            } else {
+                progressBar.style.width = '0%';
+            }
+        }
+        {% endif %}
+        
+        // Sayfa yüklendiğinde widget verilerini yükle
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWidgetData();
+            
+            // Periyodik olarak widget verilerini güncelle (30 saniyede bir)
+            setInterval(loadWidgetData, 30000);
+        });
+    </script>
+</body>
+</html>

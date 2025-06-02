@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Widget Yöneticisi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widget-manager.css">
+<div class="container widget-manager-container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="widget-manager-title">Spotify Widget Yöneticisi</h1>
+            <p class="widget-manager-description">
+                Spotify hesabınız için özelleştirilmiş widget'lar oluşturun ve yönetin. 
+                Widget'ları web sitenize, blog'unuza veya diğer platformlara gömebilirsiniz.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="widget-config-panel">
+                <h2>Widget Yapılandırması</h2>
+                
+                <form id="widget-config-form">
+                    <div class="form-group">
+                        <label for="widget-type">Widget Tipi</label>
+                        <select class="form-control" id="widget-type">
+                            <option value="now-playing">Şu An Çalan</option>
+                            <option value="recently-played">Son Çalınanlar</option>
+                            <option value="top-tracks">En Çok Dinlenenler</option>
+                            <option value="playlist">Çalma Listesi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="widget-theme">Tema</label>
+                        <select class="form-control" id="widget-theme">
+                            <option value="dark">Koyu</option>
+                            <option value="light">Açık</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="widget-album-art">Albüm Kapağı</label>
+                        <select class="form-control" id="widget-album-art">
+                            <option value="true">Göster</option>
+                            <option value="false">Gizle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="widget-font-size">Yazı Boyutu</label>
+                        <select class="form-control" id="widget-font-size">
+                            <option value="small">Küçük</option>
+                            <option value="medium">Orta</option>
+                            <option value="large">Büyük</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" id="generate-widget-btn" class="btn btn-primary">Widget Oluştur</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="widget-preview-panel">
+                <h2>Önizleme</h2>
+                <div class="widget-preview-container">
+                    <div id="widget-preview-frame">
+                        <iframe id="widget-preview-iframe" src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+                
+                <div class="widget-url-container">
+                    <h3>Widget URL</h3>
+                    <div class="input-group">
+                        <input type="text" id="widget-url" class="form-control" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="copy-url-btn">Kopyala</button>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Bu URL'yi web sitenize veya blog'unuza gömmek için kullanabilirsiniz.</small>
+                </div>
+                
+                <div class="widget-embed-container">
+                    <h3>Gömme Kodu</h3>
+                    <div class="input-group">
+                        <textarea id="widget-embed-code" class="form-control" rows="3" readonly></textarea>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="copy-embed-btn">Kopyala</button>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Bu HTML kodunu web sitenize veya blog'unuza ekleyebilirsiniz.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/spotify/widget-manager/widget-manager.js"></script>
+</body>
+</html>
