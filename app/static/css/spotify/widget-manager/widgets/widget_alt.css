@@ -1,0 +1,104 @@
+/* widget_alt.css */
+body, html {
+    font-family: 'Inter', sans-serif;
+    /* Arka planı transparan yapmak için, eğer bir iframe içinde kullanılacaksa */
+    /* background-color: transparent; */ 
+}
+
+.spotify-widget-alt {
+    width: 450px; /* Genişlik artırıldı */
+    height: 600px; /* Yükseklik 600px olarak ayarlandı */
+    background: linear-gradient(145deg, #2d3748, #1a202c); /* Koyu tema gradyanı */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.spotify-widget-alt:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+#albumArtBackgroundAlt {
+    /* Arka plan albüm kapağı için */
+    transition: opacity 0.7s ease-in-out, filter 0.7s ease-in-out;
+}
+
+.album-disc-container {
+    margin-top: 30px; /* Üst taraftan boşluk */
+}
+
+.album-disc-container:hover #playPauseOverlay {
+    opacity: 1;
+}
+
+#playPauseOverlay {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 50%;
+}
+
+
+/* Dairesel İlerleme Çubuğu */
+#circularProgressBar .progress-bg {
+    stroke: rgba(255, 255, 255, 0.15); /* İlerleme çubuğu arka plan rengi */
+}
+
+#circularProgressBar .progress-bar {
+    stroke: rgba(29, 185, 84, 0.5); /* Spotify yeşili */
+    stroke-linecap: round; /* Çizgi uçlarını yuvarlak yapar */
+    transition: stroke-dashoffset 0.5s linear; /* Yumuşak geçiş */
+}
+
+/* Şarkı ve Sanatçı Adı */
+#trackNameAlt, #artistNameAlt {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+#trackNameAlt {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    width: 350px;
+}
+
+#artistNameAlt {
+    font-size: 1.25rem;
+    width: 320px;
+    margin-bottom: 1rem;
+}
+
+.track-info-alt {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.time-display-alt {
+    max-width: 320px;
+    margin-bottom: 20px;
+}
+
+.spotify-logo-alt {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+/* Kontrol Butonları kaldırıldı */
+
+/* Hata Mesajı */
+#errorMessageAlt.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Placeholder için ek stil */
+#albumArtAlt[src*="placehold.co"] {
+    filter: grayscale(50%);
+}
+
+/* Animasyonlar */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
