@@ -1,181 +1,29 @@
-/* Widget Manager Styles */
-.widget-manager-container {
-    padding: 2rem 0;
+/* widget-manager.css */
+/* Tailwind CSS çoğu stili halledeceği için bu dosya genellikle boş veya çok minimal olacaktır. */
+/* Özel stiller gerekirse buraya eklenebilir. */
+
+body {
+    font-family: 'Inter', sans-serif; /* Tailwind'in varsayılan font ailesine benzer bir alternatif */
 }
 
-.widget-manager-title {
-    margin-bottom: 1rem;
-    color: #1DB954; /* Spotify yeşili */
-    font-weight: 700;
-}
-
-.widget-manager-description {
-    margin-bottom: 2rem;
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.widget-config-panel, 
-.widget-preview-panel {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.widget-config-panel h2,
-.widget-preview-panel h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    color: #333;
-    font-weight: 600;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #555;
-}
-
-.form-control {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 0.5rem 0.75rem;
-    width: 100%;
-    transition: border-color 0.2s;
-}
-
-.form-control:focus {
-    border-color: #1DB954;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.25);
-}
-
-#generate-widget-btn {
-    background-color: #1DB954;
-    border: none;
-    padding: 0.6rem 1.5rem;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-#generate-widget-btn:hover {
-    background-color: #18a449;
-}
-
-.widget-preview-container {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    min-height: 200px;
-}
-
-#widget-preview-frame {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-#widget-preview-iframe {
-    width: 100%;
-    height: 300px;
-    border: none;
-}
-
-.widget-url-container,
-.widget-embed-container {
-    margin-bottom: 1.5rem;
-}
-
-.widget-url-container h3,
-.widget-embed-container h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.75rem;
-    color: #444;
-    font-weight: 500;
-}
-
-.input-group {
-    display: flex;
-    margin-bottom: 0.5rem;
-}
-
-.input-group .form-control {
-    flex: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.input-group-append {
-    display: flex;
-}
-
-.input-group-append button {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-left: none;
-    color: #555;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.input-group-append button:hover {
-    background-color: #e9ecef;
-}
-
-textarea.form-control {
-    resize: none;
-    font-family: monospace;
-    font-size: 0.9rem;
-}
-
-.form-text {
-    color: #6c757d;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-    .widget-config-panel, 
-    .widget-preview-panel {
-        margin-bottom: 1.5rem;
-    }
-    
-    #widget-preview-iframe {
-        height: 250px;
-    }
-}
-
-/* Success notification for copy actions */
-.copy-success {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #1DB954;
+/* Flash mesajlar için temel stiller (Tailwind sınıfları HTML'de zaten mevcut) */
+.flash-success {
+    background-color: #34d399; /* Tailwind green-500 */
     color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s, transform 0.3s;
+    padding: 1rem;
+    border-radius: 0.375rem; /* rounded-md */
+    margin-bottom: 1rem;
 }
 
-.copy-success.show {
-    opacity: 1;
-    transform: translateY(0);
+.flash-error {
+    background-color: #ef4444; /* Tailwind red-500 */
+    color: white;
+    padding: 1rem;
+    border-radius: 0.375rem; /* rounded-md */
+    margin-bottom: 1rem;
+}
+
+/* İkonların düzgün görünmesi için (Font Awesome kullanılıyorsa) */
+.fas {
+    line-height: inherit; /* Bootstrap ile çakışmaları önlemek için */
 }

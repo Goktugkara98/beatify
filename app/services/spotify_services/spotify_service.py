@@ -26,7 +26,7 @@
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
 import logging # Loglama için
-from app.database.models.database import SpotifyRepository # Spotify veritabanı işlemleri için
+from app.database.spotify_user_repository import SpotifyUserRepository # Spotify veritabanı işlemleri için
 from app.services.spotify_services.spotify_api_service import SpotifyApiService # Spotify API etkileşimleri için
 from typing import Dict, Any, Optional, Union # Tip ipuçları için
 

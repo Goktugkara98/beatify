@@ -714,8 +714,10 @@ class SpotifyRepository:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     widget_token TEXT DEFAULT NULL, /* Widget token da uzun olabilir */
+                    short_token VARCHAR(20) DEFAULT NULL, /* Kısa, kullanıcı dostu token */
                     design VARCHAR(255) DEFAULT 'standard',
-                    FOREIGN KEY (username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE
+                    FOREIGN KEY (username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE,
+                    INDEX idx_short_token (short_token)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
             self.db.cursor.execute(query)
@@ -950,7 +952,7 @@ class SpotifyRepository:
     # -------------------------------------------------------------------------
     # 4.1.10. spotify_store_widget_token_data : Spotify widget token'ını saklar/günceller.
     # -------------------------------------------------------------------------
-    def spotify_store_widget_token_data(self, username: str, token: str) -> bool:
+    def spotify_store_widget_token_data(self, username: str, token_data: str, short_token: str = None) -> bool:
         """
         Kullanıcının Spotify widget token'ını `spotify_users` tablosunda saklar/günceller.
         Eğer kullanıcı için kayıt yoksa, bu metot hata vermez ancak bir şey de yapmaz
@@ -959,7 +961,8 @@ class SpotifyRepository:
 
         Args:
             username (str): Token'ı saklanacak Beatify kullanıcısı.
-            token (str): Spotify widget token'ı.
+            token_data (str): Spotify widget token'ının tam içeriği (JSON verisi).
+            short_token (str, optional): Kısa token anahtarı. Eğer belirtilirse, bu token ile tam veri ilişkilendirilir.
 
         Returns:
             bool: İşlem başarılıysa ve en az bir satır etkilendiyse True.
@@ -968,19 +971,23 @@ class SpotifyRepository:
             MySQLError: Veritabanı işlemi sırasında bir hata oluşursa.
         """
         self._ensure_connection()
-        # print(f"Spotify widget token saklanıyor/güncelleniyor: {username}, Token: {token[:10]}...") # Geliştirme için log
         try:
-            # Eğer username için spotify_users'da kayıt yoksa, bu sorgu bir şey yapmaz.
-            # Önce kayıt olduğundan emin olmak gerekebilir veya INSERT ... ON DUPLICATE KEY UPDATE kullanılabilir.
-            # Şimdilik sadece UPDATE varsayalım.
-            query = "UPDATE spotify_users SET widget_token = %s WHERE username = %s"
-            self.db.cursor.execute(query, (token, username))
+            # Eğer kısa token belirtilmişse, hem widget_token hem de short_token alanlarını güncelle
+            if short_token:
+                query = """INSERT INTO spotify_users (username, widget_token, short_token) 
+                          VALUES (%s, %s, %s) 
+                          ON DUPLICATE KEY UPDATE widget_token = VALUES(widget_token), 
+                                                short_token = VALUES(short_token)"""
+                self.db.cursor.execute(query, (username, token_data, short_token))
+            else:
+                # Sadece widget_token alanını güncelle
+                query = "UPDATE spotify_users SET widget_token = %s WHERE username = %s"
+                self.db.cursor.execute(query, (token_data, username))
+                
             self.db.connection.commit()
             updated_rows = self.db.cursor.rowcount
-            # print(f"Spotify widget token ({username}) saklandı/güncellendi. Etkilenen satır: {updated_rows}") # Geliştirme için log
             return updated_rows > 0
         except MySQLError as e:
-            # print(f"Spotify widget token ({username}) saklanırken hata: {e}") # Geliştirme için log
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
             raise
@@ -1014,6 +1021,31 @@ class SpotifyRepository:
             return widget_token
         except MySQLError as e:
             # print(f"Spotify widget token ({username}) alınırken hata: {e}") # Geliştirme için log
+            return None
+        finally:
+            self._close_if_owned()
+            
+    # -------------------------------------------------------------------------
+    # 4.1.12. spotify_get_widget_token_by_short_token : Kısa token ile tam widget token'ını getirir.
+    # -------------------------------------------------------------------------
+    def spotify_get_widget_token_by_short_token(self, short_token: str) -> Optional[str]:
+        """
+        Kısa token kullanarak tam widget token verisini getirir.
+        
+        Args:
+            short_token (str): Aranacak kısa token.
+            
+        Returns:
+            Optional[str]: Tam widget token verisi, bulunamazsa None.
+        """
+        self._ensure_connection()
+        try:
+            query = "SELECT widget_token FROM spotify_users WHERE short_token = %s"
+            self.db.cursor.execute(query, (short_token,))
+            result = self.db.cursor.fetchone()
+            widget_token = result['widget_token'] if result else None
+            return widget_token
+        except MySQLError as e:
             return None
         finally:
             self._close_if_owned()

@@ -45,7 +45,10 @@ from flask import (
     Flask # Flask tipi için
 )
 # Veritabanı erişimi için Repository sınıfları
-from app.database.models.database import UserRepository, SpotifyRepository
+from app.database.beatify_user_repository import BeatifyUserRepository
+from app.database.beatify_token_repository import BeatifyTokenRepository
+from app.database.spotify_user_repository import SpotifyUserRepository
+from app.database.spotify_widget_repository import SpotifyWidgetRepository
 # Kimlik doğrulama ve oturum kontrolü için servisler
 from app.services.auth_service import session_is_user_logged_in
 # Profil sayfası için özel servisler

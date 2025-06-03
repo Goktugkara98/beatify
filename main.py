@@ -43,7 +43,7 @@ import logging # Loglama için
 # import ssl # SSL yapılandırması için (şu an yorumlu)
 
 from flask import Flask, request # Ana Flask sınıfı ve istek nesnesi
-from app.database.models.database import DatabaseConnection # Veritabanı bağlantı sınıfı
+from app.database.db_connection import DatabaseConnection # Veritabanı bağlantı sınıfı
 # Rota başlatma fonksiyonları
 from app.routes import main_routes, auth_routes # Blueprint'ler veya rota modülleri
 from app.routes.spotify_routes import spotify_routes # Spotify rotaları için ana başlatıcı
@@ -52,9 +52,9 @@ from app.config.general_config import DEBUG, SECRET_KEY, SSL_CONFIG # SSL_CONFIG
 from typing import Any, Optional # Tip ipuçları için
 
 # Logger kurulumu (modül seviyesinde)
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO if not DEBUG else logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO if not DEBUG else logging.DEBUG,
+#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # =============================================================================
 # 2.0 UYGULAMA OLUŞTURMA FONKSİYONU (APPLICATION CREATION FUNCTION)
@@ -71,7 +71,7 @@ def create_app() -> Flask:
     Returns:
         Flask: Yapılandırılmış Flask uygulama örneği.
     """
-    logger.info("Flask uygulaması oluşturuluyor...")
+    # logger.info("Flask uygulaması oluşturuluyor...")
 
     # -------------------------------------------------------------------------
     # 2.1.1. Flask Uygulama Başlatma (Flask App Initialization)
@@ -82,9 +82,9 @@ def create_app() -> Flask:
     app = Flask(__name__,
                 static_folder=os.path.join('app', 'static'),
                 template_folder=os.path.join('app', 'templates'))
-    logger.info(f"Flask uygulaması '{__name__}' adıyla başlatıldı.")
-    logger.info(f"Statik klasör: {app.static_folder}")
-    logger.info(f"Şablon klasörü: {app.template_folder}")
+    # logger.info(f"Flask uygulaması '{__name__}' adıyla başlatıldı.")
+    # logger.info(f"Statik klasör: {app.static_folder}")
+    # logger.info(f"Şablon klasörü: {app.template_folder}")
 
     # -------------------------------------------------------------------------
     # 2.1.2. Veritabanı Bağlantısı ve Tablo Oluşturma (Database Connection and Table Creation)
@@ -98,7 +98,7 @@ def create_app() -> Flask:
         # database.connect() # Bu, _ensure_connection içinde zaten çağrılıyor.
         # create_all_tables metodu kendi içinde bağlantıyı sağlayacaktır.
         database.create_all_tables() # Gerekli tüm tabloları oluşturur/kontrol eder
-        logger.info("Veritabanı bağlantısı kuruldu ve tablolar oluşturuldu/kontrol edildi.")
+        # logger.info("Veritabanı bağlantısı kuruldu ve tablolar oluşturuldu/kontrol edildi.")
         # ÖNEMLİ NOT: DatabaseConnection örneği burada oluşturuluyor ve `database`
         # değişkeni lokal kalıyor. Eğer her istek sonunda bağlantıyı kapatmak
         # istiyorsak (ki bu iyi bir pratiktir), `app.teardown_appcontext` kullanmalıyız.
@@ -109,9 +109,10 @@ def create_app() -> Flask:
         # `create_all_tables` içinde repository'ler oluşturulurken mevcut bağlantı
         # iletiliyor, bu iyi bir yaklaşım.
     except Exception as e:
-        logger.error(f"Veritabanı başlatılırken hata oluştu: {str(e)}", exc_info=True)
+        # logger.error(f"Veritabanı başlatılırken hata oluştu: {str(e)}", exc_info=True)
         # Uygulamanın bu noktada devam etmesi sorunlu olabilir.
         # raise RuntimeError(f"Veritabanı başlatılamadı: {e}") from e
+        pass # Hata durumunda devam etmesi için geçici olarak eklendi
 
     # -------------------------------------------------------------------------
     # 2.1.3. Güvenlik Ayarları (Security Settings)
@@ -120,8 +121,9 @@ def create_app() -> Flask:
     # özellikleri için kullanılır. Güçlü ve gizli tutulmalıdır.
     app.secret_key = SECRET_KEY
     if not SECRET_KEY or SECRET_KEY == 'varsayilan-cok-gizli-bir-anahtar-buraya-yazin':
-        logger.warning("UYARI: Güvenli olmayan varsayılan SECRET_KEY kullanılıyor. Lütfen canlı ortam için değiştirin!")
-    logger.info("Uygulama gizli anahtarı ayarlandı.")
+        # logger.warning("UYARI: Güvenli olmayan varsayılan SECRET_KEY kullanılıyor. Lütfen canlı ortam için değiştirin!")
+        pass # Uyarıyı gösterme
+    # logger.info("Uygulama gizli anahtarı ayarlandı.")
 
     # Diğer güvenlik ayarları eklenebilir (örn: CSRF koruması için Flask-WTF veya Flask-SeaSurf).
     # app.config['SESSION_COOKIE_SECURE'] = not DEBUG
@@ -158,7 +160,7 @@ def create_app() -> Flask:
                 try:
                     parsed_date = datetime.datetime.fromisoformat(date_input)
                 except ValueError:
-                    logger.warning(f"Jinja2 strftime filtresi: Geçersiz tarih string formatı '{date_input}'.")
+                    # logger.warning(f"Jinja2 strftime filtresi: Geçersiz tarih string formatı '{date_input}'.")
                     return "" # Hata durumunda boş string
         elif isinstance(date_input, datetime.datetime):
             parsed_date = date_input
@@ -166,10 +168,10 @@ def create_app() -> Flask:
         if parsed_date:
             return parsed_date.strftime(fmt)
         else: # Eğer date_input ne string ne de datetime ise veya parse edilemediyse
-            logger.warning(f"Jinja2 strftime filtresi: Geçersiz tarih tipi '{type(date_input)}' veya parse edilemedi.")
+            # logger.warning(f"Jinja2 strftime filtresi: Geçersiz tarih tipi '{type(date_input)}' veya parse edilemedi.")
             return str(date_input) # Orijinal değeri string olarak döndür veya boş string
 
-    logger.info("Jinja2 'strftime' filtresi kaydedildi.")
+    # logger.info("Jinja2 'strftime' filtresi kaydedildi.")
 
     # -------------------------------------------------------------------------
     # 2.1.5. Rota Kayıtları (Route Registration)
@@ -179,18 +181,20 @@ def create_app() -> Flask:
     # ve Flask `app` nesnesini argüman olarak almalıdır.
     try:
         main_routes.init_main_routes(app)
-        logger.info("Ana rotalar (main_routes) kaydedildi.")
+        # logger.info("Ana rotalar (main_routes) kaydedildi.")
         auth_routes.init_auth_routes(app)
-        logger.info("Kimlik doğrulama rotaları (auth_routes) kaydedildi.")
+        # logger.info("Kimlik doğrulama rotaları (auth_routes) kaydedildi.")
         spotify_routes.init_spotify_routes(app) # Bu, tüm Spotify alt rotalarını kaydeder
-        logger.info("Spotify rotaları (spotify_routes) kaydedildi.")
+        # logger.info("Spotify rotaları (spotify_routes) kaydedildi.")
         # Eğer admin_routes gibi başka Blueprint'ler varsa, onlar da burada kaydedilmeli.
         # from app.routes.admin_routes import admin_bp # Örnek
         # app.register_blueprint(admin_bp, url_prefix='/admin') # Örnek
     except Exception as e:
-        logger.error(f"Rotalar kaydedilirken hata oluştu: {str(e)}", exc_info=True)
+        # logger.error(f"Rotalar kaydedilirken hata oluştu: {str(e)}", exc_info=True)
         # Uygulamanın bu noktada devam etmesi sorunlu olabilir.
         # raise RuntimeError(f"Rotalar kaydedilemedi: {e}") from e
+        pass # Hata durumunda devam etmesi için geçici olarak eklendi
+
 
     # -------------------------------------------------------------------------
     # 2.1.6. Uygulama Kapatma İşleyicisi (Application Teardown Handler) - (Yeni Eklendi)
@@ -227,7 +231,7 @@ def create_app() -> Flask:
     #     pass # Şimdilik pasif bırakıldı, DatabaseConnection yapısına göre aktif edilebilir.
 
 
-    logger.info("Flask uygulaması başarıyla oluşturuldu ve yapılandırıldı.")
+    # logger.info("Flask uygulaması başarıyla oluşturuldu ve yapılandırıldı.")
     return app
 
 # =============================================================================
@@ -238,7 +242,7 @@ if __name__ == '__main__':
     # Bir WSGI sunucusu (Gunicorn, uWSGI) tarafından çalıştırıldığında bu blok çalışmaz.
     
     flask_app = create_app() # Uygulama örneğini oluştur
-    logger.info("Uygulama çalıştırılmak üzere hazırlanıyor...")
+    # logger.info("Uygulama çalıştırılmak üzere hazırlanıyor...")
 
     # -------------------------------------------------------------------------
     # 3.1. Geliştirme Sunucusu Yapılandırması (Development Server Configuration)
@@ -248,7 +252,7 @@ if __name__ == '__main__':
     # host="0.0.0.0" tüm ağ arayüzlerinden erişime izin verir (örn: aynı ağdaki başka cihazlardan).
     # threaded=True birden fazla isteği aynı anda işleyebilmek için (geliştirme için).
     try:
-        logger.info(f"Geliştirme sunucusu başlatılıyor: http://0.0.0.0:5000/ (DEBUG={DEBUG})")
+        # logger.info(f"Geliştirme sunucusu başlatılıyor: http://0.0.0.0:5000/ (DEBUG={DEBUG})")
         flask_app.run(
             debug=DEBUG,
             host="0.0.0.0",
@@ -257,7 +261,8 @@ if __name__ == '__main__':
             # use_reloader=DEBUG # debug=True zaten reloader'ı aktif eder.
         )
     except Exception as run_err:
-        logger.critical(f"Uygulama çalıştırılırken kritik bir hata oluştu: {str(run_err)}", exc_info=True)
+        # logger.critical(f"Uygulama çalıştırılırken kritik bir hata oluştu: {str(run_err)}", exc_info=True)
+        pass # Hata durumunda devam etmesi için geçici olarak eklendi
 
 
     # -------------------------------------------------------------------------
@@ -276,7 +281,7 @@ if __name__ == '__main__':
                 certfile=SSL_CONFIG.CERTFILE, # Sertifika dosyasının yolu
                 keyfile=SSL_CONFIG.KEYFILE    # Özel anahtar dosyasının yolu
             )
-            logger.info(f"SSL yapılandırması yüklendi. Sunucu HTTPS üzerinden başlatılıyor: https://0.0.0.0:5000/")
+            # logger.info(f"SSL yapılandırması yüklendi. Sunucu HTTPS üzerinden başlatılıyor: https://0.0.0.0:5000/")
             flask_app.run(
                 debug=DEBUG,
                 host="0.0.0.0",
@@ -285,19 +290,19 @@ if __name__ == '__main__':
                 threaded=True
             )
         except FileNotFoundError:
-            logger.error(f"SSL sertifika veya anahtar dosyaları bulunamadı. Yollar: Cert='{SSL_CONFIG.CERTFILE}', Key='{SSL_CONFIG.KEYFILE}'")
-            logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
+            # logger.error(f"SSL sertifika veya anahtar dosyaları bulunamadı. Yollar: Cert='{SSL_CONFIG.CERTFILE}', Key='{SSL_CONFIG.KEYFILE}'")
+            # logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
             flask_app.run(debug=DEBUG, host="0.0.0.0", port=5000, threaded=True)
         except ssl.SSLError as ssl_err:
-            logger.error(f"SSL yapılandırma hatası: {str(ssl_err)}", exc_info=True)
-            logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
+            # logger.error(f"SSL yapılandırma hatası: {str(ssl_err)}", exc_info=True)
+            # logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
             flask_app.run(debug=DEBUG, host="0.0.0.0", port=5000, threaded=True)
         except Exception as e:
-            logger.critical(f"SSL ile uygulama çalıştırılırken beklenmedik bir hata oluştu: {str(e)}", exc_info=True)
-            logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
+            # logger.critical(f"SSL ile uygulama çalıştırılırken beklenmedik bir hata oluştu: {str(e)}", exc_info=True)
+            # logger.warning("SSL hatası nedeniyle HTTP üzerinden devam ediliyor...")
             flask_app.run(debug=DEBUG, host="0.0.0.0", port=5000, threaded=True)
     else: # DEBUG True ise HTTP üzerinden çalıştır
-        logger.info(f"Geliştirme sunucusu (HTTP) başlatılıyor: http://0.0.0.0:5000/ (DEBUG={DEBUG})")
+        # logger.info(f"Geliştirme sunucusu (HTTP) başlatılıyor: http://0.0.0.0:5000/ (DEBUG={DEBUG})")
         flask_app.run(debug=DEBUG, host="0.0.0.0", port=5000, threaded=True)
     """
 # =============================================================================

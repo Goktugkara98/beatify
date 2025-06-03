@@ -37,7 +37,7 @@ from flask import request, redirect, url_for, session, flash, Flask # Flask tipi
 import requests # HTTP istekleri için
 from datetime import datetime, timedelta # Zaman işlemleri için
 from app.services.spotify_services.spotify_auth_service import SpotifyAuthService
-from app.database.models.database import SpotifyRepository # Veritabanı etkileşimi için
+from app.database.spotify_user_repository import SpotifyUserRepository # Veritabanı etkileşimi için
 from app.services.auth_service import session_is_user_logged_in # Oturum kontrolü için
 from typing import Tuple, Dict, Any, Optional # Tip ipuçları için
 

@@ -29,7 +29,8 @@ import logging # Hata ve bilgi loglaması için
 from typing import Optional, Dict, Any, Tuple # Tip ipuçları için
 
 # Veritabanı etkileşimi için Repository sınıfları
-from app.database.models.database import UserRepository, SpotifyRepository
+from app.database.beatify_user_repository import BeatifyUserRepository
+from app.database.spotify_user_repository import SpotifyUserRepository
 # Spotify API'si ile etkileşim için servis
 from app.services.spotify_services.spotify_api_service import SpotifyApiService
 # Varsayılan Spotify veri yapısını oluşturmak için yardımcı fonksiyon
@@ -78,7 +79,7 @@ def handle_get_request(username: str) -> Tuple[Optional[Dict[str, Any]], Optiona
 
     try:
         # Adım 1: Kullanıcının temel verilerini al
-        user_repo = UserRepository()
+        user_repo = BeatifyUserRepository()
         user_data = user_repo.beatify_get_user_data(username)
 
         if not user_data:
@@ -88,7 +89,7 @@ def handle_get_request(username: str) -> Tuple[Optional[Dict[str, Any]], Optiona
             return ({}, {}, create_default_spotify_data('Veri Yok'))
 
         # Adım 2: Kullanıcının Spotify kimlik bilgilerini (Client ID/Secret) al
-        spotify_repo = SpotifyRepository()
+        spotify_repo = SpotifyUserRepository()
         spotify_credentials = spotify_repo.spotify_get_user_data(username) or {}
         
         # Spotify kimlik bilgileri yoksa veya boşsa

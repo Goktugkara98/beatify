@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Widget - Hata</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* iframe içinde scrollbar çıkmaması için */
+        body { overflow: hidden; } 
+    </style>
+</head>
+<body class="bg-gray-800 text-white flex flex-col items-center justify-center p-4 h-screen">
+    <div id="errorWidget" class="w-full max-w-xs rounded-lg shadow-xl overflow-hidden bg-gray-700">
+        <div class="p-5 text-center">
+            <div class="flex justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-red-400 mb-2">Widget Hatası</h2>
+            <p class="text-gray-300 mb-4">{{ error }}</p>
+            {% if details %}
+            <div class="text-xs text-gray-400 mt-2 p-2 bg-gray-800 rounded overflow-auto max-h-24">
+                {{ details }}
+            </div>
+            {% endif %}
+            <div class="text-xs text-gray-500 mt-4">
+                Token: {{ token }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

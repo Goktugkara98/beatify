@@ -56,7 +56,7 @@ import requests # HTTP istekleri yapmak için
 from datetime import datetime, timedelta # Zaman ve süre işlemleri için
 from flask import session # Kullanıcı oturum bilgilerini saklamak için
 from app.config.spotify_config import SpotifyConfig # Spotify API yapılandırma sabitleri
-from app.database.models.database import SpotifyRepository # Spotify veritabanı işlemleri için
+from app.database.spotify_user_repository import SpotifyUserRepository # Spotify veritabanı işlemleri için
 from typing import Optional, Dict, Any, Union # Tip ipuçları için
 
 # =============================================================================
@@ -81,7 +81,7 @@ class SpotifyAuthService:
         self.token_url: str = SpotifyConfig.TOKEN_URL
         self.redirect_uri: str = SpotifyConfig.REDIRECT_URI
         self.scopes: str = SpotifyConfig.SCOPES
-        self.spotify_repo: SpotifyRepository = SpotifyRepository()
+        self.spotify_repo: SpotifyUserRepository = SpotifyUserRepository()
         self.profile_url: str = SpotifyConfig.PROFILE_URL # Kullanıcı ID'si almak için
         # print("SpotifyAuthService örneği oluşturuldu.") # Geliştirme için log
 

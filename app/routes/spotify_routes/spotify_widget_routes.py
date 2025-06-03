@@ -36,12 +36,19 @@ from flask import (
     render_template,
     request,
     jsonify,
-    session, # Session kullanılmıyor gibi görünüyor, ancak import edilmiş.
+    session,
     url_for,
-    Flask # Flask tipi için
+    redirect,
+    Flask, # Flask tipi için
+    flash
 )
 from app.services.spotify_services.spotify_api_service import SpotifyApiService
-from typing import Dict, Any, Tuple, Optional # Tip ipuçları için
+from app.services.spotify_services.widget_token_service import WidgetTokenService
+from app.database.spotify_widget_repository import SpotifyWidgetRepository
+from typing import Dict, Any, Tuple, Optional, List # Tip ipuçları için
+import uuid
+import json
+from datetime import datetime
 
 # =============================================================================
 # 2.0 BLUEPRINT TANIMI (BLUEPRINT DEFINITION)
@@ -60,6 +67,9 @@ spotify_widget_bp = Blueprint(
 # 3.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
 # =============================================================================
 # Bu bölümde, `spotify_widget_bp` Blueprint'ine bağlı rota fonksiyonları tanımlanır.
+
+# Widget token'ları artık WidgetTokenService ve SpotifyRepository aracılığıyla
+# veritabanında saklanacaktır.
 
 # -----------------------------------------------------------------------------
 # 3.1. widget_manager() : Widget yönetim arayüzünü sunar.
@@ -83,7 +93,116 @@ def widget_manager() -> str:
     # if not username:
     #     flash("Widget yöneticisine erişmek için lütfen giriş yapın.", "warning")
     #     return redirect(url_for('auth_bp.login_page'))
-    return render_template('widget-manager.html', title="Spotify Widget Yöneticisi")
+    username: Optional[str] = session.get('username')
+    if not username:
+        flash("Widget yöneticisine erişmek için lütfen giriş yapın.", "warning")
+        return redirect(url_for('login_page'))
+    
+    widget_token_service = WidgetTokenService()
+    widget_token = widget_token_service.get_or_create_widget_token(username)
+    return render_template('widget-manager.html', title="Spotify Widget Yöneticisi", widget_token=widget_token)
+
+# -----------------------------------------------------------------------------
+# 3.1.1. generate_widget_token() : Yeni bir widget token'ı oluşturur.
+#        Rota: /widget/generate-token (POST)
+#        Tam Rota (Blueprint ile): /spotify/widget/generate-token
+# -----------------------------------------------------------------------------
+@spotify_widget_bp.route('/widget/generate-token', methods=['POST'])
+def generate_widget_token() -> Tuple[Dict[str, Any], int]:
+    """
+    Yeni bir widget token'ı oluşturur ve veritabanına kaydeder.
+    Bu endpoint, AJAX ile çağrılır ve JSON yanıt döndürür.
+
+    Returns:
+        Tuple[Dict[str, Any], int]: JSON yanıt ve HTTP durum kodu.
+    """
+    try:
+        # Kullanıcı oturumunu kontrol et
+        username = session.get('username')
+        if not username:
+            return jsonify({
+                "status": "error",
+                "message": "Widget token oluşturmak için giriş yapmalısınız."
+            }), 401
+        
+        # Form verilerini al
+        data = request.form
+        
+        # WidgetTokenService kullanarak token oluştur
+        widget_token_service = WidgetTokenService()
+        token = widget_token_service.generate_widget_token(username)
+        
+        # Token bilgilerini hazırla
+        token_data = {
+            "value": token,
+            "created_at": datetime.now().isoformat(),
+            "username": username,
+        }
+        
+        # Başarılı yanıt döndür
+        return jsonify({
+            "status": "success",
+            "message": "Widget token'ı başarıyla oluşturuldu.",
+            "token": token_data
+        }), 200
+    except Exception as e:
+        # Hata durumunda
+        return jsonify({
+            "status": "error",
+            "message": f"Token oluşturulurken bir hata oluştu: {str(e)}"
+        }), 500
+
+# -----------------------------------------------------------------------------
+# 3.1.2. get_widget_list() : Mevcut widget token'larını listeler.
+#        Rota: /widget-list (GET)
+#        Tam Rota (Blueprint ile): /spotify/widget-list
+# -----------------------------------------------------------------------------
+@spotify_widget_bp.route('/widget-list', methods=['GET'])
+def get_widget_list() -> Tuple[Dict[str, Any], int]:
+    """
+    Mevcut kullanıcının widget token'ını veritabanından alır ve listeler.
+    Bu endpoint, AJAX ile çağrılır ve JSON yanıt döndürür.
+
+    Returns:
+        Tuple[Dict[str, Any], int]: JSON yanıt ve HTTP durum kodu.
+    """
+    try:
+        # Kullanıcı oturumunu kontrol et
+        username = session.get('username')
+        if not username:
+            return jsonify({
+                "status": "error",
+                "message": "Widget listesini görüntülemek için giriş yapmalısınız."
+            }), 401
+        
+        # WidgetTokenService kullanarak token'ları al
+        widget_token_service = WidgetTokenService()
+        token = widget_token_service.get_widget_token(username)
+        
+        # Token yoksa boş liste döndür
+        if not token:
+            return jsonify([]), 200
+        
+        # Token'dan widget yapılandırmasını al
+        is_valid, payload = widget_token_service.validate_widget_token(token)
+        if not is_valid:
+            return jsonify([]), 200
+            
+        # Token bilgilerini hazırla
+        token_data = {
+            "value": token,
+            "username": username,
+            "created_at": datetime.fromtimestamp(payload.get('iat', 0)).isoformat(),
+            "expires_at": datetime.fromtimestamp(payload.get('exp', 0)).isoformat()
+        }
+        
+        # Token listesini döndür (bu örnekte tek bir token var)
+        return jsonify([token_data]), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Widget listesi alınırken bir hata oluştu: {str(e)}"
+        }), 500
 
 # -----------------------------------------------------------------------------
 # 3.2. spotify_widget(widget_token) : Belirli bir widget'ı render eder.
@@ -94,8 +213,8 @@ def widget_manager() -> str:
 def spotify_widget(widget_token: str) -> Any: # render_template str veya Response döndürebilir
     """
     Belirtilen `widget_token` ile ilişkili Spotify widget'ını render eder.
-    Widget türü (örn: 'now-playing') ve diğer yapılandırma ayarları
-    URL parametreleri veya veritabanından alınarak widget şablonuna iletilir.
+    Widget türü (örn: 'spotify-nowplaying') ve diğer yapılandırma ayarları
+    veritabanından alınarak widget şablonuna iletilir.
 
     Args:
         widget_token (str): Render edilecek widget'a ait benzersiz token.
@@ -103,48 +222,44 @@ def spotify_widget(widget_token: str) -> Any: # render_template str veya Respons
     Returns:
         Any: Render edilmiş widget HTML sayfası veya hata mesajı.
     """
-    # print(f"API çağrısı: /spotify/widget/{widget_token}") # Geliştirme için log
     try:
-        # TODO: Gerçek token doğrulama ve yapılandırma yükleme mekanizması implemente edilmeli.
-        # Veritabanından widget_token'a göre widget yapılandırması çekilmeli.
-        # Örnek: widget_config_from_db = spotify_widget_service.get_widget_config_by_token(widget_token)
-        # if not widget_config_from_db:
-        #     return "Geçersiz widget token", 404
-
-        # Geçici test amaçlı token ve yapılandırma:
-        if widget_token == 'abcd': # Bu kısım gerçek token doğrulama ile değiştirilmeli.
-            widget_type: str = request.args.get('type', 'now-playing') # Varsayılan widget türü
+        print(f"Widget isteği alındı: {widget_token}") # Debug log
+        
+        # Basitleştirilmiş yaklaşım - token'i doğrudan kullan
+        # Karmaşık doğrulama yapmadan önce widget'i render et
+        # Bu, token geçersiz olsa bile kullanıcıya bir şeyler göstermemizi sağlar
+        
+        # Basit bir widget yapılandırması oluştur
+        widget_config = {
+            'type': 'spotify-nowplaying',
+            'widgetToken': widget_token  # Token'i doğrudan yapılandırmaya ekle
+        }
+        
+        # URL parametreleri ile yapılandırmayı geçersiz kılma seçeneği (opsiyonel)
+        if request.args.get('theme'):
+            widget_config['theme'] = request.args.get('theme')
+        if request.args.get('albumart'):
+            widget_config['show_album_art'] = request.args.get('albumart').lower() == 'true'
+        if request.args.get('fontsize'):
+            widget_config['font_size'] = request.args.get('fontsize')
             
-            # Gerçek yapılandırma veritabanından veya servisten gelmeli.
-            # Bu değerler, widget oluşturulurken kullanıcı tarafından belirlenmiş olmalı.
-            widget_config: Dict[str, Any] = {
-                'type': widget_type,
-                'theme': request.args.get('theme', 'dark'), # 'dark' veya 'light'
-                'show_album_art': request.args.get('albumart', 'true').lower() == 'true',
-                # 'background_color': '#121212', # Temadan gelmeli
-                # 'text_color': '#ffffff',       # Temadan gelmeli
-                # 'accent_color': '#1DB954',     # Temadan gelmeli
-                'font_size': request.args.get('fontsize', 'medium'),
-                # Veri API endpoint'i, widget'ın veriyi çekeceği yer.
-                'dataEndpoint': url_for('spotify_widget_bp.widget_data', widget_token=widget_token, _external=True),
-                'widgetToken': widget_token # Şablonun token'ı bilmesi gerekebilir
-            }
-            # print(f"Widget render ediliyor: Token={widget_token}, Config={widget_config}") # Geliştirme için log
-
-            # Widget türüne göre uygun şablonu seç
-            # Şablon yolu: app/templates/spotify/widgets/<widget_type>.html
-            template_name: str = f"spotify/widgets/{widget_config['type']}.html"
-            
-            return render_template(template_name, config=widget_config, title=f"Spotify Widget - {widget_type.replace('-', ' ').title()}")
-        else:
-            # print(f"Geçersiz widget token denemesi: {widget_token}") # Geliştirme için log
-            return "Geçersiz widget token", 404 # HTTP 404 Not Found
+        # Veri API endpoint'i, widget'ın veriyi çekeceği yer
+        widget_config['dataEndpoint'] = url_for('spotify_widget_bp.widget_data', widget_token=widget_token, _external=True)
+        
+        # Widget şablonunu seç
+        template_name = "spotify/widgets/widget.html"
+        
+        print(f"Widget render ediliyor: {template_name}, token: {widget_token}") # Debug log
+        return render_template(template_name, config=widget_config, title="Spotify Widget")
     except Exception as e:
-        # print(f"Spotify widget render edilirken hata oluştu (Token: {widget_token}): {str(e)}") # Geliştirme için log
-        # import traceback
-        # print(traceback.format_exc()) # Detaylı hata için
+        import traceback
+        print(f"Spotify widget render edilirken hata oluştu (Token: {widget_token}): {str(e)}") # Geliştirme için log
+        print(traceback.format_exc()) # Detaylı hata için
         # Kullanıcıya daha genel bir hata mesajı gösterilebilir.
-        return "Widget render edilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.", 500 # HTTP 500 Internal Server Error
+        return render_template("spotify/widgets/widget-error.html", 
+                              error="Widget yüklenirken bir hata oluştu", 
+                              details=str(e),
+                              token=widget_token), 500
 
 # -----------------------------------------------------------------------------
 # 3.3. widget_data(widget_token) : Widget için veri sağlayan API endpoint'i.
@@ -164,69 +279,50 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
     Returns:
         Tuple[Dict[str, Any], int]: JSON formatında widget verisi ve HTTP durum kodu.
     """
-    # print(f"API çağrısı (widget verisi): /spotify/api/widget-data/{widget_token}") # Geliştirme için log
     try:
-        # TODO: Gerçek token doğrulama ve kullanıcıya bağlı Spotify API servisi kullanımı.
-        # 1. widget_token'ı doğrula ve hangi Beatify kullanıcısına ait olduğunu bul.
-        #    (örn: user_widget_config = spotify_widget_service.get_user_by_widget_token(widget_token))
-        # 2. O kullanıcıya ait SpotifyApiService örneğini kullanarak veri çek.
-        #    (örn: beatify_username = user_widget_config.username)
-        #    (örn: playback_data = spotify_api_service.get_currently_playing(beatify_username))
-
-        # Geçici test amaçlı token ve kullanıcı adı:
-        if widget_token != 'abcd': # Bu kısım gerçek token doğrulama ile değiştirilmeli.
-            # print(f"Geçersiz widget token (veri API): {widget_token}") # Geliştirme için log
-            return jsonify({"error": "Geçersiz widget token"}), 404
-
-        # Test için sabit bir kullanıcı adı veya token'dan çözümlenen kullanıcı adı kullanılmalı.
-        # `SpotifyApiService` örneği, kullanıcıya özel tokenları yönetebilmeli.
-        # Şu anki `SpotifyApiService` muhtemelen global veya tekil bir yapılandırma kullanıyor.
-        # Bu, çok kullanıcılı bir sistemde sorun yaratır. Servislerin kullanıcı bazlı olması gerekir.
+        print(f"Widget veri isteği alındı: {widget_token}") # Debug log
         
-        # GELIŞTIRME AMAÇLI: API çağrısını atlayıp test verisi döndürüyoruz
-        # Gerçek uygulamada bu kısım kaldırılmalı ve gerçek API çağrısı yapılmalı
-        
-        # Test verisi oluştur
-        playback_data = {
-            "is_playing": True,
-            "item": {
-                "name": "Test Şarkısı",
-                "artists": [{"name": "Test Sanatçı", "external_urls": {"spotify": "https://open.spotify.com/artist/test"}}],
-                "album": {
-                    "images": [{"url": "https://i.scdn.co/image/ab67616d0000b273c5716278abba6a77916d0fe7"}],
-                    "external_urls": {"spotify": "https://open.spotify.com/album/test"}
-                },
-                "duration_ms": 180000,  # 3 dakika
-                "external_urls": {"spotify": "https://open.spotify.com/track/test"}
-            },
-            "progress_ms": 45000  # 45 saniye
-        }
-        
-        # Gerçek API çağrısı (şu an devre dışı)
-        '''
-        beatify_username_for_widget: str = "serseriyim1" # Bu, token'dan çözümlenmeli.
-        spotify_api_service = SpotifyApiService() # Bu servis kullanıcıya özel olmalı.
-        # print(f"Widget verisi için Spotify API çağrısı yapılıyor. Kullanıcı: {beatify_username_for_widget}, Token: {widget_token}") # Geliştirme için log
-        
-        playback_data: Optional[Dict[str, Any]] = None
+        # Önce repository'den token'a ait kullanıcı adını almayı dene
+        username = None
         try:
-            # `get_currently_playing` metodu, belirtilen Beatify kullanıcısının
-            # Spotify token'larını kullanarak API isteği yapmalı.
-            playback_data = spotify_api_service.get_currently_playing(beatify_username_for_widget)
-            # print(f"Spotify API'den alınan çalma verisi (Token: {widget_token}): {playback_data}") # Geliştirme için log
-        except Exception as api_call_error:
-            # print(f"Spotify API'den veri alınırken hata (Token: {widget_token}, Kullanıcı: {beatify_username_for_widget}): {str(api_call_error)}") # Geliştirme için log
-            # API'den hata gelirse veya bağlantı kurulamazsa, "bir şey çalmıyor" durumu döndür.
-            pass # Hata durumunda playback_data None kalacak ve aşağıda işlenecek.
-        '''
-
-        # Test verisi için her zaman True olacak, gerçek API için kontrol gerekli
+            repo = SpotifyWidgetRepository()
+            username = repo.spotify_get_username_by_widget_token_data(widget_token)
+            print(f"Kullanıcı adı repository'den alındı: {username}") # Debug log
+        except Exception as repo_error:
+            print(f"Repository'den kullanıcı adı alınırken hata: {str(repo_error)}") # Debug log
+        
+        # Eğer repository'den kullanıcı adı alınamadıysa, token doğrulamayı dene
+        if not username:
+            widget_token_service = WidgetTokenService()
+            is_valid, payload = widget_token_service.validate_widget_token(widget_token)
+            print(f"Token doğrulama sonucu: {is_valid}") # Debug log
+            
+            if is_valid and payload:
+                username = payload.get('username')
+                print(f"Token doğrulamadan kullanıcı adı: {username}") # Debug log
+        
+        # Hala kullanıcı adı yoksa hata döndür
+        if not username:
+            return jsonify({"error": "Geçersiz widget token veya kullanıcı bulunamadı"}), 404
+        
+        # SpotifyApiService kullanarak Spotify verilerini al
+        spotify_api_service = SpotifyApiService()
+        
+        # Kullanıcının şu an çalan parça bilgisini al
+        playback_data = None
+        try:
+            playback_data = spotify_api_service.get_currently_playing(username)
+        except Exception as api_error:
+            # API hatası durumunda boş veri döndür
+            playback_data = None
+        
+        # Eğer çalan bir parça varsa
         if playback_data and playback_data.get("item"):
-            item: Dict[str, Any] = playback_data.get("item", {})
-            artists: List[Dict[str, Any]] = item.get("artists", [{}])
-            album_images: List[Dict[str, Any]] = item.get("album", {}).get("images", [{}])
+            item = playback_data.get("item", {})
+            artists = item.get("artists", [{}])
+            album_images = item.get("album", {}).get("images", [{}])
 
-            response_data: Dict[str, Any] = {
+            response_data = {
                 "is_playing": playback_data.get("is_playing", False),
                 "track_name": item.get("name", "Bilinmeyen Parça"),
                 "artist_name": artists[0].get("name", "Bilinmeyen Sanatçı") if artists else "Bilinmeyen Sanatçı",
@@ -236,14 +332,12 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
                 "track_url": item.get("external_urls", {}).get("spotify"),
                 "artist_url": artists[0].get("external_urls", {}).get("spotify") if artists else None,
                 "album_url": item.get("album", {}).get("external_urls", {}).get("spotify"),
-                "source": "Spotify API" # Verinin kaynağını belirtmek iyi bir pratik.
+                "source": "Spotify API"
             }
-            # print(f"Widget için hazırlanan yanıt verisi (Token: {widget_token}): {response_data}") # Geliştirme için log
             return jsonify(response_data), 200
         else:
             # Bir şey çalmıyorsa veya veri alınamadıysa
-            # print(f"Widget için çalma verisi yok veya 'item' bulunamadı (Token: {widget_token}). 'Çalmıyor' durumu döndürülüyor.") # Geliştirme için log
-            not_playing_response: Dict[str, Any] = {
+            not_playing_response = {
                 "is_playing": False,
                 "track_name": "Bir Şey Çalmıyor",
                 "artist_name": "-",
@@ -259,6 +353,64 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         # import traceback
         # print(traceback.format_exc()) # Detaylı hata için
         return jsonify({"error": "Widget verisi alınırken sunucu hatası oluştu."}), 500
+
+# -----------------------------------------------------------------------------
+# 3.4. widget_action(widget_token, action) : Widget kontrol işlemlerini yönetir.
+#      Rota: /widget/action/<widget_token>/<action> (POST)
+#      Tam Rota (Blueprint ile): /spotify/widget/action/<widget_token>/<action>
+# -----------------------------------------------------------------------------
+@spotify_widget_bp.route('/widget/action/<string:widget_token>/<string:action>', methods=['POST'])
+def widget_action(widget_token: str, action: str) -> Tuple[Dict[str, Any], int]:
+    """
+    Belirtilen widget token'ı için Spotify oynatıcı kontrol işlemlerini yönetir.
+    Örneğin: play, pause, next, previous gibi işlemler.
+
+    Args:
+        widget_token (str): İşlem yapılacak widget'a ait token.
+        action (str): Yapılacak işlem (play, pause, next, previous).
+
+    Returns:
+        Tuple[Dict[str, Any], int]: JSON yanıt ve HTTP durum kodu.
+    """
+    try:
+        # WidgetTokenService kullanarak token'ı doğrula
+        widget_token_service = WidgetTokenService()
+        is_valid, payload = widget_token_service.validate_widget_token(widget_token)
+        
+        if not is_valid:
+            return jsonify({"success": False, "error": "Geçersiz widget token"}), 404
+        
+        # Token'dan kullanıcı adını al
+        username = payload.get('username')
+        if not username:
+            return jsonify({"success": False, "error": "Token'da kullanıcı adı bulunamadı"}), 400
+        
+        # Geçerli işlemleri kontrol et
+        valid_actions = ['play', 'pause', 'next', 'previous']
+        if action not in valid_actions:
+            return jsonify({"success": False, "error": f"Geçersiz işlem: {action}"}), 400
+        
+        # SpotifyApiService kullanarak işlemi gerçekleştir
+        spotify_api_service = SpotifyApiService()
+        
+        # İşleme göre uygun metodu çağır
+        result = False
+        if action == 'play':
+            result = spotify_api_service.play(username)
+        elif action == 'pause':
+            result = spotify_api_service.pause(username)
+        elif action == 'next':
+            result = spotify_api_service.next_track(username)
+        elif action == 'previous':
+            result = spotify_api_service.previous_track(username)
+        
+        if result:
+            return jsonify({"success": True, "action": action}), 200
+        else:
+            return jsonify({"success": False, "error": "Spotify API işlemi başarısız oldu"}), 500
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # =============================================================================
 # 4.0 BLUEPRINT KAYIT FONKSİYONU (BLUEPRINT REGISTRATION FUNCTION)

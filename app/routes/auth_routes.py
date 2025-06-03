@@ -112,16 +112,16 @@ def init_auth_routes(app: Flask) -> None:
             except ValueError as ve: # Servis tarafından fırlatılan beklenen hatalar (örn: kullanıcı adı mevcut)
                 flash(str(ve), 'danger')
                 # print(f"Kayıt sırasında beklenen hata ({username}): {str(ve)}") # Geliştirme için log
-                return render_template('register.html', title="Kayıt Ol", username=username, email=email)
+                return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
             except Exception as e: # Beklenmedik diğer hatalar
                 flash(f'Kayıt sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'danger')
                 # print(f"Kayıt sırasında beklenmedik hata ({username}): {str(e)}") # Geliştirme için log
                 # import traceback
                 # print(traceback.format_exc()) # Detaylı hata için
-                return render_template('register.html', title="Kayıt Ol", username=username, email=email)
+                return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
 
         # GET isteği - kayıt formunu göster
-        return render_template('register.html', title="Kayıt Ol")
+        return render_template('auth/register.html', title="Kayıt Ol")
 
     # -------------------------------------------------------------------------
     # 3.2. login() : Kullanıcı giriş sayfasını gösterir ve işlemi yapar.
@@ -149,7 +149,7 @@ def init_auth_routes(app: Flask) -> None:
             if not all([username, password]):
                 flash('Lütfen kullanıcı adı ve parola girin.', 'danger')
                 # print("Giriş hatası: Kullanıcı adı veya parola eksik.") # Geliştirme için log
-                return render_template('login.html', title="Giriş Yap")
+                return render_template('auth/login.html', title="Giriş Yap")
 
             try:
                 # auth_service.beatify_log_in, başarılı olursa None veya Response (beni hatırla çerezi için) döndürür.

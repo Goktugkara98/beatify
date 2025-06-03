@@ -66,7 +66,7 @@ from flask import (
     Request  # İstek tipi için
 )
 from werkzeug.security import check_password_hash, generate_password_hash # Parola hashleme ve kontrolü
-from app.database.models.database import UserRepository # Kullanıcı veritabanı işlemleri
+from app.database.beatify_user_repository import BeatifyUserRepository # Kullanıcı veritabanı işlemleri
 from app.config import DEBUG # Uygulama hata ayıklama modu (örn: HTTPS yönlendirmesi, cookie güvenliği için)
 
 # Logger kurulumu (modül seviyesinde)
@@ -96,7 +96,7 @@ def beatify_register(username: str, email: str, password: str) -> None:
                      bu yapı korunabilir veya istisna fırlatılabilir.)
     """
     # print(f"AuthService: beatify_register çağrıldı - KullanıcıAdı='{username}', Email='{email}'") # Geliştirme için log
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     existing_user_details: Optional[tuple] = user_repo.beatify_get_username_or_email_data(username, email)
 
     if existing_user_details:
@@ -151,7 +151,7 @@ def beatify_log_in(username: str, password: str, remember_me: bool) -> Optional[
         ValueError: Kullanıcı adı veya parola geçersizse.
     """
     # print(f"AuthService: beatify_log_in çağrıldı - KullanıcıAdı='{username}', BeniHatırla={remember_me}") # Geliştirme için log
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     # Veritabanından kullanıcının hash'lenmiş parolasını al
     database_password_hash: Optional[str] = user_repo.beatify_get_password_hash_data(username)
 
@@ -189,7 +189,7 @@ def beatify_log_out(username: str) -> None:
     # print(f"AuthService: beatify_log_out çağrıldı - KullanıcıAdı='{username}'") # Geliştirme için log
     auth_token_cookie: Optional[str] = request.cookies.get('auth_token')
     if auth_token_cookie:
-        user_repo = UserRepository()
+        user_repo = BeatifyUserRepository()
         try:
             # Token'ı veritabanında geçersiz kıl
             user_repo.beatify_deactivate_auth_token(username, auth_token_cookie)
@@ -220,7 +220,7 @@ def beatify_check_user_password(username: str, password_to_check: str) -> bool:
         bool: Parolalar eşleşiyorsa True, aksi halde False.
     """
     # print(f"AuthService: beatify_check_user_password çağrıldı - KullanıcıAdı='{username}'") # Geliştirme için log
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     stored_password_hash: Optional[str] = user_repo.beatify_get_password_hash_data(username)
 
     if not stored_password_hash:
@@ -254,7 +254,7 @@ def session_log_in(username: str) -> None:
     session['username'] = username
 
     # Kullanıcı ID'sini de session'a ekleyebiliriz, bazı işlemler için faydalı olabilir.
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     user_data: Optional[Dict[str, Any]] = user_repo.beatify_get_user_data(username)
     if user_data and 'id' in user_data:
         session['user_id'] = user_data['id']
@@ -325,7 +325,7 @@ def beatify_create_auth_token(username: str) -> Response:
     # Token geçerlilik süresi (örn: 30 gün)
     expires_at: datetime = datetime.now() + timedelta(days=30)
 
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     try:
         user_repo.beatify_insert_or_update_auth_token(username, token, expires_at)
         logger.info(f"Kullanıcı '{username}' için yeni auth_token ({token[:10]}...) oluşturuldu ve DB'ye kaydedildi.")
@@ -375,7 +375,7 @@ def beatify_validate_auth_token(token: str) -> Optional[str]:
     if not token:
         return None
 
-    user_repo = UserRepository()
+    user_repo = BeatifyUserRepository()
     username: Optional[str] = user_repo.beatify_validate_auth_token(token)
     # if username:
         # print(f"Auth_token geçerli. Kullanıcı: {username}") # Geliştirme için log
