@@ -1,33 +1,180 @@
 /* widget.css */
-/* Tailwind CSS çoğu stili halledeceği için bu dosya genellikle boş veya çok minimal olacaktır. */
+
+/* Base styles for body and html */
+body, html {
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
 
 body {
-    font-family: 'Inter', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh; /* iframe yüksekliğine göre ayarlanacak */
-    margin: 0;
-    background-color: transparent; /* iframe'in transparan olması için */
+    color: white;
 }
 
+/* Main widget container */
 #spotifyWidget {
-    /* Widget'ın genel boyutları ve görünümü Tailwind ile HTML'de ayarlandı */
+    width: 600px;
+    height: 500px;
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(to bottom, #374151, #111827);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Background Album art styling (blurred) */
+#albumArtBackground {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Stretched to cover the entire container */
+    z-index: 0;
+    transition: opacity 0.5s ease-in-out, filter 0.5s ease-in-out;
+    opacity: 1;
+    filter: blur(20px) brightness(1); /* Blurred and darkened */
+}
+
+/* Main Album art styling */
 #albumArt {
-    /* Gölge ve kenarlık gibi stiller Tailwind ile eklendi */
-    border: 1px solid rgba(255,255,255,0.1);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 1rem;
+    object-fit: contain; /* Maintain aspect ratio */
+    z-index: 1; /* Above the background */
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+    filter: brightness(0.9);
 }
 
-/* İkonların düzgün görünmesi için */
-.fas {
-    line-height: inherit;
+/* Dark gradient overlay for better text readability */
+#gradientOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7), transparent);
+    z-index: 5;
 }
 
-/* Şarkı ve sanatçı adı için metin kesme (truncate) stilleri Tailwind ile eklendi */
-.truncate {
+/* Content container */
+#overlayContent {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Track info section */
+.track-info {
+    text-align: left;
+}
+
+#trackName {
+    font-size: 1.5rem;
+    font-weight: bold;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+}
+
+#artistName {
+    font-size: 1rem;
+    color: rgb(209, 213, 219);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0.85;
+    font-weight: 500;
+}
+
+/* Player controls section */
+.player-controls {
+    margin-bottom: 1rem;
+}
+
+.progress-container {
+    margin-bottom: 1rem;
+}
+
+#progressBarContainer {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    height: 4px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+#progressBar {
+    background-color: rgb(74, 222, 128);
+    height: 4px;
+    border-radius: 9999px;
+    transition: width 0.5s linear;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgb(209, 213, 219);
+}
+
+#currentTime, #totalTime {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+/* Spotify logo */
+.spotify-logo {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.spotify-logo i {
+    color: rgb(74, 222, 128);
+    font-size: 1.25rem;
+}
+
+/* Error message */
+#errorMessage {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    text-align: center;
+    background-color: rgb(185, 28, 28);
+    color: white;
+    font-size: 0.75rem;
+    z-index: 20;
+    transition: opacity 0.3s ease-in-out;
+    backdrop-filter: blur(4px);
+    display: none;
+}
+
+#errorMessage.visible {
+    display: block;
+}
+
+#errorMessage.fade {
+    opacity: 0;
 }

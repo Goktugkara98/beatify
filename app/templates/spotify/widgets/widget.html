@@ -5,50 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Widget</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* iframe içinde scrollbar çıkmaması için */
-        body { overflow: hidden; } 
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget.css">
 </head>
-<body class="bg-gray-800 text-white flex flex-col items-center justify-center p-4 h-screen">
-    <div id="spotifyWidget" class="w-full max-w-xs rounded-lg shadow-xl overflow-hidden bg-gray-700">
-        <div id="widgetContent" class="p-5">
-            <div class="flex justify-center mb-4">
-                <img id="albumArt" src="https://placehold.co/200x200/2d3748/e2e8f0?text=Beatify" alt="Albüm Kapağı" class="w-48 h-48 rounded-md shadow-lg object-cover">
-            </div>
-            <div class="text-center">
-                <h3 id="trackName" class="text-lg font-semibold truncate" title="Şarkı Adı Yükleniyor...">Şarkı Adı Yükleniyor...</h3>
-                <p id="artistName" class="text-sm text-gray-400 truncate" title="Sanatçı Adı Yükleniyor...">Sanatçı Adı Yükleniyor...</p>
+<body>
+
+    <div id="spotifyWidget">
+        <!-- Background Album Art (blurred) -->
+        <img id="albumArtBackground" src="https://placehold.co/600x500/1f2937/e5e7eb?text=Beatify" alt="">
+        
+        <!-- Main Album Art -->
+        <img id="albumArt" src="https://placehold.co/600x500/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı">
+        
+        <!-- Dark Gradient Overlay -->
+        <div id="gradientOverlay"></div>
+
+        <!-- Content Container -->
+        <div id="overlayContent">
+            
+            <!-- Track Info -->
+            <div class="track-info">
+                <h3 id="trackName" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
+                <p id="artistName" title="Sanatçı Adı Yükleniyor...">...</p>
             </div>
 
-            <div class="mt-4 bg-gray-600 rounded-full h-1.5 w-full">
-                <div id="progressBar" class="bg-green-500 h-1.5 rounded-full" style="width: 0%;"></div>
+            <!-- Progress Bar and Time -->
+            <div class="player-controls">
+                <div class="progress-container">
+                    <div id="progressBarContainer">
+                        <div id="progressBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+                
+                <!-- Spotify Logo -->
+                <div class="spotify-logo">
+                    <i class="fab fa-spotify"></i>
+                </div>
             </div>
-        </div>
-
-        <div id="playerControls" class="bg-gray-700/50 px-5 py-3 flex justify-around items-center border-t border-gray-600">
-            <button id="prevButton" title="Önceki Şarkı" class="text-gray-300 hover:text-white transition-colors">
-                <i class="fas fa-backward-step fa-lg"></i>
-            </button>
-            <button id="playPauseButton" title="Oynat/Duraklat" class="text-gray-300 hover:text-white transition-colors bg-green-500 hover:bg-green-600 w-12 h-12 rounded-full flex items-center justify-center">
-                <i id="playPauseIcon" class="fas fa-play fa-lg"></i>
-            </button>
-            <button id="nextButton" title="Sonraki Şarkı" class="text-gray-300 hover:text-white transition-colors">
-                <i class="fas fa-forward-step fa-lg"></i>
-            </button>
         </div>
         
-        <div id="errorMessage" class="p-3 text-center text-red-400 text-xs hidden">
+        <!-- Error Message -->
+        <div id="errorMessage">
             Bir hata oluştu veya çalınan bir şey yok.
         </div>
     </div>
 
     <script>
         // WIDGET_TOKEN'ı global scope'a almak için.
-        // Backend'den gelen widget token'ını JavaScript'e aktar
         window.WIDGET_TOKEN = "{{ config.widgetToken|safe }}";
-        console.log('Widget token yüklendi:', window.WIDGET_TOKEN);
     </script>
-    <script src="/static/js/spotify/widget-manager/widgets/widget.js"></script> </body>
+    <script src="/static/js/spotify/widget-manager/widgets/widget.js"></script>
+</body>
 </html>
