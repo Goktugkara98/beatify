@@ -44,6 +44,7 @@ import logging # Loglama için
 
 from flask import Flask, request # Ana Flask sınıfı ve istek nesnesi
 from app.database.db_connection import DatabaseConnection # Veritabanı bağlantı sınıfı
+from app.database.migrations_repository import MigrationsRepository # Veritabanı migration sınıfı
 # Rota başlatma fonksiyonları
 from app.routes import main_routes, auth_routes # Blueprint'ler veya rota modülleri
 from app.routes.spotify_routes import spotify_routes # Spotify rotaları için ana başlatıcı
@@ -97,7 +98,8 @@ def create_app() -> Flask:
         database = DatabaseConnection() # Veritabanı bağlantı nesnesi
         # database.connect() # Bu, _ensure_connection içinde zaten çağrılıyor.
         # create_all_tables metodu kendi içinde bağlantıyı sağlayacaktır.
-        database.create_all_tables() # Gerekli tüm tabloları oluşturur/kontrol eder
+        migrations_repo = MigrationsRepository()
+        migrations_repo.create_all_tables()
         # logger.info("Veritabanı bağlantısı kuruldu ve tablolar oluşturuldu/kontrol edildi.")
         # ÖNEMLİ NOT: DatabaseConnection örneği burada oluşturuluyor ve `database`
         # değişkeni lokal kalıyor. Eğer her istek sonunda bağlantıyı kapatmak

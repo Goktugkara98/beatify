@@ -71,7 +71,7 @@ class SpotifyWidgetRepository:
             # veya SpotifyUserRepository.spotify_insert_or_update_client_info gibi bir metot
             # öncelikle çağrılmalıdır.
             # Şimdilik, var olan bir kaydı güncellediğini varsayıyoruz.
-            query = "UPDATE spotify_users SET widget_token = %s WHERE username = %s"
+            query = "UPDATE spotify_widget_configs SET widget_token = %s WHERE username = %s"
             self.db.cursor.execute(query, (token, username))
             self.db.connection.commit()
             return self.db.cursor.rowcount > 0

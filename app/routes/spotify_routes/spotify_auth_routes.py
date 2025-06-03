@@ -60,7 +60,7 @@ def init_spotify_auth_routes(app: Flask):
 
     # Servis ve depo örneklerinin başlatılması
     spotify_auth_service = SpotifyAuthService()
-    spotify_repo = SpotifyRepository() # Spotify kullanıcı verilerine erişim için
+    spotify_repo = SpotifyUserRepository() # Spotify kullanıcı verilerine erişim için
 
     # =========================================================================
     # 3.0 KİMLİK DOĞRULAMA ROTALARI (AUTHENTICATION ROUTES)

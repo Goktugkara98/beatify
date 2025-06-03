@@ -105,9 +105,25 @@ class WidgetTokenService:
             # Daha genel bir hata mesajı ile RuntimeError yükselt
             # Orijinal hatayı da zincirleme hata olarak ekle (debugging için faydalı)
             raise RuntimeError(f"Token oluşturulamadı: {str(e)}") from e
-
     # -------------------------------------------------------------------------
-    # 2.1.3. validate_widget_token(...) : Widget token'ını doğrular ve payload'u çıkarır.
+    # 2.1.3. generate_and_insert_widget_token(...) : Widget token'ını oluşturur ve veritabanına kaydeder.
+    # -------------------------------------------------------------------------
+    def generate_and_insert_widget_token(self, username: str) -> Optional[str]:
+        """
+        Belirtilen kullanıcı için yeni bir widget token'ı oluşturur ve veritabanına kaydeder.
+
+        Args:
+            username (str): Token'a sahip olacak kullanıcının adı.
+
+        Returns:
+            Optional[str]: Yeni oluşturulan widget token'ı.
+        """
+        token = self.generate_widget_token(username)
+        token_data = [token, username,]
+        SpotifyWidgetRepository().spotify_store_widget_token(username, token)
+        return token
+    # -------------------------------------------------------------------------
+    # 2.1.4. validate_widget_token(...) : Widget token'ını doğrular ve payload'u çıkarır.
     # -------------------------------------------------------------------------
     def validate_widget_token(self, token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """
@@ -194,7 +210,7 @@ class WidgetTokenService:
             return False, None
 
     # -------------------------------------------------------------------------
-    # 2.1.4. get_widget_token(...) : Token'dan widget token'ını çıkarır.
+    # 2.1.5. get_widget_token(...) : Token'dan widget token'ını çıkarır.
     # -------------------------------------------------------------------------
     def get_widget_token(self, username: str) -> Optional[str]:
         """
@@ -211,7 +227,7 @@ class WidgetTokenService:
         return token
 
     # -------------------------------------------------------------------------
-    # 2.1.5. get_or_create_widget_token(...) : Token'dan widget token'ını çıkarır.
+    # 2.1.6. get_or_create_widget_token(...) : Token'dan widget token'ını çıkarır.
     # -------------------------------------------------------------------------
     def get_or_create_widget_token(self, username: str) -> Optional[str]:
         """
@@ -233,7 +249,7 @@ class WidgetTokenService:
         return self.generate_widget_token(username)
     
     # -------------------------------------------------------------------------
-    # 2.1.6. get_widget_config_from_token(...) : Token'dan widget yapılandırmasını çıkarır.
+    # 2.1.7. get_widget_config_from_token(...) : Token'dan widget yapılandırmasını çıkarır.
     # -------------------------------------------------------------------------
     def get_widget_config_from_token(self, token: str) -> Optional[Dict[str, Any]]:
         """
@@ -260,7 +276,7 @@ class WidgetTokenService:
         return widget_config
 
     # -------------------------------------------------------------------------
-    # 2.1.7. get_username_from_token(...) : Token'dan kullanıcı adını çıkarır.
+    # 2.1.8. get_username_from_token(...) : Token'dan kullanıcı adını çıkarır.
     # -------------------------------------------------------------------------
     def get_username_from_token(self, token: str) -> Optional[str]:
         """

@@ -200,7 +200,7 @@ def init_main_routes(app: Flask) -> None:
             # print(f"Alınan Spotify kimlik bilgileri: ClientID='{client_id}', ClientSecret='{client_secret is not None}'") # Geliştirme için log
 
             # SpotifyRepository örneği, Spotify bilgilerini güncellemek için gereklidir.
-            spotify_repo = SpotifyRepository()
+            spotify_repo = SpotifyUserRepository()
 
             try:
                 # Temel doğrulama: Her iki alan da dolu olmalı.

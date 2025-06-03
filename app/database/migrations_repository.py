@@ -16,7 +16,8 @@
 #           2.1.4. create_beatify_users_table
 #           2.1.5. create_beatify_auth_tokens_table
 #           2.1.6. create_spotify_users_table
-#           2.1.7. create_all_tables
+#           2.1.7. create_spotify_widget_configs_table  <-- YENİ
+#           2.1.8. create_all_tables                    <-- GÜNCELLENDİ
 # =============================================================================
 
 # =============================================================================
@@ -24,7 +25,11 @@
 # =============================================================================
 from mysql.connector import Error as MySQLError
 from typing import Optional
-from app.database.db_connection import DatabaseConnection # Bir üst dizindeki db_connection modülünden import
+# app.database.db_connection modülünün doğru yolda olduğundan emin olun.
+# Eğer migrations_repository.py dosyası app/database/ klasöründeyse:
+from .db_connection import DatabaseConnection
+# Eğer app/ klasörünün bir üst dizinindeyse ve app bir paketse:
+# from app.database.db_connection import DatabaseConnection
 
 # =============================================================================
 # 2.0 MIGRATIONS REPOSITORY SINIFI (MIGRATIONS REPOSITORY CLASS)
@@ -87,7 +92,9 @@ class MigrationsRepository:
             """
             self.db.cursor.execute(query)
             self.db.connection.commit()
+            print("`beatify_users` tablosu başarıyla oluşturuldu veya zaten mevcut.")
         except MySQLError as e:
+            print(f"`beatify_users` tablosu oluşturulurken hata: {e}")
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
             raise
@@ -105,7 +112,7 @@ class MigrationsRepository:
             query = """
                 CREATE TABLE IF NOT EXISTS beatify_auth_tokens (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(255) NOT NULL,
+                    username VARCHAR(255) NOT NULL, 
                     token VARCHAR(255) UNIQUE NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     expires_at DATETIME NOT NULL,
@@ -113,9 +120,16 @@ class MigrationsRepository:
                     FOREIGN KEY (username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
+            # beatify_users tablosunda username UNIQUE olduğu için FOREIGN KEY (username) kullanılabilir.
+            # Ancak genellikle ID üzerinden bağlantı kurulur. Eğer beatify_user_id INT ise,
+            # beatify_user_id INT NOT NULL,
+            # FOREIGN KEY (beatify_user_id) REFERENCES beatify_users(id) ON DELETE CASCADE ON UPDATE CASCADE
+            # şeklinde olmalıdır. Mevcut yapıda username kullanılmış.
             self.db.cursor.execute(query)
             self.db.connection.commit()
+            print("`beatify_auth_tokens` tablosu başarıyla oluşturuldu veya zaten mevcut.")
         except MySQLError as e:
+            print(f"`beatify_auth_tokens` tablosu oluşturulurken hata: {e}")
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
             raise
@@ -126,35 +140,74 @@ class MigrationsRepository:
     def create_spotify_users_table(self):
         """
         `spotify_users` tablosunu oluşturur (eğer mevcut değilse).
+        Bu tablo, Beatify kullanıcılarının Spotify hesap bilgilerini saklar.
         Hata durumunda `MySQLError` fırlatır.
         """
         self._ensure_connection()
         try:
             query = """
                 CREATE TABLE IF NOT EXISTS spotify_users (
-                    username VARCHAR(255) PRIMARY KEY,
-                    spotify_user_id VARCHAR(255) UNIQUE,
-                    client_id VARCHAR(255) DEFAULT NULL,
+                    username VARCHAR(255) PRIMARY KEY, /* Beatify kullanıcısının username'i */
+                    spotify_user_id VARCHAR(255) UNIQUE, /* Spotify kullanıcı ID'si */
+                    access_token TEXT DEFAULT NULL, /* Spotify API erişim token'ı */
+                    refresh_token TEXT DEFAULT NULL, /* Spotify API yenileme token'ı */
+                    token_expires_at DATETIME DEFAULT NULL, /* Erişim token'ının son kullanma tarihi */
+                    scopes TEXT DEFAULT NULL, /* İzin verilen Spotify kapsamları (virgülle ayrılmış) */
+                    client_id VARCHAR(255) DEFAULT NULL, /* Geliştirici kendi client ID/Secret'ını girerse */
                     client_secret VARCHAR(255) DEFAULT NULL,
-                    refresh_token TEXT DEFAULT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    widget_token TEXT DEFAULT NULL,
-                    short_token VARCHAR(20) DEFAULT NULL,
-                    design VARCHAR(255) DEFAULT 'standard',
-                    FOREIGN KEY (username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE,
-                    INDEX idx_short_token (short_token)
+                    FOREIGN KEY (username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE  -- Corrected: Removed trailing comma
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
             self.db.cursor.execute(query)
             self.db.connection.commit()
+            print("`spotify_users` tablosu başarıyla oluşturuldu veya zaten mevcut.")
         except MySQLError as e:
+            print(f"`spotify_users` tablosu oluşturulurken hata: {e}")
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
             raise
 
     # -------------------------------------------------------------------------
-    # 2.1.7. create_all_tables : Uygulama için gerekli tüm veritabanı tablolarını oluşturur.
+    # 2.1.7. create_spotify_widget_configs_table : `spotify_widget_configs` tablosunu oluşturur. (YENİ)
+    # -------------------------------------------------------------------------
+    def create_spotify_widget_configs_table(self):
+        """
+        `spotify_widget_configs` tablosunu oluşturur (eğer mevcut değilse).
+        Bu tablo, kullanıcıların özelleştirilmiş Spotify widget yapılandırmalarını saklar.
+        Hata durumunda `MySQLError` fırlatır.
+        """
+        self._ensure_connection()
+        try:
+            query = """
+                CREATE TABLE IF NOT EXISTS spotify_widget_configs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    beatify_user_id INT NOT NULL,
+                    widget_token VARCHAR(255) UNIQUE NOT NULL,
+                    widget_name VARCHAR(255) DEFAULT NULL,
+                    widget_type VARCHAR(100) NOT NULL,
+                    config_data TEXT NOT NULL, /* JSON formatında widget ayarları */
+                    spotify_user_id VARCHAR(255) DEFAULT NULL, /* Bu widget'ın hangi Spotify kullanıcısının verilerini göstereceği */
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (beatify_user_id) REFERENCES beatify_users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                    INDEX idx_widget_type (widget_type)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """
+            # widget_token zaten UNIQUE olduğu için otomatik olarak indekslenir,
+            # ancak açıkça INDEX idx_widget_token (widget_token) de eklenebilir.
+            self.db.cursor.execute(query)
+            self.db.connection.commit()
+            print("`spotify_widget_configs` tablosu başarıyla oluşturuldu veya zaten mevcut.")
+        except MySQLError as e:
+            print(f"`spotify_widget_configs` tablosu oluşturulurken hata: {e}")
+            if self.db.connection and self.db.connection.is_connected():
+                self.db.connection.rollback()
+            raise
+            
+    # -------------------------------------------------------------------------
+    # 2.1.8. create_all_tables : Uygulama için gerekli tüm veritabanı tablolarını oluşturur. (GÜNCELLENDİ)
     # -------------------------------------------------------------------------
     def create_all_tables(self):
         """
@@ -163,12 +216,10 @@ class MigrationsRepository:
         """
         self._ensure_connection()
         try:
-            print("beatify_users tablosu oluşturuluyor...")
             self.create_beatify_users_table()
-            print("beatify_auth_tokens tablosu oluşturuluyor...")
             self.create_beatify_auth_tokens_table()
-            print("spotify_users tablosu oluşturuluyor...")
             self.create_spotify_users_table()
+            self.create_spotify_widget_configs_table() # Yeni tabloyu ekledik
             print("Tüm tablolar başarıyla oluşturuldu veya zaten mevcut.")
         except MySQLError as e:
             print(f"Tablo oluşturma sırasında genel hata: {e}")
@@ -180,3 +231,15 @@ class MigrationsRepository:
 # =============================================================================
 # Migrations Repository Modülü Sonu
 # =============================================================================
+
+# Örnek Kullanım (Bu kısmı uygulamanızın ana başlatma noktasında çağırabilirsiniz):
+# if __name__ == '__main__':
+#     try:
+#         migrations_repo = MigrationsRepository()
+#         migrations_repo.create_all_tables()
+#         print("Veritabanı migration işlemleri tamamlandı.")
+#     except MySQLError as err:
+#         print(f"Veritabanı migration hatası: {err}")
+#     except Exception as general_err:
+#         print(f"Beklenmedik bir hata oluştu: {general_err}")
+
