@@ -183,7 +183,7 @@ class MigrationsRepository:
             query = """
                 CREATE TABLE IF NOT EXISTS spotify_widget_configs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    beatify_user_id INT NOT NULL,
+                    beatify_username VARCHAR(255) NOT NULL,
                     widget_token VARCHAR(255) UNIQUE NOT NULL,
                     widget_name VARCHAR(255) DEFAULT NULL,
                     widget_type VARCHAR(100) NOT NULL,
@@ -191,7 +191,7 @@ class MigrationsRepository:
                     spotify_user_id VARCHAR(255) DEFAULT NULL, /* Bu widget'ın hangi Spotify kullanıcısının verilerini göstereceği */
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    FOREIGN KEY (beatify_user_id) REFERENCES beatify_users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                    FOREIGN KEY (beatify_username) REFERENCES beatify_users(username) ON DELETE CASCADE ON UPDATE CASCADE,
                     INDEX idx_widget_type (widget_type)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """

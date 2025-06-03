@@ -25,7 +25,7 @@
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
 from mysql.connector import Error as MySQLError
-from typing import Optional
+from typing import Optional, Dict, Any
 from app.database.db_connection import DatabaseConnection
 
 # =============================================================================
@@ -63,22 +63,55 @@ class SpotifyWidgetRepository:
     # -------------------------------------------------------------------------
     # 2.1.4. spotify_store_widget_token : Spotify widget token'ını saklar/günceller.
     # -------------------------------------------------------------------------
-    def spotify_store_widget_token(self, username: str, token: str) -> bool:
+    def spotify_store_widget_token(self, token_data: Dict[str, Any]) -> bool:
+        """
+        Widget token ve ilgili bilgileri veritabanına kaydeder veya günceller.
+        Veriyi sözlük olarak alır.
+
+        Args:
+            token_data (Dict[str, Any]): Kaydedilecek widget bilgilerini içeren sözlük.
+                Beklenen anahtarlar: "username", "widget_token", "widget_name", 
+                                    "widget_type", "config_data", "spotify_user_id".
+
+        Returns:
+            bool: İşlem başarılıysa True, değilse False.
+        
+        Raises:
+            MySQLError: Veritabanı hatası durumunda.
+        """
         self._ensure_connection()
         try:
-            # Bu metot, kullanıcı için spotify_users tablosunda bir kayıt olduğunu varsayar.
-            # Eğer kayıt yoksa, INSERT ... ON DUPLICATE KEY UPDATE kullanılmalı
-            # veya SpotifyUserRepository.spotify_insert_or_update_client_info gibi bir metot
-            # öncelikle çağrılmalıdır.
-            # Şimdilik, var olan bir kaydı güncellediğini varsayıyoruz.
-            query = "UPDATE spotify_widget_configs SET widget_token = %s WHERE username = %s"
-            self.db.cursor.execute(query, (token, username))
+            # beatify_username birincil anahtar veya benzersiz anahtar olmalı
+            query = """
+            INSERT INTO spotify_widget_configs 
+            (beatify_username, widget_token, widget_name, widget_type, config_data, spotify_user_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            widget_token = VALUES(widget_token),
+            widget_name = VALUES(widget_name),
+            widget_type = VALUES(widget_type),
+            config_data = VALUES(config_data),
+            spotify_user_id = VALUES(spotify_user_id)
+            """
+            params = (
+                token_data["beatify_username"],
+                token_data["widget_token"],
+                token_data["widget_name"],
+                token_data["widget_type"],
+                token_data["config_data"],
+                token_data["spotify_user_id"]
+            )
+            
+            self.db.cursor.execute(query, params)
             self.db.connection.commit()
-            return self.db.cursor.rowcount > 0
-        except MySQLError as e:
+            return self.db.cursor.rowcount > 0  # Etkilenen satır varsa başarılı sayılır
+                                                # INSERT için rowcount 1, UPDATE için 1 veya 2 olabilir (MySQL'de)
+                                                # Değişiklik yoksa 0 olabilir.
+        except MySQLError as e: # Kullandığınız DB kütüphanesinin hata sınıfını kullanın
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            print(f"Database error: {e}") # Loglama için
+            raise # Hatayı yukarıya tekrar fırlat
         finally:
             self._close_if_owned()
 
@@ -88,7 +121,7 @@ class SpotifyWidgetRepository:
     def spotify_get_widget_token(self, username: str) -> Optional[str]:
         self._ensure_connection()
         try:
-            query = "SELECT widget_token FROM spotify_users WHERE username = %s"
+            query = "SELECT widget_token FROM spotify_widget_configs WHERE beatify_username = %s"
             self.db.cursor.execute(query, (username,))
             result = self.db.cursor.fetchone()
             return result['widget_token'] if result and result['widget_token'] else None
@@ -98,15 +131,16 @@ class SpotifyWidgetRepository:
             self._close_if_owned()
             
     # -------------------------------------------------------------------------
-    # 2.1.6. spotify_get_widget_token_by_short_token : Kısa token ile tam widget token'ını getirir.
+    # 2.1.6. beatify_get_username_by_widget_token : Kısa token ile tam widget token'ını getirir.
     # -------------------------------------------------------------------------
-    def spotify_get_widget_token_by_short_token(self, short_token: str) -> Optional[str]:
+    def beatify_get_username_by_widget_token(self, widget_token: str) -> Optional[str]:
         self._ensure_connection()
         try:
-            query = "SELECT widget_token FROM spotify_users WHERE short_token = %s"
-            self.db.cursor.execute(query, (short_token,))
+            query = "SELECT beatify_username FROM spotify_widget_configs WHERE widget_token = %s"
+            self.db.cursor.execute(query, (widget_token,))
             result = self.db.cursor.fetchone()
-            return result['widget_token'] if result and result['widget_token'] else None
+            print(result)
+            return result['beatify_username'] if result and result['beatify_username'] else None
         except MySQLError:
             return None
         finally:
@@ -124,10 +158,10 @@ class SpotifyWidgetRepository:
             # widget_token TEXT olduğu için tam eşleşme yavaş olabilir.
             # Eğer bu sık kullanılacaksa, widget_token'ın bir hash'i veya kısa bir versiyonu
             # üzerinden arama yapmak daha performanslı olabilir.
-            query = "SELECT username FROM spotify_users WHERE widget_token = %s"
+            query = "SELECT beatify_username FROM spotify_widget_configs WHERE widget_token = %s"
             self.db.cursor.execute(query, (token,))
             result = self.db.cursor.fetchone() # İlk eşleşeni alır
-            return result['username'] if result else None
+            return result['beatify_username'] if result else None
         except MySQLError:
             return None
         finally:

@@ -98,7 +98,6 @@ class WidgetTokenService:
             alphabet = string.digits + string.ascii_letters
             # Belirtilen uzunlukta güvenli rastgele karakterler seçerek token oluştur
             token = ''.join(secrets.choice(alphabet) for _ in range(length))
-            SpotifyWidgetRepository().spotify_store_widget_token(username, token)
             return token
         except Exception as e:
             # Token oluşturma sırasında beklenmedik bir hata oluşursa
@@ -111,6 +110,7 @@ class WidgetTokenService:
     def generate_and_insert_widget_token(self, username: str) -> Optional[str]:
         """
         Belirtilen kullanıcı için yeni bir widget token'ı oluşturur ve veritabanına kaydeder.
+        Veriyi sözlük olarak gönderir.
 
         Args:
             username (str): Token'a sahip olacak kullanıcının adı.
@@ -119,8 +119,28 @@ class WidgetTokenService:
             Optional[str]: Yeni oluşturulan widget token'ı.
         """
         token = self.generate_widget_token(username)
-        token_data = [token, username,]
-        SpotifyWidgetRepository().spotify_store_widget_token(username, token)
+        widget_name = "Unknown"  # Varsayılan veya daha sonra güncellenecek
+        widget_type = "Unknown"  # Varsayılan veya daha sonra güncellenecek
+        config_data = "{}"       # JSON string olarak varsayılan konfigürasyon
+        spotify_user_id = SpotifyUserRepository().spotify_get_user_data(username)['spotify_user_id']
+
+        token_data: Dict[str, Any] = {
+            "beatify_username": username,
+            "widget_token": token,
+            "widget_name": widget_name,
+            "widget_type": widget_type,
+            "config_data": config_data,
+            "spotify_user_id": spotify_user_id
+        }
+
+        # SpotifyWidgetRepository örneğini oluşturup metodu çağırın
+        # (SpotifyWidgetRepository'nin nasıl başlatıldığına bağlı olarak düzenleyin)
+        # spotify_repo = SpotifyWidgetRepository() # Eğer bağlantı vs. gerekiyorsa uygun şekilde başlatın
+        # spotify_repo.spotify_store_widget_token(token_data)
+
+        # Şimdilik doğrudan çağırdığınızı varsayıyorum:
+        SpotifyWidgetRepository().spotify_store_widget_token(token_data)
+        
         return token
     # -------------------------------------------------------------------------
     # 2.1.4. validate_widget_token(...) : Widget token'ını doğrular ve payload'u çıkarır.
@@ -246,7 +266,7 @@ class WidgetTokenService:
             return existing_token
         
         # Yeni token oluştur ve döndür
-        return self.generate_widget_token(username)
+        return self.generate_and_insert_widget_token(username)
     
     # -------------------------------------------------------------------------
     # 2.1.7. get_widget_config_from_token(...) : Token'dan widget yapılandırmasını çıkarır.

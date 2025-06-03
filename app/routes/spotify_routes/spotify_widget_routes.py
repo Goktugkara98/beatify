@@ -286,8 +286,8 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         username = None
         try:
             repo = SpotifyWidgetRepository()
-            username = repo.spotify_get_username_by_widget_token_data(widget_token)
-            print(f"Kullanıcı adı repository'den alındı: {username}") # Debug log
+            username = repo.beatify_get_username_by_widget_token(widget_token)
+            # print(f"Kullanıcı adı repository'den alındı: {username}") # Debug log
         except Exception as repo_error:
             print(f"Repository'den kullanıcı adı alınırken hata: {str(repo_error)}") # Debug log
         
@@ -295,11 +295,11 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         if not username:
             widget_token_service = WidgetTokenService()
             is_valid, payload = widget_token_service.validate_widget_token(widget_token)
-            print(f"Token doğrulama sonucu: {is_valid}") # Debug log
+            # print(f"Token doğrulama sonucu: {is_valid}") # Debug log
             
             if is_valid and payload:
                 username = payload.get('username')
-                print(f"Token doğrulamadan kullanıcı adı: {username}") # Debug log
+                # print(f"Token doğrulamadan kullanıcı adı: {username}") # Debug log
         
         # Hala kullanıcı adı yoksa hata döndür
         if not username:
