@@ -1,29 +1,308 @@
-/* widget-manager.css */
-/* Tailwind CSS çoğu stili halledeceği için bu dosya genellikle boş veya çok minimal olacaktır. */
-/* Özel stiller gerekirse buraya eklenebilir. */
+/* Widget Manager Styles */
 
-body {
-    font-family: 'Inter', sans-serif; /* Tailwind'in varsayılan font ailesine benzer bir alternatif */
+/* Container styles */
+.widget-manager-container {
+    padding: 3rem 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(29, 29, 29, 0.5);
+    border-radius: 12px;
 }
 
-/* Flash mesajlar için temel stiller (Tailwind sınıfları HTML'de zaten mevcut) */
-.flash-success {
-    background-color: #34d399; /* Tailwind green-500 */
-    color: white;
-    padding: 1rem;
-    border-radius: 0.375rem; /* rounded-md */
+/* Header styles */
+.widget-manager-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.widget-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 1);
+}
+
+.widget-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 1);
+}
+
+/* Widget cards container */
+.widget-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+/* Widget card styles */
+.widget-card {
+    flex: 1;
+    min-width: 250px;
+    max-width: 250px;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-areas: "card";
+    place-items: center;
+    aspect-ratio: 4/5;
+    background-color: rgba(75, 75, 75, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    transition: border-color 200ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+    backdrop-filter: blur(10px);
+    isolation: isolate;
+    user-select: none;
+}
+
+.widget-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at bottom left,
+        transparent 55%,
+        rgba(20, 20, 20, 0.7)
+    );
+    pointer-events: none;
+    box-shadow: #09090b -0.5cqi 0.5cqi 2.5cqi inset;
+    transition: opacity 900ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+}
+
+.widget-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(20, 20, 20, 0.7), transparent 65%);
+    opacity: 0;
+    transition: opacity 800ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+}
+
+.widget-card > * {
+    grid-area: card;
+    position: relative;
+    z-index: 1;
+}
+
+/* Seçilen kart için efektler */
+.widget-card.selected {
+    border-color: rgba(255, 255, 255, 0.3);
+    transition: all 1200ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1));
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+    filter: brightness(1);
+}
+
+.widget-card.selected::before {
+    opacity: 0;
+    transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+}
+
+.widget-card.selected::after {
+    opacity: 1;
+    transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+}
+
+/* Ortada saydam bir alan oluşturmak için yeni bir pseudo-element */
+.widget-card.selected::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 1;
+    z-index: 1; /* Pixel canvas'in üzerinde */
+    pointer-events: none;
+    transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+}
+
+/* Seçilmeyen kartlar için inaktif stil */
+.widget-card:not(.selected) {
+    transition: all 800ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1));
+    opacity: 0.7;
+    filter: brightness(0.7);
+}
+
+/* Widget type specific styles for selected state */
+.widget-card[data-widget-type="normal"].selected {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.widget-card[data-widget-type="alt"].selected {
+    border-color: rgba(200, 200, 255, 0.4);
+}
+
+.widget-card[data-widget-type="neon"].selected {
+    border-color: rgba(30, 215, 96, 0.4);
+}
+
+/* Special effects for selected cards */
+.widget-card.selected {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.widget-card.selected::after {
+    opacity: 1;
+}
+
+
+
+.widget-card-content {
+    padding: 2rem;
+    text-align: center;
+}
+
+.widget-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: rgba(255, 255, 255, 1);
+}
+
+.widget-card-description {
+    font-size: 0.95rem;
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* Button styles */
+.widget-select-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 0.75rem 2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+}
+
+.widget-select-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.widget-select-btn:active {
+    transform: scale(0.98);
+}
+
+.widget-select-btn.selected {
+    background-color: rgba(30, 215, 96, 0.2); /* Spotify green with transparency */
+    border-color: rgba(30, 215, 96, 0.4);
+}
+
+/* Preview section */
+.widget-preview-section {
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.preview-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.widget-preview-container {
+    max-width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    background-color: rgba(30, 30, 30, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#widget-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-selection-message {
+    opacity: 0.5;
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+/* Widget preview placeholders */
+.widget-preview-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.widget-preview-placeholder {
+    width: 300px;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: rgba(20, 20, 20, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.widget-preview-placeholder h4 {
+    font-size: 1.5rem;
     margin-bottom: 1rem;
+    font-weight: 500;
 }
 
-.flash-error {
-    background-color: #ef4444; /* Tailwind red-500 */
-    color: white;
-    padding: 1rem;
-    border-radius: 0.375rem; /* rounded-md */
-    margin-bottom: 1rem;
+.widget-preview-placeholder p {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
-/* İkonların düzgün görünmesi için (Font Awesome kullanılıyorsa) */
-.fas {
-    line-height: inherit; /* Bootstrap ile çakışmaları önlemek için */
+/* Widget type specific styles */
+.normal-widget {
+    background-color: rgba(40, 40, 40, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.alt-widget {
+    background-color: rgba(50, 50, 60, 0.7);
+    border: 1px solid rgba(200, 200, 255, 0.15);
+}
+
+.neon-widget {
+    background-color: rgba(30, 30, 40, 0.7);
+    border: 1px solid rgba(30, 215, 96, 0.3);
+    box-shadow: 0 0 15px rgba(30, 215, 96, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .widget-cards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .widget-card {
+        width: 100%;
+        max-width: 320px;
+    }
 }

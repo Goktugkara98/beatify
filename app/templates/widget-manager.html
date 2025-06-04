@@ -1,97 +1,88 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget Yöneticisi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widget-manager.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body class="bg-gray-900 text-white font-sans">
+{% extends "base.html" %}
+{%block head%}
+<title>Widget Yöneticisi - Profil</title>
+{%endblock head%}
 
-    <div class="container mx-auto px-4 py-8">
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold">Spotify Widget Yöneticisi</h1>
-        </header>
+{% block style %}
+<link rel="stylesheet" href="/static/css/spotify/widget-manager/widget-manager.css">
+{% endblock style %}
 
-        <div id="flash-messages" class="mb-6">
-            <!-- Örnek:
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="p-4 rounded-md 
-                            {% if category == 'success' %} bg-green-600 
-                            {% elif category == 'error' %} bg-red-600 
-                            {% else %} bg-blue-600 
-                            {% endif %} 
-                            text-white mb-3">
-                            {{ message }}
+{% block content %}
+<!-- <div class="spotify-preloader">
+    <div class="spotify-preloader-content">
+        <div class="spotify-preloader-spinner"></div>
+    </div>
+</div> -->
+<div class="mil-content">
+    <div id="swupMain" class="mil-main-transition">
+        <div class="mil-inner-banner mil-dark-bg">
+            <div class="mil-banner-content mil-up">
+                <div class="container">
+                    <ul class="mil-breadcrumbs mil-mb-60">
+                        <li><a href="home-1.html">Anasayfa</a></li>
+                        <li><a href="#">Widget Yöneticisi</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="beatify-page mil-dark-bg">
+            <div class="mi-invert-fix">
+                <!-- Widget Manager Content -->
+                <div class="container widget-manager-container">
+                    <div class="widget-manager-header">
+                        <h2 class="widget-title">Widget Yöneticisi</h2>
+                        <p class="widget-subtitle">Spotify profiliniz için widget seçin</p>
+                    </div>
+                    
+                    <div class="widget-cards-container">
+                        <!-- Normal Widget Card -->
+                        <div class="widget-card" data-widget-type="normal">
+                            <pixel-canvas data-gap="5" data-speed="35" data-colors="#f8fafc, #f1f5f9, #cbd5e1"></pixel-canvas>
+                            <div class="widget-card-content">
+                                <h3 class="widget-card-title">Normal</h3>
+                                <p class="widget-card-description">Standart görünümlü Spotify widget'ı</p>
+                                <button class="widget-select-btn" data-widget-type="normal">Seç</button>
+                            </div>
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            -->
-        </div>
-
-        <div class="bg-gray-800 shadow-xl rounded-lg p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Yeni Widget Oluştur</h2>
-            <!-- 
-                Not: Backend'deki generate_widget_token_route fonksiyonu POST isteği bekliyor
-                ve işlem sonrası widget_manager_page'e redirect ediyor.
-                Bu form doğrudan backend endpoint'ine POST yapacak ve sayfa yenilenecektir.
-                widget-manager.js'deki fetch isteği alternatif bir yaklaşımdır,
-                eğer sayfayı yenilemeden dinamik olarak güncellemek isterseniz kullanılabilir.
-                Şimdilik basit tutmak adına standart form gönderimi yeterlidir.
-            -->
-            <form action="/spotify/widget/generate-token" method="POST" id="generateTokenForm">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-plus-circle mr-2"></i>Yeni Widget Token'ı Oluştur
-                </button>
-            </form>
-        </div>
-
-        <div class="bg-gray-800 shadow-xl rounded-lg p-6">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Widget'larınız</h2>
-            <div id="widgetList" class="space-y-6">
-                <!-- Örnek Jinja2 döngüsü:
-                {% if widget_tokens %}
-                    {% for token in widget_tokens %}
-                    <div class="border border-gray-700 p-4 rounded-lg bg-gray-700/30">
-                        <p class="text-gray-300 mb-1">
-                            <strong>Token:</strong>
-                        </p>
-                        <code class="block bg-gray-900 p-2 rounded text-sm text-yellow-400 break-all mb-3">{{ token.value }}</code>
                         
-                        <p class="text-gray-300 mt-3 mb-1"><strong>Embed Kodu (iframe):</strong></p>
-                        <textarea readonly class="w-full h-28 bg-gray-900 text-gray-200 p-2 mt-1 border border-gray-600 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">&lt;iframe src="/widget/{{ token.value }}" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"&gt;&lt;/iframe&gt;</textarea>
+                        <!-- Alt Widget Card -->
+                        <div class="widget-card" data-widget-type="alt">
+                            <pixel-canvas data-gap="10" data-speed="25" data-colors="#e0f2fe, #7dd3fc, #0ea5e9"></pixel-canvas>
+                            <div class="widget-card-content">
+                                <h3 class="widget-card-title">Alt</h3>
+                                <p class="widget-card-description">Alternatif tasarımlı Spotify widget'ı</p>
+                                <button class="widget-select-btn" data-widget-type="alt">Seç</button>
+                            </div>
+                        </div>
                         
-                        <p class="text-gray-300 mt-3 mb-1"><strong>Doğrudan Widget URL:</strong></p>
-                        <input type="text" readonly class="w-full bg-gray-900 text-gray-200 p-2 mt-1 border border-gray-600 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="/widget/{{ token.value }}">
-
-                        <h4 class="text-lg font-semibold mt-4 mb-2 text-white">Önizleme:</h4>
-                        <div class="border border-gray-600 rounded-md overflow-hidden w-[300px] h-[380px] mx-auto md:mx-0">
-                            <iframe src="/widget/{{ token.value }}" width="300" height="380" frameborder="0" scrolling="no" class="rounded-md"></iframe>
+                        <!-- Neon Widget Card -->
+                        <div class="widget-card" data-widget-type="neon">
+                            <pixel-canvas data-gap="6" data-speed="40" data-colors="#d9f99d, #a3e635, #65a30d"></pixel-canvas>
+                            <div class="widget-card-content">
+                                <h3 class="widget-card-title">Neon</h3>
+                                <p class="widget-card-description">Neon efektli Spotify widget'ı</p>
+                                <button class="widget-select-btn" data-widget-type="neon">Seç</button>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-gray-400">Henüz widget token'ı oluşturmadınız.</p>
-                {% endif %}
-                 -->
-                <!-- Widget listesi JavaScript tarafından dinamik olarak yüklenecek -->
-                <p class="text-gray-400">Widget listesi yükleniyor...</p>
+                    
+                    <div class="widget-preview-section">
+                        <h3 class="preview-title">Önizleme</h3>
+                        <div class="widget-preview-container">
+                            <div id="widget-preview">
+                                <p class="no-selection-message">Önizleme için bir widget seçin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Widget Manager Content End -->
             </div>
         </div>
     </div>
+</div>
+{% endblock content %}
 
-    <!-- Widget token'ını JavaScript'e aktar -->
-    <script>
-        // Backend'den gelen widget token'ını JavaScript'e aktar
-        window._widgetToken = "{{ widget_token }}";
-    </script>
-    
-    <!-- JavaScript dosyaları -->
-    <script src="/static/js/spotify/widget-manager/widget-manager.js"></script>
-</body>
-</html>
+{% block script %}
+<script src="/static/js/spotify/widget-manager/pixel-canvas.js"></script>
+<script src="/static/js/spotify/widget-manager/widget-manager.js"></script>
+{% endblock script %}
