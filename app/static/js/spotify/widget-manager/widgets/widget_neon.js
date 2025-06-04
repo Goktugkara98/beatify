@@ -65,8 +65,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fetchTimeoutId) clearTimeout(fetchTimeoutId);
 
         try {
-            // API endpoint'i kullan
-            const apiUrl = window.DATA_ENDPOINT || `/spotify/api/widget-data/${WIDGET_TOKEN}`;
+            // API endpoint'i kullan - DATA_ENDPOINT değişkenini doğru şekilde kontrol et
+            const apiUrl = window.DATA_ENDPOINT && window.DATA_ENDPOINT !== "{{ data_endpoint|safe }}" ? 
+                window.DATA_ENDPOINT : 
+                `/spotify/api/widget-data/${WIDGET_TOKEN}`;
+            console.log('Neon widget veri çekme URL:', apiUrl);
             const response = await fetch(apiUrl);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
@@ -104,7 +107,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Normal mod - Spotify API formatı
+            // Normal mod - API formatını kontrol et
+            // İki format olabilir: Spotify API formatı (item içeren) veya basitleştirilmiş format (track_name içeren)
+            const isSimplifiedFormat = data && data.track_name !== undefined;
+            
+            if (isSimplifiedFormat) {
+                // Basitleştirilmiş format - doğrudan track_name, artist_name gibi alanlar var
+                console.log('Basitleştirilmiş veri formatı algılandı:', data);
+                hideError();
+                currentTrackData = data;
+                updateUIForTestMode(data); // Aynı fonksiyonu kullanabiliriz çünkü format benzer
+                
+                // Periyodik güncelleme
+                const refreshInterval = data.is_playing ? 5000 : 10000;
+                fetchTimeoutId = setTimeout(fetchCurrentlyPlayingData, refreshInterval);
+                return;
+            }
+            
+            // Spotify API formatı - item içeren
             if (!data || !data.item) {
                 // Çalınan bir şey yok veya veri boş
                 console.log('Şu anda çalınan bir şey yok veya veri boş.');
