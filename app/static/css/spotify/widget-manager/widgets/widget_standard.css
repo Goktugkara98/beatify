@@ -5,131 +5,140 @@
  * spotify_widget_core.css dosyasındaki ortak stilleri genişletir veya üzerine yazar.
  *
  * İÇİNDEKİLER:
- * 1. WIDGET GENEL STİLLERİ (.standard-widget)
- *      1.1. Boyutlandırma ve Temel Görünüm
- *      1.2. Arka Plan ve Renkler
- * 2. ALBÜM KAPAĞI STİLLERİ
- *      2.1. Arka Plan Albüm Kapağı (.widget-album-art-background)
- *      2.2. Ana Albüm Kapağı (.widget-album-art-main)
- *      2.3. Gradyan Overlay (.widget-gradient-overlay)
- * 3. İÇERİK ALANI STİLLERİ (.widget-content-area)
- *      3.1. Konumlandırma ve Dolgu
- * 4. ŞARKI BİLGİSİ STİLLERİ (.widget-track-info)
- *      4.1. Şarkı Adı (.widget-track-name)
- *      4.2. Sanatçı Adı (.widget-artist-name)
- * 5. PLAYER KONTROL STİLLERİ (.widget-player-controls)
- *      5.1. Genel Düzen
- *      5.2. Progress Bar Bölümü (.widget-progress-section)
- *          5.2.1. .widget-progress-bar-container (core-progress-container üzerine ek)
- *          5.2.2. .widget-progress-bar (core-progress-bar üzerine ek)
- *      5.3. Zaman Gösterimi (.widget-time-display - core üzerine ek)
- *      5.4. Spotify Logosu (.widget-spotify-logo)
- * 6. WIDGET'A ÖZEL ANİMASYONLAR
- *      6.1. Giriş Animasyonu (Örn: .standard-fade-in-up)
- *      6.2. İçerik Geçiş Animasyonu (Örn: .standard-content-pop)
- *      6.3. Çıkış Animasyonu (Örn: .standard-fade-out)
- *      6.4. Diğer Özel Efektler (Örn: .album-art-pop, .playing)
- *      6.5. Animasyon Keyframes
- * 7. YARDIMCI VE DURUM SINIFLARI
- *      7.1. .widget-disabled (Token yoksa vb.)
+ * 1. WIDGET CONTAINER (.standard-widget)
+ *      1.1. Layout, Sizing, and Basic Appearance
+ *      1.2. Font and Color (Varsa, genellikle core'dan gelir)
+ *========================================================
+ * 2. BACKGROUND AND OVERLAYS
+ *      2.1. Background Album Art (.widget-album-art-background)
+ *      2.2. Gradient Overlay (.widget-gradient-overlay)
+ *========================================================
+ * 3. MAIN ALBUM ART SECTION
+ *      3.1. Main Album Art Image (.widget-album-art-main)
+ *========================================================
+ * 4. CONTENT AREA SECTION (.widget-content-area)
+ *      4.1. Positioning, Padding, and Flex Layout
+ *========================================================
+ * 5. TRACK INFORMATION SECTION (.widget-track-info)
+ *      5.1. Track Name (.widget-track-name)
+ *      5.2. Artist Name (.widget-artist-name)
+ *========================================================
+ * 6. PLAYER CONTROLS SECTION (.widget-player-controls)
+ *      6.1. General Layout
+ *      6.2. Progress Bar Area (.widget-progress-section)
+ *          6.2.1. Progress Bar Container (.widget-progress-bar-container)
+ *          6.2.2. Progress Bar Fill (.widget-progress-bar)
+ *      6.3. Time Display (.widget-time-display)
+ *========================================================
+ * 7. SPOTIFY LOGO SECTION (.widget-spotify-logo)
+ *      7.1. Logo Container (.spotify-blurred-box)
+ *      7.2. Logo SVG Icon
+ *      7.3. Logo Text (.spotify-text)
+ *========================================================
+ * 8. ANIMATIONS
+ *      8.1. Widget State Animations (.standard-fade-in-up, .standard-content-pop, .standard-fade-out)
+ *      8.2. Element Specific Animations (.album-art-pop, .content-pop-animation, .spotify-logo-transition)
+ *      8.3. Playing Indicator (.widget-track-name.playing) - Placeholder, modern'deki gibi eklenebilir.
+ *      8.4. Animation Keyframes
+ *========================================================
+ * 9. UTILITY AND STATE CLASSES
+ *      9.1. Disabled State (.widget-disabled)
+ *      9.2. Error Message Styling (.core-error-message - Eğer core'dan geliyorsa)
+ *========================================================
+ * 10. RESPONSIVE ADJUSTMENTS (Varsa)
  */
 
-/* 1. WIDGET GENEL STİLLERİ (.standard-widget) */
-/* Bu sınıf, widget_standard.html içindeki ana div'e atanmıştır. */
-/* .widget-container sınıfı spotify_widget_core.css'den gelir. */
-
-/* 1.1. Boyutlandırma ve Temel Görünüm */
+/* 1. WIDGET CONTAINER (.standard-widget) */
+/* 1.1. Layout, Sizing, and Basic Appearance */
 .standard-widget {
-    width: 700px; /* Widget genişliği */
-    height: 300px; /* Widget yüksekliği */
+    width: 700px;
+    height: 300px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    color: #ffffff; /* Genel metin rengi */
-    overflow: hidden; /* Önemli: İçerik taşmalarını ve animasyonları yönetir */
-    position: relative; /* İçerideki absolut elementler için */
+    color: #ffffff; /* Default text color */
+    overflow: hidden; /* Crucial for managing content overflow and animations */
+    position: relative; /* For absolutely positioned children */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Assuming a common font stack */
+    /* background-color: #121212; /* Fallback or default background */
 }
 
-/* 1.2. Arka Plan ve Renkler */
-.standard-widget {
-    /* Arka plan genellikle albüm kapağı ile dinamik olarak ayarlanır */
-    /* veya sabit bir renk olabilir: background-color: #121212; */
-}
-
-/* 2. ALBÜM KAPAĞI STİLLERİ */
-/* 2.1. Arka Plan Albüm Kapağı (.widget-album-art-background) */
-.widget-album-art-background {
+/* 2. BACKGROUND AND OVERLAYS */
+/* 2.1. Background Album Art */
+.standard-widget .widget-album-art-background {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Resmi kapla ve kırp */
-    filter: blur(15px) brightness(0.5); /* Bulanıklık ve karartma efekti */
-    transform: scale(1.1); /* Kenarlarda boşluk kalmaması için hafif büyütme */
-    transition: opacity 0.5s ease-in-out; /* Yumuşak geçiş için */
+    object-fit: cover;
+    filter: blur(15px) brightness(0.5);
+    transform: scale(1.1); /* Slight zoom to prevent blurred edges */
+    transition: opacity 0.5s ease-in-out;
     z-index: 1;
 }
 
-/* 2.2. Ana Albüm Kapağı (.widget-album-art-main) */
-.widget-album-art-main {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 250px;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease-out, opacity 0.5s ease-in-out;
-    z-index: 3; /* Gradyan ve içerik yazısının üzerinde */
-}
-
-/* 2.3. Gradyan Overlay (.widget-gradient-overlay) */
-.widget-gradient-overlay {
+/* 2.2. Gradient Overlay */
+.standard-widget .widget-gradient-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.7) 100%);
-    z-index: 2; /* Arka plan resmi ile içerik arasında */
-    pointer-events: none; /* Tıklamaları engelleme */
+    z-index: 2;
+    pointer-events: none;
 }
 
-/* 3. İÇERİK ALANI STİLLERİ (.widget-content-area) */
-/* 3.1. Konumlandırma ve Dolgu */
-.widget-content-area {
+/* 3. MAIN ALBUM ART SECTION */
+/* 3.1. Main Album Art Image */
+.standard-widget .widget-album-art-main {
     position: absolute;
-    top: 80px; /* Ana albüm kapağına göre ayarlanabilir */
-    left: 290px; /* Ana albüm kapağının sağına */
-    right: 20px;
-    bottom: 15px; /* Progress bar ve zaman gösterimi için yer bırak */
+    top: 20px;
+    left: 20px;
+    width: 250px; /* Corresponds to height to maintain aspect ratio for square art */
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-out, opacity 0.5s ease-in-out;
+    z-index: 3; /* Above gradient */
+}
+
+/* 4. CONTENT AREA SECTION (.widget-content-area) */
+/* 4.1. Positioning, Padding, and Flex Layout */
+.standard-widget .widget-content-area {
+    position: absolute;
+    top: 80px; /* Adjusted based on visual hierarchy */
+    left: 290px; /* To the right of the main album art */
+    right: 20px; /* Padding from the right edge */
+    bottom: 15px; /* Space for progress bar and time */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Şarkı bilgisi ve kontrolleri ayır */
-    padding-top: 18px; /* Albüm kapağı hizası için */
-    z-index: 3;
+    justify-content: space-between; /* Pushes track info up and controls down */
+    padding-top: 18px; /* Fine-tuning alignment with album art */
+    z-index: 3; /* Same level as main album art text, above gradient */
+    box-sizing: border-box;
 }
 
-/* 4. ŞARKI BİLGİSİ STİLLERİ (.widget-track-info) */
-.widget-track-info {
-    /* flex-grow: 1; Eğer dikeyde ortalamak gerekirse */
+/* 5. TRACK INFORMATION SECTION (.widget-track-info) */
+.standard-widget .widget-track-info {
+    /* margin-bottom: auto; Pushes controls down if not using space-between in content-area */
 }
 
-/* 4.1. Şarkı Adı (.widget-track-name) */
-.widget-track-name {
+/* 5.1. Track Name */
+.standard-widget .widget-track-name {
     font-size: 42px;
     font-weight: 600;
     margin: 0 0 3px 0;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Uzun metinler için ... */
+    text-overflow: ellipsis;
     line-height: 1.3;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* 4.2. Sanatçı Adı (.widget-artist-name) */
-.widget-artist-name {
+/* 5.2. Artist Name */
+.standard-widget .widget-artist-name {
     font-size: 30px;
     font-weight: 400;
     margin: 0;
@@ -141,138 +150,142 @@
     text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-/* 5. PLAYER KONTROL STİLLERİ (.widget-player-controls) */
-/* 5.1. Genel Düzen */
-.widget-player-controls {
+/* 6. PLAYER CONTROLS SECTION (.widget-player-controls) */
+/* 6.1. General Layout */
+.standard-widget .widget-player-controls {
     display: flex;
     flex-direction: column;
-    /* align-items: center; */ /* Yatayda ortalamak için */
-    gap: 5px; /* Elementler arası boşluk */
-    margin-top: auto; /* Şarkı bilgisinden sonra kalan tüm alanı iteler */
-    padding-bottom: 5px; /* Alt boşluk */
+    gap: 5px; /* Space between progress bar and time display */
+    margin-top: auto; /* Ensures it's at the bottom of the flex container */
+    padding-bottom: 5px; /* Small bottom padding */
 }
 
-/* 5.2. Progress Bar Bölümü (.widget-progress-section) */
-.widget-progress-section {
+/* 6.2. Progress Bar Area */
+.standard-widget .widget-progress-section {
     width: 100%;
 }
 
-/* 5.2.1. .widget-progress-bar-container (core-progress-container üzerine ek) */
-.widget-progress-bar-container {
-    height: 8px; /* Standart widget için biraz daha kalın */
-    background-color: rgba(255, 255, 255, 0.15); /* Arka plan rengi */
+/* 6.2.1. Progress Bar Container */
+.standard-widget .widget-progress-bar-container {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px; /* Consistent rounding */
+    overflow: hidden;
 }
 
-/* 5.2.2. .widget-progress-bar (core-progress-bar üzerine ek) */
-.widget-progress-bar {
-    background-color: #1DB954; /* Spotify yeşili */
-    /* transition: width 0.25s linear; core'dan gelir */
+/* 6.2.2. Progress Bar Fill */
+.standard-widget .widget-progress-bar {
+    background-color: #1DB954; /* Spotify green */
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.25s linear; /* Smooth progress update */
 }
 
-/* 5.3. Zaman Gösterimi (.widget-time-display - core üzerine ek) */
-.widget-time-display {
-    font-size: 20px;
+/* 6.3. Time Display */
+.standard-widget .widget-time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px; /* Larger font for standard widget */
     color: rgba(255, 255, 255, 0.6);
-    margin-top: 3px;
+    margin-top: 3px; /* Space above time */
 }
 
-/* 5.4. Spotify Logosu (.widget-spotify-logo) */
-.widget-spotify-logo {
+/* 7. SPOTIFY LOGO SECTION (.widget-spotify-logo) */
+.standard-widget .widget-spotify-logo {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 10; /* Increased z-index to ensure it stays on top */
-    transition: transform 0.3s ease;
-    /* Ensure position is preserved during animations */
+    z-index: 10; /* Ensure logo is on top */
+    transition: transform 0.3s ease, opacity 0.3s ease; /* For general interactions if any */
     transform-origin: center center;
-    will-change: transform, opacity;
+    will-change: transform, opacity; /* Performance hint for animations */
 }
 
-.spotify-blurred-box {
+/* 7.1. Logo Container */
+.standard-widget .spotify-blurred-box {
     display: flex;
     align-items: center;
     gap: 8px;
-    background-color: rgba(58, 58, 58, 0.4);
+    background-color: rgba(58, 58, 58, 0.4); /* Semi-transparent background */
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 20px;
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+    border-radius: 20px; /* Fully rounded */
     padding: 8px 14px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
 }
 
-.widget-spotify-logo svg {
+/* 7.2. Logo SVG Icon */
+.standard-widget .widget-spotify-logo svg {
     display: block;
-    color: #1DB954; /* Spotify yeşili */
+    color: #1DB954; /* Spotify green for the icon */
     width: 25px;
     height: 25px;
 }
 
-.spotify-text {
+/* 7.3. Logo Text */
+.standard-widget .spotify-text {
     font-size: 20px;
     font-weight: 600;
     color: #ffffff;
     letter-spacing: 0.5px;
 }
 
-
-/* 6. WIDGET'A ÖZEL ANİMASYONLAR */
-/* HTML'deki data-intro-animation-class ile eşleşmeli */
-/* 6.1. Giriş Animasyonu (.standard-fade-in-up) */
+/* 8. ANIMATIONS */
+/* 8.1. Widget State Animations (Applied to .standard-widget by JS) */
 .standard-fade-in-up {
     animation: standardFadeInUpAnimation 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* HTML'deki data-transition-animation-class ile eşleşmeli */
-/* 6.2. İçerik Geçiş Animasyonu (.standard-content-pop) */
-.standard-content-pop .widget-track-info,
-.standard-content-pop .widget-player-controls { /* Sadece belirli elementlere uygula */
-    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-/* Doğrudan element animasyonu - JS tarafından eklenir */
-.content-pop-animation {
-    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-/* HTML'deki data-outro-animation-class ile eşleşmeli */
-/* 6.3. Çıkış Animasyonu (.standard-fade-out) */
 .standard-fade-out {
     animation: standardFadeOutAnimation 0.4s ease-out forwards;
 }
 
-/* 6.4. Diğer Özel Efektler */
-.widget-album-art-main.album-art-pop { /* JS ile eklenir */
+/* .standard-content-pop is applied to .standard-widget by JS,
+   then specific children are targeted by CSS for animation.
+   Alternatively, JS can apply a class directly to children.
+   The current CSS implies JS adds .standard-content-pop to the parent.
+*/
+.standard-widget.standard-content-pop .widget-track-info,
+.standard-widget.standard-content-pop .widget-player-controls {
+    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* 8.2. Element Specific Animations (Applied by JS directly to elements) */
+.album-art-pop { /* Applied to .widget-album-art-main */
     animation: albumArtPopAnimation 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.widget-track-name.playing { /* JS ile eklenir */
-    /* Örnek: Hafif bir parlama efekti */
-    /* text-shadow: 0 0 8px rgba(29, 185, 84, 0.7); */
+.content-pop-animation { /* Applied to .widget-track-info, .widget-player-controls by JS */
+    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
+.spotify-logo-transition { /* Applied to .widget-spotify-logo by JS */
+    animation: spotifyLogoTransitionAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
 
-/* 6.5. Animasyon Keyframes */
+/* 8.3. Playing Indicator (Example, similar to modern widget) */
+.standard-widget .widget-track-name.playing::after {
+    content: '';
+    display: inline-block;
+    width: 6px; /* Slightly smaller for standard widget proportions */
+    height: 6px;
+    background-color: #1DB954;
+    border-radius: 50%;
+    margin-left: 8px;
+    vertical-align: middle;
+    animation: pulsePlayingIndicator 2s infinite; /* Renamed to avoid conflict if core.css had 'pulse' */
+}
+
+/* 8.4. Animation Keyframes */
 @keyframes standardFadeInUpAnimation {
-    from {
-        opacity: 0;
-        transform: translateY(25px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes standardContentPopAnimation {
-    0% {
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+@keyframes standardContentPopAnimation { /* Used by .content-pop-animation and .standard-content-pop targets */
+    0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes standardFadeOutAnimation {
@@ -287,22 +300,60 @@
     100% { transform: scale(1); }
 }
 
-/* Spotify logo transition animation */
-.spotify-logo-transition {
-    animation: spotifyLogoTransition 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-@keyframes spotifyLogoTransition {
+@keyframes spotifyLogoTransitionAnimation { /* Renamed to avoid conflict if core.css had 'spotifyLogoTransition' */
     0% { transform: scale(0.95); opacity: 0.7; }
     40% { transform: scale(1.08); opacity: 0.85; }
     70% { transform: scale(1.03); opacity: 0.95; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* 7. YARDIMCI VE DURUM SINIFLARI */
-/* 7.1. .widget-disabled */
+@keyframes pulsePlayingIndicator { /* Renamed from 'pulse' */
+    0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.6); }
+    70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(29, 185, 84, 0); }
+    100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(29, 185, 84, 0); }
+}
+
+/* 9. UTILITY AND STATE CLASSES */
+/* 9.1. Disabled State */
 .standard-widget.widget-disabled {
     opacity: 0.7;
     filter: grayscale(50%);
-    pointer-events: none; /* Tıklamaları engelle */
+    pointer-events: none;
 }
+
+/* 9.2. Error Message Styling (Assuming .core-error-message is styled in a core file) */
+/* If specific styling for standard widget error is needed:
+.standard-widget .core-error-message {
+    bottom: 5px;
+    font-size: 12px;
+}
+.standard-widget .core-error-message.visible { ... }
+*/
+
+/* 10. RESPONSIVE ADJUSTMENTS */
+/* Example:
+@media (max-width: 750px) {
+    .standard-widget {
+        width: 100%;
+        height: auto; // Or a fixed smaller height
+    }
+    .standard-widget .widget-album-art-main {
+        width: 150px;
+        height: 150px;
+    }
+    .standard-widget .widget-content-area {
+        left: 170px; // Adjust based on new album art size
+        top: 20px;
+        bottom: 10px;
+    }
+    .standard-widget .widget-track-name {
+        font-size: 28px;
+    }
+    .standard-widget .widget-artist-name {
+        font-size: 18px;
+    }
+    .standard-widget .widget-time-display {
+        font-size: 12px;
+    }
+}
+*/

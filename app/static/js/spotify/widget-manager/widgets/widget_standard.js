@@ -5,148 +5,179 @@
  * WidgetCommon modülünü kullanarak UI'ı yönetir ve widget'a özgü davranışları tanımlar.
  *
  * İÇİNDEKİLER:
- * 1. WIDGET'A ÖZEL AYARLAR VE SABİTLER
- *      1.1. Placeholder Resim URL'leri
- *      1.2. Animasyon Sınıfları (HTML data-* attributes ile senkronize)
- * 2. DURUM DEĞİŞKENLERİ
- *      2.1. currentTrackProgressInterval
- *      2.2. lastTrackId
- *      2.3. currentFetchTimeoutId
- * 3. DOM ELEMENT REFERANSLARI
- *      3.1. Ana Widget Elementi
- *      3.2. Albüm Kapağı Elementleri
- *      3.3. Şarkı Bilgisi Elementleri
- *      3.4. Progress Bar Elementleri
- *      3.5. Hata Mesajı Elementi
- *      3.6. İçerik Alanı Elementi
- * 4. UI GÜNCELLEME FONKSİYONLARI
- *      4.1. updateWidgetUI (Ana UI güncelleme fonksiyonu)
- * 5. VERİ YÖNETİMİ
- *      5.1. fetchAndDisplayData (Veri çekme ve UI güncelleme döngüsü)
- *      5.2. clearCurrentFetchTimeout
- * 6. WIDGET'A ÖZEL ANİMASYONLAR
- *      6.1. playStandardSongChangeAnimation (Şarkı değişimi için özel animasyon mantığı)
- * 7. BAŞLATMA VE OLAY YÖNETİMİ
- *      7.1. initWidget (Widget'ı başlatan ana fonksiyon)
- *      7.2. DOMContentLoaded Olayı
+ * 1. MODÜL BAĞIMLILIK KONTROLÜ
+ * =====================================
+ * 2. WIDGET'A ÖZEL AYARLAR VE SABİTLER
+ *      2.1. Placeholder Resim URL'leri
+ *      2.2. Ana Widget Elementi ve Animasyon Sınıfları (HTML data-* attributes ile senkronize)
+ * =====================================
+ * 3. DURUM DEĞİŞKENLERİ (State Variables)
+ *      3.1. currentTrackProgressInterval
+ *      3.2. lastTrackId
+ *      3.3. currentFetchTimeoutId
+ * =====================================
+ * 4. DOM ELEMENT REFERANSLARI
+ *      4.1. Albüm Kapağı Elementleri (Ana ve Arka Plan)
+ *      4.2. Şarkı Bilgisi Elementleri
+ *      4.3. Progress Bar Elementleri
+ *      4.4. Hata Mesajı Elementi
+ *      4.5. İçerik Alanı Elementi (Animasyonlar için)
+ *      4.6. Spotify Logo Elementi (Animasyon için)
+ * =====================================
+ * 5. TEMEL YARDIMCI FONKSİYONLAR
+ *      5.1. clearCurrentFetchTimeout
+ * =====================================
+ * 6. UI GÜNCELLEME FONKSİYONLARI
+ *      6.1. updateWidgetUI (Ana UI güncelleme fonksiyonu)
+ * =====================================
+ * 7. VERİ YÖNETİMİ (Data Management)
+ *      7.1. fetchAndDisplayData (Veri çekme ve UI güncelleme döngüsü)
+ * =====================================
+ * 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
+ *      8.1. playStandardSongChangeAnimation
+ * =====================================
+ * 9. BAŞLATMA (Initialization)
+ *      9.1. initWidget (Widget'ı başlatan ana fonksiyon)
+ *      9.2. DOMContentLoaded Olay Dinleyicisi
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 
-    // WidgetCommon modülünün varlığını kontrol et
+    // 1. MODÜL BAĞIMLILIK KONTROLÜ
     if (typeof WidgetCommon === 'undefined') {
         console.error('Standard Widget: WidgetCommon bulunamadı! spotify_widget_core.js yüklendiğinden emin olun.');
-        // Hata mesajını kullanıcıya göstermek için bir DOM elementi kullanılabilir.
         const body = document.body;
-        const errorDiv = document.createElement('div');
-        errorDiv.textContent = 'Widget başlatılamadı: Temel bileşenler eksik.';
-        errorDiv.style.color = 'red';
-        errorDiv.style.padding = '10px';
-        errorDiv.style.textAlign = 'center';
-        body.insertBefore(errorDiv, body.firstChild);
+        if (body) {
+            const errorDiv = document.createElement('div');
+            errorDiv.textContent = 'Widget başlatılamadı: Temel bileşenler eksik.';
+            errorDiv.style.cssText = 'color: red; padding: 10px; text-align: center; background: #fff; border: 1px solid red; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;';
+            body.insertBefore(errorDiv, body.firstChild);
+        }
         return;
     }
 
-    // 1. WIDGET'A ÖZEL AYARLAR VE SABİTLER
-    // 1.1. Placeholder Resim URL'leri
-    const PLACEHOLDER_IMAGE_URL = 'https://placehold.co/80x80/374151/e5e7eb?text=♪';
-    const PLACEHOLDER_BACKGROUND_URL = 'https://placehold.co/350x150/1f2937/e5e7eb?text=Beatify';
-    const PLACEHOLDER_ERROR_URL = 'https://placehold.co/80x80/cc0000/ffffff?text=Hata';
+    // 2. WIDGET'A ÖZEL AYARLAR VE SABİTLER
+    // 2.1. Placeholder Resim URL'leri
+    const PLACEHOLDER_IMAGE_URL = 'https://placehold.co/250x250/374151/e5e7eb?text=♪'; // Standard widget için ana kapak boyutu
+    const PLACEHOLDER_BACKGROUND_URL = 'https://placehold.co/700x300/1f2937/e5e7eb?text=Beatify'; // Arka plan için
+    const PLACEHOLDER_ERROR_URL = 'https://placehold.co/250x250/cc0000/ffffff?text=Hata';
+
+    // 2.2. Ana Widget Elementi ve Animasyon Sınıfları
+    const spotifyWidgetElement = document.getElementById('spotifyWidgetStandard');
+    if (!spotifyWidgetElement) {
+        console.error("Standard Widget: Ana widget elementi (#spotifyWidgetStandard) DOM'da bulunamadı.");
+        return;
+    }
+    const INTRO_ANIMATION_CLASS = spotifyWidgetElement.dataset.introAnimationClass || 'standard-fade-in-up';
+    // TRANSITION_ANIMATION_CLASS 'standard-content-pop' ana widget'a eklenir ve CSS'ten çocukları hedefler.
+    // Biz şarkı değişimi için elementlere özel animasyon sınıflarını kullanacağız.
+    const OUTRO_ANIMATION_CLASS = spotifyWidgetElement.dataset.outroAnimationClass || 'standard-fade-out';
+    
+    // CSS'te tanımlı özel animasyon sınıfları (JS ile elementlere direkt uygulanacak)
+    const ALBUM_ART_POP_CLASS = 'album-art-pop';
+    const CONTENT_POP_ANIMATION_CLASS = 'content-pop-animation';
+    const LOGO_TRANSITION_CLASS = 'spotify-logo-transition'; // CSS'teki spotifyLogoTransitionAnimation keyframe'ine karşılık gelir
 
 
-    // 2. DURUM DEĞİŞKENLERİ
-    // 2.1. currentTrackProgressInterval
+    // 3. DURUM DEĞİŞKENLERİ
     let currentTrackProgressInterval = null;
-    // 2.2. lastTrackId
     let lastTrackId = null;
-    // 2.3. currentFetchTimeoutId
     let currentFetchTimeoutId = null;
 
-    // 3. DOM ELEMENT REFERANSLARI
-    // 3.1. Ana Widget Elementi
-    const spotifyWidgetElement = document.getElementById('spotifyWidgetStandard'); // HTML'deki ID ile eşleşmeli
-
-    // 1.2. Animasyon Sınıfları (HTML data-* attributes ile senkronize)
-    const INTRO_ANIMATION_CLASS = spotifyWidgetElement?.dataset.introAnimationClass || 'standard-fade-in-up';
-    const TRANSITION_ANIMATION_CLASS = spotifyWidgetElement?.dataset.transitionAnimationClass || 'standard-content-pop';
-    const OUTRO_ANIMATION_CLASS = spotifyWidgetElement?.dataset.outroAnimationClass || 'standard-fade-out';
-
-    // 3.2. Albüm Kapağı Elementleri
+    // 4. DOM ELEMENT REFERANSLARI
     const albumArtElement = document.getElementById('albumArt');
     const albumArtBackgroundElement = document.getElementById('albumArtBackground');
-    // 3.3. Şarkı Bilgisi Elementleri
     const trackNameElement = document.getElementById('trackName');
     const artistNameElement = document.getElementById('artistName');
-    // 3.4. Progress Bar Elementleri
-    const progressBarContainerElement = document.getElementById('progressBarContainer'); // Ana konteyner
     const progressBarElement = document.getElementById('progressBar');
     const currentTimeElement = document.getElementById('currentTime');
     const totalTimeElement = document.getElementById('totalTime');
-    // 3.5. Hata Mesajı Elementi
     const errorMessageElement = document.getElementById('errorMessage');
-    // 3.6. İçerik Alanı Elementi
-    const widgetContentElement = document.getElementById('widgetContent');
+    // Animasyon için belirli elementler
+    const trackInfoElement = document.querySelector('.widget-track-info'); 
+    const playerControlsElement = document.querySelector('.widget-player-controls'); 
+    const spotifyLogoElement = document.querySelector('.widget-spotify-logo'); 
 
-
-    // 4. UI GÜNCELLEME FONKSİYONLARI
+    // 5. TEMEL YARDIMCI FONKSİYONLAR
     /**
-     * 4.1. Gelen verilere göre standart widget UI'ını günceller.
-     * @param {Object|null} data - API'den gelen şarkı verisi veya null.
+     * 5.1. Mevcut veri çekme zamanlayıcısını temizler.
      */
-    function updateWidgetUI(data) {
-        if (!spotifyWidgetElement) {
-            console.error("Standard Widget: Ana widget elementi bulunamadı.");
+    function clearCurrentFetchTimeout() {
+        if (currentFetchTimeoutId) {
+            clearTimeout(currentFetchTimeoutId);
+            currentFetchTimeoutId = null;
+        }
+    }
+
+    // 6. UI GÜNCELLEME FONKSİYONLARI
+    /**
+     * 6.1. Gelen verilere göre standart widget UI'ını günceller.
+     * @param {Object|null} data - API'den gelen şarkı verisi veya null.
+     * @param {string|null} [errorMessageText=null] - Harici bir hata mesajı.
+     */
+    function updateWidgetUI(data, errorMessageText = null) {
+        if (!spotifyWidgetElement) return;
+
+        if (errorMessageText) {
+            WidgetCommon.showError(errorMessageElement, errorMessageText);
+            WidgetCommon.updateTextContent(trackNameElement, 'Hata Oluştu', 'Veri alınırken bir sorun oluştu.');
+            WidgetCommon.updateTextContent(artistNameElement, '-', '-');
+            WidgetCommon.updateImageSource(albumArtElement, PLACEHOLDER_ERROR_URL, PLACEHOLDER_ERROR_URL);
+            WidgetCommon.updateImageSource(albumArtBackgroundElement, PLACEHOLDER_BACKGROUND_URL, PLACEHOLDER_BACKGROUND_URL); 
+            if (trackNameElement) trackNameElement.classList.remove('playing');
+            if (currentTrackProgressInterval) clearInterval(currentTrackProgressInterval);
+            WidgetCommon.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, 0, 0, false);
             return;
         }
 
-        if (data && (data.item || data.track_name)) { // Aktif bir şarkı verisi var
+        if (data && (data.item || data.track_name)) {
             WidgetCommon.hideError(errorMessageElement);
 
-            const track = data.item || {}; // Spotify API'nin tam yapısı için
+            const track = data.item || {};
             const trackName = track.name || data.track_name || "Bilinmeyen Şarkı";
-            const artists = track.artists || (data.artist_name ? [{name: data.artist_name}] : []);
+            const artists = track.artists || (data.artist_name ? [{ name: data.artist_name }] : []);
             const artistName = artists.map(artist => artist.name).join(', ') || "Bilinmeyen Sanatçı";
             
             let albumImageUrl = PLACEHOLDER_IMAGE_URL;
             let albumImageBackgroundUrl = PLACEHOLDER_BACKGROUND_URL;
 
-            if (track.album && track.album.images && track.album.images.length > 0) {
-                albumImageUrl = track.album.images.find(img => img.height >= 80)?.url || track.album.images[0].url; // Uygun boyutta kapak
-                albumImageBackgroundUrl = track.album.images[0].url; // En büyük olanı arka plan için
+            if (track.album?.images?.length > 0) {
+                albumImageUrl = track.album.images.find(img => img.height >= 250)?.url || track.album.images[0].url;
+                albumImageBackgroundUrl = track.album.images[0].url; 
             } else if (data.album_image_url) {
                 albumImageUrl = data.album_image_url;
-                albumImageBackgroundUrl = data.album_image_url; // Eğer tek URL varsa ikisi için de kullan
+                albumImageBackgroundUrl = data.album_image_url;
             }
 
-            WidgetCommon.updateTextContent(trackNameElement, trackName, trackName);
-            WidgetCommon.updateTextContent(artistNameElement, artistName, artistName);
+            WidgetCommon.updateTextContent(trackNameElement, trackName);
+            WidgetCommon.updateTextContent(artistNameElement, artistName);
             WidgetCommon.updateImageSource(albumArtElement, albumImageUrl, PLACEHOLDER_ERROR_URL);
             WidgetCommon.updateImageSource(albumArtBackgroundElement, albumImageBackgroundUrl, PLACEHOLDER_BACKGROUND_URL);
 
-            const isPlaying = data.is_playing !== undefined ? data.is_playing : false;
-            const progressMs = data.progress_ms !== undefined ? data.progress_ms : 0;
+            const isPlaying = data.is_playing ?? false;
+            const progressMs = data.progress_ms ?? 0;
             const durationMs = track.duration_ms || data.duration_ms || 0;
 
             if (trackNameElement) {
-                isPlaying ? trackNameElement.classList.add('playing') : trackNameElement.classList.remove('playing');
+                trackNameElement.classList.toggle('playing', isPlaying);
             }
 
             if (currentTrackProgressInterval) clearInterval(currentTrackProgressInterval);
-            currentTrackProgressInterval = WidgetCommon.updateProgressBar(
-                progressBarElement,
-                currentTimeElement,
-                totalTimeElement,
-                progressMs,
-                durationMs,
-                isPlaying,
-                () => { // Şarkı bittiğinde callback
-                    clearCurrentFetchTimeout();
-                    setTimeout(fetchAndDisplayData, 1500); // Kısa bir gecikmeyle veriyi yenile
-                }
-            );
+            if (durationMs > 0) {
+                currentTrackProgressInterval = WidgetCommon.updateProgressBar(
+                    progressBarElement, currentTimeElement, totalTimeElement,
+                    progressMs, durationMs, isPlaying,
+                    () => {
+                        clearCurrentFetchTimeout();
+                        currentFetchTimeoutId = setTimeout(fetchAndDisplayData, 1500);
+                    }
+                );
+            } else {
+                WidgetCommon.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, 0, 0, false);
+            }
 
-        } else { // Çalınan bir şey yok veya veri eksik/hatalı
+        } else {
             WidgetCommon.updateTextContent(trackNameElement, 'Bir şey çalmıyor', 'Spotify\'da aktif bir içerik yok.');
             WidgetCommon.updateTextContent(artistNameElement, '-', '-');
             WidgetCommon.updateImageSource(albumArtElement, PLACEHOLDER_IMAGE_URL, PLACEHOLDER_IMAGE_URL);
@@ -156,17 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentTrackProgressInterval) clearInterval(currentTrackProgressInterval);
             WidgetCommon.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, 0, 0, false);
             
-            if (data && data.error) { // Eğer backend'den bir hata mesajı geldiyse göster
+            if (data && data.error) {
                  WidgetCommon.showError(errorMessageElement, data.error);
-            } else if (!data?.item && !data?.track_name && !data?.error) { // Ne veri ne de hata yoksa, genel mesaj
+            } else if (!data?.item && !data?.track_name && !data?.error && !errorMessageText) {
                  WidgetCommon.showError(errorMessageElement, 'Şu an aktif bir yayın yok veya veri alınamadı.');
             }
         }
     }
 
-    // 5. VERİ YÖNETİMİ
+    // 7. VERİ YÖNETİMİ
     /**
-     * 5.1. Veriyi backend'den çeker ve UI'ı günceller. Periyodik olarak kendini çağırır.
+     * 7.1. Veriyi backend'den çeker ve UI'ı günceller. Periyodik olarak kendini çağırır.
      */
     async function fetchAndDisplayData() {
         clearCurrentFetchTimeout();
@@ -175,108 +206,100 @@ document.addEventListener('DOMContentLoaded', () => {
         const endpointTemplate = window.DATA_ENDPOINT_TEMPLATE;
 
         if (!token || !endpointTemplate) {
-            const errorMessage = !token ? 'Widget token eksik.' : 'API endpoint şablonu eksik.';
-            WidgetCommon.showError(errorMessageElement, `Başlatma hatası: ${errorMessage}`);
-            updateWidgetUI(null); // UI'ı varsayılan duruma getir
+            const errorMsg = !token ? 'Widget token eksik.' : 'API endpoint şablonu eksik.';
+            updateWidgetUI(null, `Başlatma hatası: ${errorMsg}`);
             if (spotifyWidgetElement) spotifyWidgetElement.classList.add('widget-disabled');
             return;
         }
+        if (spotifyWidgetElement) spotifyWidgetElement.classList.remove('widget-disabled');
 
-        const data = await WidgetCommon.fetchWidgetData(token, endpointTemplate);
+        try {
+            const data = await WidgetCommon.fetchWidgetData(token, endpointTemplate);
+            const currentTrackId = data?.item?.id || data?.track_name || null;
 
-        const currentTrackId = data?.item?.id || data?.track_name || null; // Benzersiz bir ID veya şarkı adı
-        if (currentTrackId && currentTrackId !== lastTrackId && lastTrackId !== null) { // Sadece ilk yükleme değil, şarkı değiştiyse
-            playStandardSongChangeAnimation();
-        }
-        lastTrackId = currentTrackId;
+            if (lastTrackId !== null && currentTrackId && currentTrackId !== lastTrackId) {
+                playStandardSongChangeAnimation();
+            }
+            lastTrackId = currentTrackId;
 
-        updateWidgetUI(data); // data null olsa bile UI'ı temizlemek için çağır
+            updateWidgetUI(data);
 
-        // Bir sonraki veri çekme için zamanlayıcı
-        // Eğer şarkı çalıyor ve süresi biliniyorsa, şarkı bitimine yakın daha sık kontrol edilebilir.
-        // Şimdilik sabit bir aralık:
-        const refreshInterval = data && data.is_playing ? 7000 : 15000; // Çalıyorsa 7sn, duruyorsa 15sn
-        currentFetchTimeoutId = setTimeout(fetchAndDisplayData, refreshInterval);
-    }
-
-    /**
-     * 5.2. Mevcut veri çekme zamanlayıcısını temizler.
-     */
-    function clearCurrentFetchTimeout() {
-        if (currentFetchTimeoutId) {
-            clearTimeout(currentFetchTimeoutId);
-            currentFetchTimeoutId = null;
+            const refreshInterval = (data?.is_playing && data?.item?.duration_ms)
+                ? Math.min(7000, (data.item.duration_ms - (data.progress_ms || 0)) + 1500)
+                : (data?.is_playing ? 7000 : 15000);
+            
+            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, Math.max(1500, refreshInterval));
+        } catch (error) {
+            console.error("Standard Widget: Veri çekme hatası:", error);
+            // Hata mesajını UI'da gösterirken error.message'ı kullanmak daha bilgilendirici olabilir.
+            updateWidgetUI(null, `Veri alınırken bir hata oluştu: ${error.message || 'Sunucu yanıt vermiyor veya ağ sorunu.'}`);
+            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, 30000); // Hata durumunda daha uzun bekle
         }
     }
 
-    // 6. WIDGET'A ÖZEL ANİMASYONLAR
+    // 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
     /**
-     * 6.1. Standart widget için şarkı değişiminde özel animasyonları tetikler.
+     * 8.1. Standart widget için şarkı değişiminde özel animasyonları tetikler.
+     * WidgetCommon.triggerAnimation doğru şekilde çağrılır ve animasyon sınıfları manuel olarak kaldırılır.
      */
     function playStandardSongChangeAnimation() {
-        // Spotify logosu elementi referansını al
-        const spotifyLogoElement = document.querySelector('.widget-spotify-logo');
-        
-        // Şarkı bilgisi ve kontrol elementlerini doğrudan hedefle
-        const trackInfoElement = document.querySelector('.widget-track-info');
-        const playerControlsElement = document.querySelector('.widget-player-controls');
-        
-        // Animasyonları sırayla tetikle
-        // Önce albüm kapağı animasyonu
+        const animationDuration = 1200; // ms, CSS animasyon süreleriyle eşleşmeli
+
         if (albumArtElement) {
-            albumArtElement.classList.add('album-art-pop'); // CSS'te tanımlı bir animasyon
-            setTimeout(() => albumArtElement.classList.remove('album-art-pop'), 1300); // CSS'teki 1.2s ile uyumlu, biraz fazla süre ekledik
+            WidgetCommon.triggerAnimation(albumArtElement, ALBUM_ART_POP_CLASS);
+            setTimeout(() => {
+                albumArtElement.classList.remove(ALBUM_ART_POP_CLASS);
+            }, animationDuration);
         }
-        
-        // Daha uzun bir gecikme ile içerik animasyonlarını başlat
-        setTimeout(() => {
-            // Şarkı bilgisi için animasyon
-            if (trackInfoElement) {
-                trackInfoElement.classList.add('content-pop-animation');
-                setTimeout(() => trackInfoElement.classList.remove('content-pop-animation'), 1300); // CSS'teki 1.2s ile uyumlu, biraz fazla süre ekledik
-            }
-            
-            // Player kontrolleri için animasyon - biraz daha gecikmeli başlat
-            setTimeout(() => {
-                if (playerControlsElement) {
-                    playerControlsElement.classList.add('content-pop-animation');
-                    setTimeout(() => playerControlsElement.classList.remove('content-pop-animation'), 1300);
-                }
-            }, 150); // Kontroller için ek gecikme
-            
-            // Spotify logosu için animasyon - en son başlat
-            setTimeout(() => {
-                if (spotifyLogoElement) {
-                    spotifyLogoElement.classList.add('spotify-logo-transition');
-                    setTimeout(() => spotifyLogoElement.classList.remove('spotify-logo-transition'), 1300);
-                }
-            }, 250); // Logo için daha fazla gecikme
-        }, 200); // İçerik animasyonları için daha uzun gecikme
+
+        if (trackInfoElement) {
+            setTimeout(() => { // trackInfo için hafif gecikme
+                WidgetCommon.triggerAnimation(trackInfoElement, CONTENT_POP_ANIMATION_CLASS);
+                setTimeout(() => {
+                    trackInfoElement.classList.remove(CONTENT_POP_ANIMATION_CLASS);
+                }, animationDuration);
+            }, 100);
+        }
+
+        if (playerControlsElement) {
+            setTimeout(() => { // playerControls için biraz daha gecikme
+                WidgetCommon.triggerAnimation(playerControlsElement, CONTENT_POP_ANIMATION_CLASS);
+                setTimeout(() => {
+                    playerControlsElement.classList.remove(CONTENT_POP_ANIMATION_CLASS);
+                }, animationDuration);
+            }, 200);
+        }
+
+        if (spotifyLogoElement) {
+            setTimeout(() => { // logo için en son gecikme
+                WidgetCommon.triggerAnimation(spotifyLogoElement, LOGO_TRANSITION_CLASS);
+                setTimeout(() => {
+                    spotifyLogoElement.classList.remove(LOGO_TRANSITION_CLASS);
+                }, animationDuration);
+            }, 300);
+        }
     }
 
-    // 7. BAŞLATMA VE OLAY YÖNETİMİ
+
+    // 9. BAŞLATMA
     /**
-     * 7.1. Widget'ı başlatır: İlk veri çekme, animasyonlar ve olay dinleyicileri.
+     * 9.1. Widget'ı başlatır: İlk veri çekme, animasyonlar.
      */
     function initWidget() {
-        if (!spotifyWidgetElement) {
-            console.error("Standard Widget: Başlatma başarısız, ana widget elementi (#spotifyWidgetStandard) bulunamadı.");
-            WidgetCommon.showError(document.body.appendChild(document.createElement('div')), "Widget yüklenemedi."); // Geçici hata gösterimi
-            return;
-        }
-
-        // Sayfa açılış animasyonu (WidgetCommon üzerinden tetiklenir)
         WidgetCommon.playIntroAnimation(spotifyWidgetElement, INTRO_ANIMATION_CLASS);
+        // Giriş animasyon sınıfının da (eğer `forwards` değilse) kaldırılması gerekebilir.
+        // Şimdilik CSS'in bunu yönettiğini varsayıyoruz.
+        // Alternatif:
+        // setTimeout(() => {
+        //     if (spotifyWidgetElement) spotifyWidgetElement.classList.remove(INTRO_ANIMATION_CLASS);
+        // }, CSS_INTRO_ANIM_DURATION);
 
-        // İlk veri çekme
+
+        WidgetCommon.setupPageUnloadAnimation(spotifyWidgetElement, OUTRO_ANIMATION_CLASS, 400); 
         fetchAndDisplayData();
-        console.log('Standard Spotify Widget Başlatıldı.');
-
-        // Sayfa kapatılırken animasyon (WidgetCommon üzerinden)
-        // Bu, widget'ın ana elementi üzerinde çalışır.
-        WidgetCommon.setupPageUnloadAnimation(spotifyWidgetElement, OUTRO_ANIMATION_CLASS, 500);
+        console.log("Standard Spotify Widget Başlatıldı.");
     }
 
-    // 7.2. DOMContentLoaded Olayı içinde widget'ı başlat
+    // 9.2. DOMContentLoaded Olay Dinleyicisi içinde widget'ı başlat
     initWidget();
 });
