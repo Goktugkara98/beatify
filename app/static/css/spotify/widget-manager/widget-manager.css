@@ -1,37 +1,123 @@
-/* Widget Manager Styles */
+/*
+    widget-manager.css (Revize Edilmiş)
 
-/* Container styles */
+    İÇİNDEKİLER:
+
+    1. GENEL STİLLER
+        1.1. .widget-manager-container
+    2. BAŞLIK STİLLERİ
+        2.1. .widget-manager-header
+        2.2. .widget-title
+        2.3. .widget-subtitle
+    3. CAROUSEL STİLLERİ
+        3.1. Genel Carousel Yapısı
+            3.1.1. .widget-carousel-container
+            3.1.2. .widget-carousel
+        3.2. Navigasyon Butonları
+            3.2.1. .carousel-nav
+            3.2.2. .carousel-nav:hover
+            3.2.3. .prev-btn
+            3.2.4. .next-btn
+        3.3. Göstergeler
+            3.3.1. .carousel-indicators
+            3.3.2. .indicator
+            3.3.3. .indicator.active
+        3.4. Kart Konteyneri
+            3.4.1. .widget-cards-container
+    4. WIDGET KARTI STİLLERİ
+        4.1. Genel Kart Yapısı
+            4.1.1. .widget-card
+            4.1.2. .widget-card::before (Arka Plan Efekti)
+            4.1.3. .widget-card::after (Vurgu Efekti)
+            4.1.4. .widget-card > * (İçerik Hizalama)
+        4.2. Seçili Kart Stilleri
+            4.2.1. .widget-card.selected (Genel Seçili Stil)
+            4.2.2. .widget-card.selected::before (Seçili Kart Arka Planı)
+            4.2.3. .widget-card.selected::after (Seçili Kart Vurgu)
+        4.3. Seçilmeyen Kart Stilleri
+            4.3.1. .widget-card:not(.selected)
+        4.4. Widget Tipine Özel Seçili Kart Stilleri
+            4.4.1. .widget-card[data-widget-type="normal"].selected
+            4.4.2. .widget-card[data-widget-type="alt"].selected
+            4.4.3. .widget-card[data-widget-type="neon"].selected
+        4.5. Kart İçeriği
+            4.5.1. .widget-card-content
+            4.5.2. .widget-card-title
+            4.5.3. .widget-card-description
+    5. BUTON STİLLERİ
+        5.1. .widget-select-btn (Genel Buton Stili)
+        5.2. .widget-select-btn:hover
+        5.3. .widget-select-btn:active
+        5.4. .widget-select-btn.selected (Seçili Buton Stili)
+    6. ÖNİZLEME BÖLÜMÜ STİLLERİ
+        6.1. Genel Önizleme Yapısı
+            6.1.1. .widget-preview-section
+            6.1.2. .preview-title
+            6.1.3. .widget-preview-container
+            6.1.4. #widget-preview
+            6.1.5. .no-selection-message
+        6.2. Önizleme İçeriği ve Yer Tutucular
+            6.2.1. .widget-preview-content
+            6.2.2. .widget-preview-placeholder
+            6.2.3. .widget-preview-placeholder h4
+            6.2.4. .widget-preview-placeholder p
+        6.3. Widget Tipine Özel Önizleme Stilleri
+            6.3.1. .normal-widget
+            6.3.2. .alt-widget
+            6.3.3. .neon-widget
+    7. DUYARLI TASARIM AYARLARI (RESPONSIVE)
+        7.1. @media (max-width: 768px)
+            7.1.1. .widget-cards-container (Mobil)
+            7.1.2. .widget-card (Mobil)
+*/
+
+/* ============================================= */
+/* 1. GENEL STİLLER                            */
+/* ============================================= */
+
+/* 1.1. Ana widget yöneticisi konteyneri */
 .widget-manager-container {
     padding: 1rem 1.5rem;
     color: rgba(255, 255, 255, 0.9);
-    background-color: rgba(29, 29, 29, 0.5);
-    border-radius: 12px;
+    background-color: rgba(29, 29, 29, 0.5); /* Yarı saydam koyu arka plan */
+    border-radius: 12px; /* Yuvarlak köşeler */
 }
 
-/* Header styles */
+/* ============================================= */
+/* 2. BAŞLIK STİLLERİ                          */
+/* ============================================= */
+
+/* 2.1. Başlık bölümü konteyneri */
 .widget-manager-header {
     margin-bottom: 1rem;
-    text-align: center;
+    text-align: center; /* Başlıkları ortala */
 }
 
+/* 2.2. Ana başlık stili */
 .widget-title {
-    font-size: 2.5rem;
-    font-weight: 600;
+    font-size: 2.5rem; /* Büyük yazı tipi boyutu */
+    font-weight: 600; /* Yarı kalın yazı tipi */
     margin-bottom: 0.5rem;
-    letter-spacing: 0.5px;
-    color: rgba(255, 255, 255, 1);
+    letter-spacing: 0.5px; /* Harf aralığı */
+    color: rgba(255, 255, 255, 1); /* Tam beyaz renk */
 }
 
+/* 2.3. Alt başlık stili */
 .widget-subtitle {
     font-size: 1.1rem;
-    opacity: 0.7;
-    font-weight: 300;
+    opacity: 0.7; /* Hafif saydam */
+    font-weight: 300; /* İnce yazı tipi */
     color: rgba(255, 255, 255, 1);
 }
 
-/* Widget Carousel Container */
+/* ============================================= */
+/* 3. CAROUSEL STİLLERİ                        */
+/* ============================================= */
+
+/* 3.1. Genel Carousel Yapısı */
+/* 3.1.1. Widget carousel ana konteyneri */
 .widget-carousel-container {
-    position: relative;
+    position: relative; /* Navigasyon butonları için */
     width: 100%;
     margin: 1rem 0;
     padding: 1rem 0;
@@ -40,148 +126,175 @@
     align-items: center;
 }
 
-/* Carousel Navigation Buttons */
+/* 3.1.2. Carousel'in kendisi (kayan kısım) */
+.widget-carousel {
+    width: 100%;
+    overflow: hidden; /* Taşmaları gizle */
+    position: relative;
+    padding: 0.5rem 0;
+}
+
+/* 3.2. Navigasyon Butonları */
+/* 3.2.1. Genel carousel navigasyon butonu stili */
 .carousel-nav {
-    position: absolute;
+    position: absolute; /* Konteynerine göre konumlandır */
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%); /* Dikeyde ortala */
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%; /* Tamamen yuvarlak */
+    background: rgba(0, 0, 0, 0.6); /* Yarı saydam siyah arka plan */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* İnce beyaz kenarlık */
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
-    transition: all 0.3s ease;
+    z-index: 10; /* Diğer elemanların üzerinde */
+    transition: all 0.3s ease; /* Yumuşak geçiş */
 }
 
+/* 3.2.2. Navigasyon butonu üzerine gelince stil */
 .carousel-nav:hover {
-    background: rgba(0, 0, 0, 0.8);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.8); /* Daha koyu arka plan */
+    border-color: rgba(255, 255, 255, 0.4); /* Daha belirgin kenarlık */
 }
 
+/* 3.2.3. Önceki (sol) navigasyon butonu */
 .prev-btn {
-    left: 10px;
+    left: 10px; /* Soldan boşluk */
 }
 
+/* 3.2.4. Sonraki (sağ) navigasyon butonu */
 .next-btn {
-    right: 10px;
+    right: 10px; /* Sağdan boşluk */
 }
 
-/* Carousel Indicators */
+/* 3.3. Göstergeler */
+/* 3.3.1. Carousel gösterge noktaları konteyneri */
 .carousel-indicators {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 10px; /* Noktalar arası boşluk */
+    margin-top: 20px; /* Carousel'den sonra boşluk */
 }
 
+/* 3.3.2. Tek bir gösterge noktası */
 .indicator {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%; /* Yuvarlak nokta */
+    background-color: rgba(255, 255, 255, 0.3); /* Saydam beyaz */
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease; /* Yumuşak geçiş */
 }
 
+/* 3.3.3. Aktif gösterge noktası */
 .indicator.active {
-    background-color: rgba(255, 255, 255, 0.8);
-    transform: scale(1.2);
+    background-color: rgba(255, 255, 255, 0.8); /* Daha belirgin beyaz */
+    transform: scale(1.2); /* Hafifçe büyüt */
 }
 
-.widget-carousel {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    padding: 0.5rem 0;
-}
-
-/* Widget cards container */
+/* 3.4. Kart Konteyneri */
+/* 3.4.1. Widget kartlarını içeren kayar konteyner */
 .widget-cards-container {
-    display: flex;
-    transition: transform 0.5s ease;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-bottom: 3rem;
-    padding-left: 2rem;
+    display: flex; /* Kartları yan yana diz */
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Yumuşak kayma animasyonu */
+    gap: 1.5rem; /* Kartlar arası boşluk */
+    justify-content: flex-start; /* Kartları başlangıçtan itibaren diz */
+    margin-bottom: 3rem; /* Alt boşluk */
+    padding-left: 2rem; /* Sol iç boşluk */
+    padding-right: 2rem; /* Sağ iç boşluk */
+    will-change: transform; /* Performans optimizasyonu için tarayıcıya ipucu */
 }
 
-/* Widget card styles */
+/* ============================================= */
+/* 4. WIDGET KARTI STİLLERİ                    */
+/* ============================================= */
+
+/* 4.1. Genel Kart Yapısı */
+/* 4.1.1. Tek bir widget kartı */
 .widget-card {
-    flex: 1;
-    min-width: 230px;
-    max-width: 250px;
-    position: relative;
-    overflow: hidden;
-    display: grid;
-    grid-template-areas: "card";
-    place-items: center;
-    aspect-ratio: 4/5;
-    background-color: rgba(75, 75, 75, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    transition: border-color 200ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
-    backdrop-filter: blur(10px);
-    isolation: isolate;
-    user-select: none;
+    flex: 1; /* Esnek genişlik */
+    min-width: 230px; /* Minimum genişlik */
+    max-width: 250px; /* Maksimum genişlik */
+    position: relative; /* Pseudo-elementler için */
+    overflow: hidden; /* Taşmaları gizle */
+    display: grid; /* İçeriği grid ile yerleştir */
+    grid-template-areas: "card"; /* Tek bir grid alanı */
+    place-items: center; /* İçeriği ortala */
+    aspect-ratio: 4/5; /* En-boy oranı */
+    background-color: rgba(75, 75, 75, 0.5); /* Yarı saydam gri arka plan */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Yarı saydam beyaz kenarlık */
+    border-radius: 12px; /* Yuvarlak köşeler */
+    transition: border-color 200ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1)); /* Kenarlık rengi geçişi */
+    backdrop-filter: blur(10px); /* Arka planı bulanıklaştır (destekleyen tarayıcılarda) */
+    isolation: isolate; /* Yeni bir yığınlama bağlamı oluştur */
+    user-select: none; /* Metin seçimini engelle */
 }
 
+/* 4.1.2. Kartın alt sol köşesinde gradyan efekti */
 .widget-card::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: 0; /* Tüm alanı kapla */
     background: radial-gradient(
         circle at bottom left,
         transparent 55%,
-        rgba(20, 20, 20, 0.7)
+        rgba(20, 20, 20, 0.7) /* Koyu saydam gradyan */
     );
-    pointer-events: none;
-    box-shadow: #09090b -0.5cqi 0.5cqi 2.5cqi inset;
-    transition: opacity 900ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+    pointer-events: none; /* Tıklama olaylarını engelle */
+    box-shadow: #09090b -0.5cqi 0.5cqi 2.5cqi inset; /* İç gölge */
+    transition: opacity 900ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1)); /* Opaklık geçişi */
 }
 
+/* 4.1.3. Kartın ortasında radyal gradyan efekti (seçildiğinde görünür) */
 .widget-card::after {
     content: "";
     position: absolute;
     inset: 0;
-    margin: auto;
-    aspect-ratio: 1;
-    background: radial-gradient(circle, rgba(20, 20, 20, 0.7), transparent 65%);
-    opacity: 0;
-    transition: opacity 800ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
+    margin: auto; /* Ortala */
+    aspect-ratio: 1; /* Kare oran */
+    background: radial-gradient(circle, rgba(20, 20, 20, 0.7), transparent 65%); /* Ortadan dışa saydamlaşan gradyan */
+    opacity: 0; /* Başlangıçta gizli */
+    transition: opacity 800ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1)); /* Opaklık geçişi */
 }
 
+/* 4.1.4. Kart içindeki tüm doğrudan çocuk elemanlar */
 .widget-card > * {
-    grid-area: card;
-    position: relative;
-    z-index: 1;
+    grid-area: card; /* Grid alanına yerleştir */
+    position: relative; /* z-index için */
+    z-index: 1; /* Pseudo-elementlerin üzerinde */
 }
 
-/* Seçilen kart için efektler */
+/* 4.2. Seçili Kart Stilleri */
+/* 4.2.1. Seçilen widget kartının genel stili */
 .widget-card.selected {
-    border-color: rgba(255, 255, 255, 0.3);
-    transition: all 1200ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1));
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    opacity: 1;
-    filter: brightness(1);
+    border-color: rgba(255, 255, 255, 0.3); /* Daha soluk kenarlık */
+    transition: all 1200ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1)); /* Uzun ve yumuşak geçiş */
+    transform: translateY(-5px); /* Hafifçe yukarı kaldır */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Belirgin gölge */
+    opacity: 1; /* Tam opak */
+    filter: brightness(1); /* Normal parlaklık */
 }
 
+/* 4.2.2. Seçili kartın ::before pseudo-elementi (opaklığı azalt) */
 .widget-card.selected::before {
-    opacity: 0;
+    opacity: 0; /* Arka plan gradyanını gizle */
     transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
 }
 
+/* 4.2.3. Seçili kartın ::after pseudo-elementi (görünür yap) */
 .widget-card.selected::after {
-    opacity: 1;
+    opacity: 1; /* Vurgu gradyanını göster */
     transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
 }
 
-/* Ortada saydam bir alan oluşturmak için yeni bir pseudo-element */
+/* Seçilen kartın ortasında saydam bir alan oluşturmak için (pixel canvas için) */
+/* Bu kural yukarıdaki .widget-card.selected::before ile birleşebilir veya ayrı kalabilir.
+   Eğer amaç pixel canvas'ın arkasındaki gradyanı kaldırmaksa, yukarıdaki kural yeterlidir.
+   Eğer amaç pixel canvas'ın etrafında farklı bir efekt ise, bu kural kullanılabilir.
+   Mevcut JS kodunda pixel canvas'ın görünürlüğü ayarlandığı için bu kuralın etkisi sınırlı olabilir.
+   Şimdilik yorum satırı olarak bırakıyorum, gerekirse aktif edilebilir.
 .widget-card.selected::before {
     content: "";
     position: absolute;
@@ -191,48 +304,45 @@
     height: 100%;
     background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
     opacity: 1;
-    z-index: 1; /* Pixel canvas'in üzerinde */
+    z-index: 1;
     pointer-events: none;
     transition: opacity 1500ms var(--ease-out, cubic-bezier(0.5, 1, 0.89, 1));
 }
+*/
 
-/* Seçilmeyen kartlar için inaktif stil */
+
+/* 4.3. Seçilmeyen Kart Stilleri */
+/* 4.3.1. Seçili olmayan widget kartları için stil */
 .widget-card:not(.selected) {
-    transition: all 800ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1));
-    opacity: 0.7;
-    filter: brightness(0.7);
+    transition: all 800ms var(--ease-in-out, cubic-bezier(0.45, 0, 0.55, 1)); /* Yumuşak geçiş */
+    opacity: 0.7; /* Hafif saydam */
+    filter: brightness(0.7); /* Daha sönük parlaklık */
 }
 
-/* Widget type specific styles for selected state */
+/* 4.4. Widget Tipine Özel Seçili Kart Stilleri */
+/* 4.4.1. "Normal" tip seçili kart kenarlık rengi */
 .widget-card[data-widget-type="normal"].selected {
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.4); /* Beyaz tonlu kenarlık */
 }
 
+/* 4.4.2. "Alt" tip seçili kart kenarlık rengi */
 .widget-card[data-widget-type="alt"].selected {
-    border-color: rgba(200, 200, 255, 0.4);
+    border-color: rgba(200, 200, 255, 0.4); /* Açık mavi tonlu kenarlık */
 }
 
+/* 4.4.3. "Neon" tip seçili kart kenarlık rengi */
 .widget-card[data-widget-type="neon"].selected {
-    border-color: rgba(30, 215, 96, 0.4);
+    border-color: rgba(30, 215, 96, 0.4); /* Spotify yeşili tonlu kenarlık */
 }
 
-/* Special effects for selected cards */
-.widget-card.selected {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.widget-card.selected::after {
-    opacity: 1;
-}
-
-
-
+/* 4.5. Kart İçeriği */
+/* 4.5.1. Kart içindeki metin ve butonları saran konteyner */
 .widget-card-content {
-    padding: 2rem;
-    text-align: center;
+    padding: 2rem; /* İç boşluk */
+    text-align: center; /* İçeriği ortala */
 }
 
+/* 4.5.2. Kart başlığı */
 .widget-card-title {
     font-size: 1.5rem;
     font-weight: 600;
@@ -240,66 +350,82 @@
     color: rgba(255, 255, 255, 1);
 }
 
+/* 4.5.3. Kart açıklaması */
 .widget-card-description {
     font-size: 0.95rem;
     opacity: 0.7;
     margin-bottom: 1.5rem;
-    line-height: 1.5;
+    line-height: 1.5; /* Satır yüksekliği */
 }
 
-/* Button styles */
+/* ============================================= */
+/* 5. BUTON STİLLERİ                           */
+/* ============================================= */
+
+/* 5.1. Genel widget seçim butonu stili */
 .widget-select-btn {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    padding: 0.75rem 2rem;
+    background-color: rgba(255, 255, 255, 0.1); /* Çok saydam beyaz arka plan */
+    color: rgba(255, 255, 255, 0.9); /* Neredeyse tam beyaz yazı */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Saydam beyaz kenarlık */
+    border-radius: 6px; /* Hafif yuvarlak köşeler */
+    padding: 0.75rem 2rem; /* İç boşluk */
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 500; /* Orta kalınlıkta yazı */
     cursor: pointer;
-    transition: all 0.2s ease;
-    letter-spacing: 0.5px;
+    transition: all 0.2s ease; /* Hızlı geçiş */
+    letter-spacing: 0.5px; /* Harf aralığı */
 }
 
+/* 5.2. Buton üzerine gelince stil */
 .widget-select-btn:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.15); /* Biraz daha belirgin arka plan */
+    border-color: rgba(255, 255, 255, 0.3); /* Biraz daha belirgin kenarlık */
 }
 
+/* 5.3. Butona tıklandığında (aktif) stil */
 .widget-select-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.98); /* Hafifçe küçült */
 }
 
+/* 5.4. Seçili widget'a ait buton stili */
 .widget-select-btn.selected {
-    background-color: rgba(30, 215, 96, 0.2); /* Spotify green with transparency */
-    border-color: rgba(30, 215, 96, 0.4);
+    background-color: rgba(30, 215, 96, 0.2); /* Spotify yeşili (saydam) */
+    border-color: rgba(30, 215, 96, 0.4); /* Spotify yeşili kenarlık (saydam) */
 }
 
-/* Preview section */
+/* ============================================= */
+/* 6. ÖNİZLEME BÖLÜMÜ STİLLERİ                 */
+/* ============================================= */
+
+/* 6.1. Genel Önizleme Yapısı */
+/* 6.1.1. Widget önizleme bölümünün ana konteyneri */
 .widget-preview-section {
-    margin-top: 4rem;
-    text-align: center;
+    margin-top: 4rem; /* Üstten boşluk */
+    text-align: center; /* İçeriği ortala */
 }
 
+/* 6.1.2. Önizleme bölümü başlığı */
 .preview-title {
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
     font-weight: 500;
 }
 
+/* 6.1.3. Widget önizlemesinin gösterileceği konteyner */
 .widget-preview-container {
-    max-width: 400px;
-    height: 400px;
-    margin: 0 auto;
-    background-color: rgba(30, 30, 30, 0.5);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 400px; /* Maksimum genişlik */
+    height: 400px; /* Sabit yükseklik */
+    margin: 0 auto; /* Sayfada ortala */
+    background-color: rgba(30, 30, 30, 0.5); /* Yarı saydam koyu gri arka plan */
+    border-radius: 12px; /* Yuvarlak köşeler */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Çok saydam beyaz kenarlık */
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: hidden; /* Taşmaları gizle */
 }
 
+/* 6.1.4. Gerçek önizleme içeriğinin yerleştirileceği ID */
 #widget-preview {
     width: 100%;
     height: 100%;
@@ -308,13 +434,15 @@
     justify-content: center;
 }
 
+/* 6.1.5. Widget seçilmediğinde gösterilecek mesaj */
 .no-selection-message {
-    opacity: 0.5;
+    opacity: 0.5; /* Soluk görünüm */
     font-size: 1.1rem;
-    font-weight: 300;
+    font-weight: 300; /* İnce yazı */
 }
 
-/* Widget preview placeholders */
+/* 6.2. Önizleme İçeriği ve Yer Tutucular */
+/* 6.2.1. Önizleme içeriğini saran genel div */
 .widget-preview-content {
     width: 100%;
     height: 100%;
@@ -323,58 +451,70 @@
     justify-content: center;
 }
 
+/* 6.2.2. Genel önizleme yer tutucu stili */
 .widget-preview-placeholder {
     width: 300px;
     height: 380px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* İçeriği dikeyde diz */
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
-    padding: 1.5rem;
+    border-radius: 10px; /* Yuvarlak köşeler */
+    padding: 1.5rem; /* İç boşluk */
     text-align: center;
-    background-color: rgba(20, 20, 20, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(20, 20, 20, 0.7); /* Koyu saydam arka plan */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Çok saydam kenarlık */
 }
 
+/* 6.2.3. Yer tutucu başlığı */
 .widget-preview-placeholder h4 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
     font-weight: 500;
 }
 
+/* 6.2.4. Yer tutucu paragrafı */
 .widget-preview-placeholder p {
     opacity: 0.7;
     font-size: 0.9rem;
     line-height: 1.5;
 }
 
-/* Widget type specific styles */
+/* 6.3. Widget Tipine Özel Önizleme Stilleri */
+/* 6.3.1. "Normal" widget önizleme stili */
 .normal-widget {
-    background-color: rgba(40, 40, 40, 0.7);
+    background-color: rgba(40, 40, 40, 0.7); /* Biraz daha açık gri */
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* 6.3.2. "Alt" widget önizleme stili */
 .alt-widget {
-    background-color: rgba(50, 50, 60, 0.7);
-    border: 1px solid rgba(200, 200, 255, 0.15);
+    background-color: rgba(50, 50, 60, 0.7); /* Hafif mavimsi gri */
+    border: 1px solid rgba(200, 200, 255, 0.15); /* Açık mavi tonlu kenarlık */
 }
 
+/* 6.3.3. "Neon" widget önizleme stili */
 .neon-widget {
-    background-color: rgba(30, 30, 40, 0.7);
-    border: 1px solid rgba(30, 215, 96, 0.3);
-    box-shadow: 0 0 15px rgba(30, 215, 96, 0.2);
+    background-color: rgba(30, 30, 40, 0.7); /* Koyu mavimsi gri */
+    border: 1px solid rgba(30, 215, 96, 0.3); /* Spotify yeşili kenarlık */
+    box-shadow: 0 0 15px rgba(30, 215, 96, 0.2); /* Neon parlama efekti */
 }
 
-/* Responsive adjustments */
+/* ============================================= */
+/* 7. DUYARLI TASARIM AYARLARI (RESPONSIVE)    */
+/* ============================================= */
+
+/* 7.1. Ekran genişliği 768px ve altı için stiller */
 @media (max-width: 768px) {
+    /* 7.1.1. Mobil cihazlarda kart konteyneri (dikey dizilim) */
     .widget-cards-container {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: column; /* Kartları alt alta diz */
+        align-items: center; /* Ortala */
     }
     
+    /* 7.1.2. Mobil cihazlarda widget kartı genişliği */
     .widget-card {
-        width: 100%;
-        max-width: 320px;
+        width: 100%; /* Tam genişlik */
+        max-width: 320px; /* Maksimum genişlik sınırı */
     }
 }

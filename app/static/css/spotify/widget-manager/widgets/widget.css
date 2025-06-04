@@ -1,160 +1,236 @@
-/* widget.css */
+/*
+    widget.css (Revize Edilmiş)
 
-/* Base styles for body and html */
+    İÇİNDEKİLER:
+
+    1. TEMEL STİLLER
+        1.1. body, html
+        1.2. body (Flexbox Ayarları)
+    2. ANA WIDGET KONTEYNERİ
+        2.1. #spotifyWidget
+    3. ALBÜM KAPAĞI STİLLERİ
+        3.1. #albumArtBackground (Arka Plan Albüm Kapağı)
+        3.2. #albumArt (Ana Albüm Kapağı)
+    4. KAPLAMA (OVERLAY) STİLLERİ
+        4.1. #gradientOverlay (Gradyan Kaplama)
+        4.2. #overlayContent (İçerik Konteyneri)
+    5. ŞARKI BİLGİLERİ
+        5.1. .track-info
+        5.2. #trackName
+        5.3. #artistName
+    6. OYNATICI KONTROLLERİ (İLERLEME ÇUBUĞU VE ZAMAN)
+        6.1. .player-controls (Genel Konteyner - Kullanımda değilse kaldırılabilir)
+        6.2. .progress-container (İlerleme Çubuğu ve Zamanı Saran Konteyner)
+        6.3. #progressBarContainer (İlerleme Çubuğu Arka Planı)
+        6.4. #progressBar (Dolu İlerleme Çubuğu)
+        6.5. .time-display (Zaman Gösterimi Konteyneri)
+        6.6. #currentTime, #totalTime (Zaman Metinleri)
+    7. SPOTIFY LOGO
+        7.1. .spotify-logo
+        7.2. .spotify-logo i (İkon)
+    8. HATA MESAJI
+        8.1. #errorMessage (Genel Stil)
+        8.2. #errorMessage.visible (Görünür Durum)
+        8.3. #errorMessage.fade (Solma Efekti)
+*/
+
+/* ============================================= */
+/* 1. TEMEL STİLLER                            */
+/* ============================================= */
+
+/* 1.1. body ve html için temel ayarlar */
 body, html {
     font-family: 'Inter', sans-serif;
-    overflow: hidden;
-    background-color: transparent;
+    overflow: hidden; /* Sayfa kaydırmasını engelle */
+    background-color: transparent; /* Widget dışı transparan */
     margin: 0;
     padding: 0;
-    height: 100vh;
+    height: 100vh; /* Tüm sayfa yüksekliği */
 }
 
+/* 1.2. body için flexbox ayarları (widget'ı ortalamak için) */
 body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: white; /* Varsayılan metin rengi */
 }
 
-/* Main widget container */
+/* ============================================= */
+/* 2. ANA WIDGET KONTEYNERİ                    */
+/* ============================================= */
+
+/* 2.1. Ana widget sarmalayıcısı */
 #spotifyWidget {
-    width: 600px;
-    height: 500px;
-    border-radius: 1rem;
-    overflow: hidden;
-    position: relative;
-    background: linear-gradient(to bottom, #374151, #111827);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 600px; /* Widget genişliği */
+    height: 500px; /* Widget yüksekliği */
+    border-radius: 1rem; /* Yuvarlak köşeler */
+    overflow: hidden; /* İçerik taşmasını engelle */
+    position: relative; /* Alt elemanların konumlandırılması için */
+    background: linear-gradient(to bottom, #374151, #111827); /* Koyu gradyan arka plan */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); /* Yumuşak gölge */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* İnce kenarlık */
 }
 
-/* Background Album art styling (blurred) */
+/* ============================================= */
+/* 3. ALBÜM KAPAĞI STİLLERİ                    */
+/* ============================================= */
+
+/* 3.1. Arka plan olarak kullanılan bulanık albüm kapağı */
 #albumArtBackground {
     position: absolute;
-    inset: 0;
+    inset: 0; /* Konteynerin tamamını kapla */
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Stretched to cover the entire container */
-    z-index: 0;
-    transition: opacity 0.5s ease-in-out, filter 0.5s ease-in-out;
-    opacity: 1;
-    filter: blur(20px) brightness(1); /* Blurred and darkened */
+    object-fit: cover; /* Resmi kırparak konteyneri doldur */
+    z-index: 0; /* En altta */
+    transition: opacity 0.5s ease-in-out, filter 0.5s ease-in-out; /* Yumuşak geçiş */
+    opacity: 1; /* Başlangıçta görünür */
+    filter: blur(20px) brightness(1); /* Bulanık ve hafif karartılmış */
 }
 
-/* Main Album art styling */
+/* 3.2. Ana, net albüm kapağı */
 #albumArt {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 1rem;
-    object-fit: contain; /* Maintain aspect ratio */
-    z-index: 1; /* Above the background */
-    transition: opacity 0.5s ease-in-out;
-    opacity: 1;
-    filter: brightness(0.9);
+    transform: translate(-50%, -50%); /* Tam ortala */
+    max-width: 90%; /* Maksimum genişlik */
+    max-height: 90%; /* Maksimum yükseklik */
+    border-radius: 1rem; /* Yuvarlak köşeler */
+    object-fit: contain; /* En-boy oranını koru */
+    z-index: 1; /* Arka planın üzerinde */
+    transition: opacity 0.5s ease-in-out; /* Yumuşak geçiş */
+    opacity: 1; /* Başlangıçta görünür */
+    filter: brightness(0.9); /* Hafif karartma */
 }
 
-/* Dark gradient overlay for better text readability */
+/* ============================================= */
+/* 4. KAPLAMA (OVERLAY) STİLLERİ               */
+/* ============================================= */
+
+/* 4.1. Metin okunurluğu için gradyan kaplama */
 #gradientOverlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7), transparent);
-    z-index: 5;
+    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7), transparent); /* Alttan üste kararan gradyan */
+    z-index: 5; /* Albüm kapağının üzerinde, içeriğin altında */
 }
 
-/* Content container */
+/* 4.2. Şarkı bilgileri ve kontrolleri içeren ana içerik alanı */
 #overlayContent {
     position: absolute;
     inset: 0;
-    z-index: 10;
-    padding: 2rem;
+    z-index: 10; /* En üstte */
+    padding: 2rem; /* İç boşluk */
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: column; /* Elemanları dikeyde sırala */
+    justify-content: space-between; /* Üst ve alt elemanları kenarlara yasla */
 }
 
-/* Track info section */
+/* ============================================= */
+/* 5. ŞARKI BİLGİLERİ                          */
+/* ============================================= */
+
+/* 5.1. Şarkı adı ve sanatçıyı saran konteyner */
 .track-info {
-    text-align: left;
+    text-align: left; /* Metni sola hizala */
 }
 
+/* 5.2. Şarkı adı */
 #trackName {
     font-size: 1.5rem;
     font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-    letter-spacing: -0.01em;
+    white-space: nowrap; /* Tek satırda göster */
+    overflow: hidden; /* Taşmayı gizle */
+    text-overflow: ellipsis; /* Taşarsa "..." ekle */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8); /* Metin gölgesi */
+    letter-spacing: -0.01em; /* Harf aralığı */
     margin-bottom: 0.5rem;
 }
 
+/* 5.3. Sanatçı adı */
 #artistName {
     font-size: 1rem;
-    color: rgb(209, 213, 219);
+    color: rgb(209, 213, 219); /* Soluk beyaz */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-    opacity: 0.85;
-    font-weight: 500;
+    opacity: 0.85; /* Hafif saydam */
+    font-weight: 500; /* Orta kalınlık */
 }
 
-/* Player controls section */
+/* ============================================= */
+/* 6. OYNATICI KONTROLLERİ (İLERLEME ÇUBUĞU VE ZAMAN) */
+/* ============================================= */
+
+/* 6.1. Genel oynatıcı kontrolleri konteyneri (Bu widget'ta butonlar olmadığı için sadece ilerleme çubuğu için) */
 .player-controls {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* Alt boşluk */
 }
 
+/* 6.2. İlerleme çubuğu ve zaman gösterimini saran konteyner */
 .progress-container {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* Alt boşluk */
 }
 
+/* 6.3. İlerleme çubuğunun arka planı */
 #progressBarContainer {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    height: 4px;
-    width: 100%;
-    margin-bottom: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.2); /* Saydam beyaz arka plan */
+    border-radius: 9999px; /* Tamamen yuvarlak kenarlar */
+    height: 4px; /* Yükseklik */
+    width: 100%; /* Tam genişlik */
+    margin-bottom: 0.5rem; /* Altında zaman gösterimi için boşluk */
 }
 
+/* 6.4. Dolu ilerleme çubuğu */
 #progressBar {
-    background-color: rgb(74, 222, 128);
+    background-color: rgb(74, 222, 128); /* Spotify yeşili */
     height: 4px;
     border-radius: 9999px;
-    transition: width 0.5s linear;
-    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+    transition: width 0.5s linear; /* Genişlik değişimi için yumuşak geçiş */
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5); /* Yeşil parlama efekti */
 }
 
+/* 6.5. Mevcut süre ve toplam süreyi gösteren konteyner */
 .time-display {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: rgb(209, 213, 219);
+    justify-content: space-between; /* Süreleri iki uca yasla */
+    font-size: 0.75rem; /* Küçük yazı tipi */
+    color: rgb(209, 213, 219); /* Soluk beyaz */
 }
 
-#currentTime, #totalTime {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
+/* 6.6. Mevcut süre ve toplam süre metinleri */
+#currentTime,
+#totalTime {
+    font-variant-numeric: tabular-nums; /* Rakamların aynı genişlikte olmasını sağla */
+    letter-spacing: 0.02em; /* Harf aralığı */
 }
 
-/* Spotify logo */
+/* ============================================= */
+/* 7. SPOTIFY LOGO                             */
+/* ============================================= */
+
+/* 7.1. Spotify logo konteyneri */
 .spotify-logo {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Logoyu sağa yasla */
     align-items: center;
     margin-top: 0.5rem;
 }
 
+/* 7.2. Spotify logo ikonu (Font Awesome vb. için) */
 .spotify-logo i {
-    color: rgb(74, 222, 128);
+    color: rgb(74, 222, 128); /* Spotify yeşili */
     font-size: 1.25rem;
 }
 
-/* Error message */
+/* ============================================= */
+/* 8. HATA MESAJI                              */
+/* ============================================= */
+
+/* 8.1. Hata mesajı çubuğu */
 #errorMessage {
     position: absolute;
     bottom: 0;
@@ -162,19 +238,21 @@ body {
     right: 0;
     padding: 0.75rem;
     text-align: center;
-    background-color: rgb(185, 28, 28);
+    background-color: rgb(185, 28, 28); /* Kırmızı arka plan */
     color: white;
     font-size: 0.75rem;
-    z-index: 20;
-    transition: opacity 0.3s ease-in-out;
-    backdrop-filter: blur(4px);
-    display: none;
+    z-index: 20; /* Diğer elemanların üzerinde */
+    transition: opacity 0.3s ease-in-out; /* Yumuşak opaklık geçişi */
+    backdrop-filter: blur(4px); /* Arka planı bulanıklaştır (destekleyen tarayıcılarda) */
+    display: none; /* Başlangıçta gizli */
 }
 
+/* 8.2. Hata mesajı görünür olduğunda */
 #errorMessage.visible {
-    display: block;
+    display: block; /* Görünür yap */
 }
 
+/* 8.3. Hata mesajı solarken (JS ile yönetilir) */
 #errorMessage.fade {
-    opacity: 0;
+    opacity: 0; /* Tamamen saydam yap */
 }
