@@ -1,0 +1,322 @@
+/**
+ * widget_modern.css
+ *
+ * Modern Spotify widget'ı için özel stil tanımlamaları.
+ * spotify_widget_core.css dosyasındaki ortak stilleri genişletir veya üzerine yazar.
+ *
+ * İÇİNDEKİLER:
+ * 1. WIDGET GENEL STİLLERİ (.modern-widget)
+ *      1.1. Boyutlandırma ve Temel Görünüm
+ *      1.2. Arka Plan ve Renkler
+ * 2. ALBÜM KAPAĞI STİLLERİ
+ *      2.1. Kapak Konteyneri (.cover-container)
+ *      2.2. Ana Albüm Kapağı (.widget-album-art-main)
+ *      2.3. Gradyan Overlay (.widget-gradient-overlay)
+ * 3. İÇERİK ALANI STİLLERİ (.widget-content-area)
+ *      3.1. Konumlandırma ve Dolgu
+ * 4. ŞARKI BİLGİSİ STİLLERİ (.widget-track-info)
+ *      4.1. Şarkı Adı (.widget-track-name)
+ *      4.2. Sanatçı Adı (.widget-artist-name)
+ * 5. PLAYER KONTROL STİLLERİ (.widget-player-controls)
+ *      5.1. Genel Düzen
+ *      5.2. Progress Bar Bölümü (.widget-progress-section)
+ *          5.2.1. .widget-progress-bar-container
+ *          5.2.2. .widget-progress-bar
+ *      5.3. Zaman Gösterimi (.widget-time-display)
+ *      5.4. Spotify Logosu (.widget-spotify-logo)
+ * 6. WIDGET'A ÖZEL ANİMASYONLAR
+ *      6.1. Giriş Animasyonu (.modern-fade-in)
+ *      6.2. İçerik Geçiş Animasyonu (.modern-content-slide)
+ *      6.3. Çıkış Animasyonu (.modern-fade-out)
+ *      6.4. Animasyon Keyframes
+ * 7. YARDIMCI VE DURUM SINIFLARI
+ */
+
+/* 1. WIDGET GENEL STİLLERİ (.modern-widget) */
+/* 1.1. Boyutlandırma ve Temel Görünüm */
+.modern-widget {
+    width: 600px;
+    height: 600px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    overflow: hidden;
+    position: relative;
+    background-color: #121212;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* 2. ALBÜM KAPAĞI STİLLERİ */
+/* 2.1. Kapak Konteyneri */
+.cover-container {
+    position: relative;
+    width: 100%;
+    height: 60%;
+    overflow: hidden;
+}
+
+/* 2.2. Ana Albüm Kapağı */
+.modern-widget .widget-album-art-main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-in-out;
+    z-index: 1;
+}
+
+/* 2.3. Gradyan Overlay */
+.modern-widget .widget-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        rgba(0,0,0,0) 0%, 
+        rgba(0,0,0,0.4) 60%, 
+        rgba(0,0,0,0.9) 90%, 
+        rgba(0,0,0,1) 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 3. İÇERİK ALANI STİLLERİ (.widget-content-area) */
+/* 3.1. Konumlandırma ve Dolgu */
+.modern-widget .widget-content-area {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px;
+    box-sizing: border-box;
+    z-index: 3;
+}
+
+/* 4. ŞARKI BİLGİSİ STİLLERİ (.widget-track-info) */
+.modern-widget .widget-track-info {
+    margin-bottom: 20px;
+}
+
+/* 4.1. Şarkı Adı (.widget-track-name) */
+.modern-widget .widget-track-name {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: -0.5px;
+}
+
+/* 4.2. Sanatçı Adı (.widget-artist-name) */
+.modern-widget .widget-artist-name {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* 5. PLAYER KONTROL STİLLERİ (.widget-player-controls) */
+/* 5.1. Genel Düzen */
+.modern-widget .widget-player-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* 5.2. Progress Bar Bölümü (.widget-progress-section) */
+.modern-widget .widget-progress-section {
+    width: 100%;
+}
+
+/* 5.2.1. .widget-progress-bar-container */
+.modern-widget .widget-progress-bar-container {
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* 5.2.2. .widget-progress-bar */
+.modern-widget .widget-progress-bar {
+    background: linear-gradient(90deg, #1DB954 0%, #1ED760 100%);
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.25s linear;
+}
+
+/* 5.3. Zaman Gösterimi (.widget-time-display) */
+.modern-widget .widget-time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* 5.4. Spotify Logosu (.widget-spotify-logo) */
+.modern-widget .widget-spotify-logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 4;
+    transition: transform 0.3s ease;
+}
+
+.modern-widget .spotify-blurred-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 6px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modern-widget .spotify-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* 6. WIDGET'A ÖZEL ANİMASYONLAR */
+/* 6.1. Giriş Animasyonu */
+.modern-fade-in {
+    animation: modernFadeIn 0.8s ease-out forwards;
+}
+
+/* 6.2. İçerik Geçiş Animasyonu */
+.modern-content-slide {
+    animation: modernContentSlide 0.6s ease-out forwards;
+}
+
+/* 6.3. Çıkış Animasyonu */
+.modern-fade-out {
+    animation: modernFadeOut 0.5s ease-in forwards;
+}
+
+/* 6.4. Animasyon Keyframes */
+@keyframes modernFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modernContentSlide {
+    0% {
+        opacity: 0.5;
+        transform: translateX(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes modernFadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Şarkı çalma durumunu gösteren pulsing animasyon */
+.modern-widget .widget-track-name.playing {
+    position: relative;
+}
+
+.modern-widget .widget-track-name.playing::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #1DB954;
+    border-radius: 50%;
+    margin-left: 10px;
+    vertical-align: middle;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(29, 185, 84, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(29, 185, 84, 0);
+    }
+}
+
+/* 7. YARDIMCI VE DURUM SINIFLARI */
+.modern-widget.widget-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Hata mesajı için özel stil */
+.modern-widget .core-error-message {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 10;
+}
+
+.modern-widget .core-error-message.visible {
+    transform: translateY(0);
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 650px) {
+    .modern-widget {
+        width: 100%;
+        height: 500px;
+    }
+    
+    .modern-widget .widget-track-name {
+        font-size: 26px;
+    }
+    
+    .modern-widget .widget-artist-name {
+        font-size: 18px;
+    }
+    
+    .modern-widget .widget-content-area {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Widget - Modern</title>
+
+    <!-- Ortak CSS Dosyası -->
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
+
+    <!-- Widget'a Özel CSS Dosyası -->
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern.css">
+
+</head>
+<body>
+    <!-- Ana Widget Konteyneri -->
+    <div id="spotifyWidgetModern" class="widget-container modern-widget"
+         data-intro-animation-class="modern-fade-in"
+         data-transition-animation-class="modern-content-slide"
+         data-outro-animation-class="modern-fade-out">
+
+        <!-- Albüm Kapağı (Tam Genişlik) -->
+        <div class="cover-container">
+            <img id="albumArt" class="widget-album-art-main" src="https://placehold.co/600x300/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı">
+            
+            <!-- Gradyan Overlay -->
+            <div class="widget-gradient-overlay"></div>
+        </div>
+
+        <!-- İçerik Alanı -->
+        <div id="widgetContent" class="widget-content-area">
+            <!-- Şarkı Bilgileri -->
+            <div class="widget-track-info">
+                <h3 id="trackName" class="widget-track-name" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
+                <p id="artistName" class="widget-artist-name" title="Sanatçı Adı Yükleniyor...">...</p>
+            </div>
+
+            <!-- Progress Bar Alanı -->
+            <div class="widget-player-controls">
+                <!-- Progress Bar ve Zaman Gösterimi -->
+                <div class="widget-progress-section">
+                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
+                        <div id="progressBar" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="core-time-display widget-time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spotify Logosu -->
+        <div class="widget-spotify-logo">
+            <div class="spotify-blurred-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-spotify" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
+                </svg>
+                <span class="spotify-text">Spotify</span>
+            </div>
+        </div>
+
+        <!-- Hata Mesajı Alanı -->
+        <div id="errorMessage" class="core-error-message">
+            <!-- Mesaj JS ile doldurulacak -->
+        </div>
+    </div>
+
+    <script>
+        // WIDGET_TOKEN ve DATA_ENDPOINT_TEMPLATE global scope'a tanımlanır.
+        window.WIDGET_TOKEN_FROM_HTML = "YOUR_WIDGET_TOKEN"; // GERÇEK TOKEN İLE DEĞİŞTİRİN
+        window.DATA_ENDPOINT_TEMPLATE = '/spotify/api/widget-data/{TOKEN}'; // API ENDPOINTİNİZ
+    </script>
+
+    <!-- Ortak JavaScript Dosyası -->
+    <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>
+
+    <!-- Widget'a Özel JavaScript Dosyası -->
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern.js"></script>
+</body>
+</html>

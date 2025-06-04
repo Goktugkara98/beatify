@@ -78,7 +78,7 @@
     width: 250px;
     height: 250px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease-out, opacity 0.5s ease-in-out;
     z-index: 3; /* Gradyan ve içerik yazısının üzerinde */
@@ -100,7 +100,7 @@
 /* 3.1. Konumlandırma ve Dolgu */
 .widget-content-area {
     position: absolute;
-    top: 20px; /* Ana albüm kapağına göre ayarlanabilir */
+    top: 80px; /* Ana albüm kapağına göre ayarlanabilir */
     left: 290px; /* Ana albüm kapağının sağına */
     right: 20px;
     bottom: 15px; /* Progress bar ve zaman gösterimi için yer bırak */
@@ -118,7 +118,7 @@
 
 /* 4.1. Şarkı Adı (.widget-track-name) */
 .widget-track-name {
-    font-size: 28px;
+    font-size: 42px;
     font-weight: 600;
     margin: 0 0 3px 0;
     white-space: nowrap;
@@ -130,7 +130,7 @@
 
 /* 4.2. Sanatçı Adı (.widget-artist-name) */
 .widget-artist-name {
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 400;
     margin: 0;
     opacity: 0.8;
@@ -159,7 +159,7 @@
 
 /* 5.2.1. .widget-progress-bar-container (core-progress-container üzerine ek) */
 .widget-progress-bar-container {
-    height: 10px; /* Standart widget için biraz daha kalın */
+    height: 8px; /* Standart widget için biraz daha kalın */
     background-color: rgba(255, 255, 255, 0.15); /* Arka plan rengi */
 }
 
@@ -171,7 +171,7 @@
 
 /* 5.3. Zaman Gösterimi (.widget-time-display - core üzerine ek) */
 .widget-time-display {
-    font-size: 10px;
+    font-size: 20px;
     color: rgba(255, 255, 255, 0.6);
     margin-top: 3px;
 }
@@ -179,19 +179,40 @@
 /* 5.4. Spotify Logosu (.widget-spotify-logo) */
 .widget-spotify-logo {
     position: absolute;
-    bottom: 230px;
-    right: 18px;
-    font-size: 22px; /* Logo boyutu */
-    color: #1DB954; /* Spotify yeşili */
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-    z-index: 4;
+    top: 20px;
+    right: 20px;
+    z-index: 10; /* Increased z-index to ensure it stays on top */
+    transition: transform 0.3s ease;
+    /* Ensure position is preserved during animations */
+    transform-origin: center center;
+    will-change: transform, opacity;
 }
-.widget-spotify-logo:hover {
-    opacity: 1;
+
+.spotify-blurred-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(58, 58, 58, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 8px 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 .widget-spotify-logo svg {
-    display: block; /* SVG ise */
+    display: block;
+    color: #1DB954; /* Spotify yeşili */
+    width: 25px;
+    height: 25px;
+}
+
+.spotify-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
 }
 
 
@@ -206,7 +227,12 @@
 /* 6.2. İçerik Geçiş Animasyonu (.standard-content-pop) */
 .standard-content-pop .widget-track-info,
 .standard-content-pop .widget-player-controls { /* Sadece belirli elementlere uygula */
-    animation: standardContentPopAnimation 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* Doğrudan element animasyonu - JS tarafından eklenir */
+.content-pop-animation {
+    animation: standardContentPopAnimation 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 /* HTML'deki data-outro-animation-class ile eşleşmeli */
@@ -217,7 +243,7 @@
 
 /* 6.4. Diğer Özel Efektler */
 .widget-album-art-main.album-art-pop { /* JS ile eklenir */
-    animation: albumArtPopAnimation 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    animation: albumArtPopAnimation 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .widget-track-name.playing { /* JS ile eklenir */
@@ -256,8 +282,21 @@
 
 @keyframes albumArtPopAnimation {
     0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+    40% { transform: scale(1.08); }
+    70% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* Spotify logo transition animation */
+.spotify-logo-transition {
+    animation: spotifyLogoTransition 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes spotifyLogoTransition {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    40% { transform: scale(1.08); opacity: 0.85; }
+    70% { transform: scale(1.03); opacity: 0.95; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* 7. YARDIMCI VE DURUM SINIFLARI */
