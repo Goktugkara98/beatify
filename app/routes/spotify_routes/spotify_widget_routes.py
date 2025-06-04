@@ -96,7 +96,7 @@ def widget_manager() -> str:
     username: Optional[str] = session.get('username')
     if not username:
         flash("Widget yöneticisine erişmek için lütfen giriş yapın.", "warning")
-        return redirect(url_for('login_page'))
+        return redirect(url_for('login'))
     
     widget_token_service = WidgetTokenService()
     widget_token = widget_token_service.get_or_create_widget_token(username)
@@ -218,8 +218,7 @@ def get_widget_list() -> Tuple[Dict[str, Any], int]:
 def spotify_widget(widget_token: str) -> Any:
     """
     Belirtilen `widget_token` ile ilişkili Spotify widget'ını render eder.
-    URL'de 'style=alt' parametresi varsa 'spotify/widgets/widget_alt.html',
-    yoksa 'spotify/widgets/widget.html' şablonu kullanılır.
+    URL'de 'style' parametresi ile farklı widget temaları seçilebilir.
     Şablona `widget_token` ve `data_endpoint` değişkenleri gönderilir.
 
     Args:
@@ -232,9 +231,9 @@ def spotify_widget(widget_token: str) -> Any:
         # Geliştirme için log: İsteğin alındığını ve token bilgisini gösterir.
         # print(f"Spotify widget isteği alındı. Token: {widget_token}, URL: {request.url}")
         
-        # URL'den 'style' parametresini al, yoksa varsayılan olarak boş string kullan.
+        # URL'den 'style' parametresini al, yoksa varsayılan olarak 'standard' kullan.
         # Büyük/küçük harf duyarlılığını ortadan kaldırmak için lower() kullanılır.
-        style = request.args.get('style', default='').lower()
+        style = request.args.get('style', default='standard').lower()
         
         # Test modu parametresini kontrol et
         test_mode = request.args.get('test', default='').lower() == 'true'
@@ -243,20 +242,33 @@ def spotify_widget(widget_token: str) -> Any:
         # Bu URL, widget HTML'i içinde JavaScript tarafından veri çekmek için kullanılacaktır.
         data_endpoint_url = url_for('spotify_widget_bp.widget_data', widget_token=widget_token, test=test_mode, _external=True)
         
-        if style == 'alt':
-            template_name = "spotify/widgets/widget_alt.html"
-            # Geliştirme için log: Hangi widget'ın render edildiğini belirtir.
-            # print(f"Alternatif widget ({template_name}) render ediliyor. Token: {widget_token}")
+        # Modüler widget yapısına göre şablon adını belirle
+        # Eski widget stilleri için geriye dönük uyumluluk sağla
+        if style == 'standard':
+            template_name = "spotify/widgets/widget_standard.html"
         elif style == 'neon':
-            template_name = "spotify/widgets/widget_neon.html"
-        else:
+            template_name = "spotify/widgets/widget_neon_modular.html"
+        elif style == 'legacy_modular':
+            # Orijinal widget tasarımının modüler versiyonu
+            template_name = "spotify/widgets/widget_legacy_modular.html"
+        elif style == 'alt':
+            # Geriye dönük uyumluluk için eski alt widget'ı destekle
+            template_name = "spotify/widgets/widget_alt.html"
+        elif style == 'legacy':
+            # Eski standart widget'a erişim için
             template_name = "spotify/widgets/widget.html"
-            # Geliştirme için log: Hangi widget'ın render edildiğini belirtir.
-            # print(f"Standart widget ({template_name}) render ediliyor. Token: {widget_token}")
+        else:
+            # Tanınmayan stil adları için varsayılan olarak standard widget'ı kullan
+            template_name = "spotify/widgets/widget_standard.html"
             
-        # Şablona `widget_token` ve `data_endpoint`'i doğrudan gönderiyoruz.
-        # Önceki `config` sözlüğü ve `title` gibi ek parametreler kaldırıldı.
-        return render_template(template_name, widget_token=widget_token, data_endpoint=data_endpoint_url)
+        # Şablona gerekli değişkenleri gönder
+        # Yeni modüler yapı için config nesnesi oluştur
+        config = {
+            'widgetToken': widget_token,
+            'dataEndpoint': data_endpoint_url
+        }
+        
+        return render_template(template_name, config=config)
             
     except Exception as e:
         # Hata durumunda loglama yap (geliştirme sırasında etkinleştirilebilir)

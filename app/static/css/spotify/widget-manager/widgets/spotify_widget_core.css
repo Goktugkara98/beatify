@@ -1,0 +1,208 @@
+/**
+ * spotify_widget_core.css
+ *
+ * Tüm Spotify widget'ları için ortak temel stil kuralları.
+ *
+ * İÇİNDEKİLER:
+ * 1. TEMEL SAYFA VE GÖVDE STİLLERİ
+ *      1.1. Sıfırlama ve Temel Ayarlar
+ *      1.2. Gövde Düzeni (Widget Ortalaması)
+ * 2. WIDGET KONTEYNER TEMEL STİLLERİ
+ *      2.1. Boyutlandırma ve Konumlandırma
+ *      2.2. Görsel Temeller (Kenarlık, Gölge vb.)
+ * 3. ORTAK ANİMASYON SINIFLARI
+ *      3.1. Giriş Animasyonları
+ *          3.1.1. .core-fade-in-up
+ *          3.1.2. .core-fade-in
+ *          3.1.3. .core-slide-in
+ *      3.2. Çıkış Animasyonları
+ *          3.2.1. .core-fade-out
+ *      3.3. Animasyon Keyframes
+ *          3.3.1. @keyframes coreFadeInUp
+ *          3.3.2. @keyframes coreFadeIn
+ *          3.3.3. @keyframes coreSlideIn
+ *          3.3.4. @keyframes coreFadeOut
+ * 4. ORTAK UI ELEMANLARI
+ *      4.1. Progress Bar
+ *          4.1.1. .core-progress-container
+ *          4.1.2. .core-progress-bar
+ *      4.2. Zaman Gösterimi
+ *          4.2.1. .core-time-display
+ *      4.3. Hata Mesajı
+ *          4.3.1. .core-error-message
+ * 5. YARDIMCI SINIFLAR
+ *      5.1. Görünürlük
+ *          5.1.1. .visible
+ *          5.1.2. .hidden (Tailwind ile uyum için)
+ */
+
+/* 1. TEMEL SAYFA VE GÖVDE STİLLERİ */
+/* 1.1. Sıfırlama ve Temel Ayarlar */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Kaydırma çubuklarını engelle */
+    background: transparent; /* Sayfa arka planı şeffaf veya tanımsız */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* 1.2. Gövde Düzeni (Widget Ortalaması) */
+body {
+    display: flex;
+    align-items: center; /* Dikey ortalama */
+    justify-content: center; /* Yatay ortalama */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. WIDGET KONTEYNER TEMEL STİLLERİ */
+/* Bu sınıf, her widget'ın ana HTML elementine uygulanmalıdır. */
+/* Widget'a özel boyutlandırma widget'ın kendi CSS'inde yapılmalıdır. */
+/* 2.1. Boyutlandırma ve Konumlandırma (Örnek - Genellikle widget özelinde olur) */
+.widget-container {
+    position: relative; /* İçerideki absolut konumlandırmalar için */
+    /* width: 100%; */ /* Genellikle widget özelinde belirlenir */
+    /* max-width: 350px; */ /* Örnek bir maksimum genişlik */
+    /* height: auto; */ /* Genellikle widget özelinde belirlenir */
+    /* max-height: 150px; */ /* Örnek bir maksimum yükseklik */
+    overflow: hidden; /* İçerik taşmasını engelle */
+}
+
+/* 2.2. Görsel Temeller (Örnek) */
+.widget-container {
+    /* border-radius: 12px; */ /* Widget özelinde olabilir */
+    /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); */ /* Widget özelinde olabilir */
+}
+
+
+/* 3. ORTAK ANİMASYON SINIFLARI */
+/* 3.1. Giriş Animasyonları */
+/* 3.1.1. .core-fade-in-up */
+.core-fade-in-up {
+    animation: coreFadeInUp 0.5s ease-out forwards;
+}
+
+/* 3.1.2. .core-fade-in */
+.core-fade-in {
+    animation: coreFadeIn 0.5s ease-out forwards;
+}
+
+/* 3.1.3. .core-slide-in */
+.core-slide-in { /* Soldan kayarak gelme */
+    animation: coreSlideIn 0.5s ease-out forwards;
+}
+
+/* 3.2. Çıkış Animasyonları */
+/* 3.2.1. .core-fade-out */
+.core-fade-out {
+    animation: coreFadeOut 0.5s ease-out forwards;
+}
+
+/* 3.3. Animasyon Keyframes */
+/* 3.3.1. @keyframes coreFadeInUp */
+@keyframes coreFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 3.3.2. @keyframes coreFadeIn */
+@keyframes coreFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 3.3.3. @keyframes coreSlideIn */
+@keyframes coreSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 3.3.4. @keyframes coreFadeOut */
+@keyframes coreFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* 4. ORTAK UI ELEMANLARI */
+/* 4.1. Progress Bar */
+/* 4.1.1. .core-progress-container */
+.core-progress-container {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.2); /* Açık tema için örnek, widget'a göre değişebilir */
+    border-radius: 4px;
+    overflow: hidden;
+    height: 4px; /* Veya widget özelinde tanımlanır */
+}
+
+/* 4.1.2. .core-progress-bar */
+.core-progress-bar {
+    height: 100%;
+    background-color: #1DB954; /* Spotify yeşili, widget'a göre değişebilir */
+    border-radius: 4px;
+    transition: width 0.25s linear; /* Yumuşak geçiş */
+    width: 0%; /* JS ile güncellenecek */
+}
+
+/* 4.2. Zaman Gösterimi */
+/* 4.2.1. .core-time-display */
+.core-time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px; /* Widget'a göre değişebilir */
+    color: rgba(255, 255, 255, 0.7); /* Açık tema için örnek, widget'a göre değişebilir */
+    margin-top: 4px;
+}
+
+/* 4.3. Hata Mesajı */
+/* 4.3.1. .core-error-message */
+.core-error-message {
+    /* display: none; Başlangıçta gizli, JS ile 'visible' class'ı eklenir */
+    opacity: 0;
+    position: absolute; /* Konteynerine göre konumlanır */
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    background-color: rgba(220, 38, 38, 0.9); /* Kırmızı tonu */
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 6px;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 100; /* Diğer elementlerin üzerinde olması için */
+    pointer-events: none; /* Üzerine tıklanmasını engelle */
+}
+
+/* 5. YARDIMCI SINIFLAR */
+/* 5.1. Görünürlük */
+/* 5.1.1. .visible */
+.core-error-message.visible {
+    /* display: block !important; */
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+/* 5.1.2. .hidden (Tailwind ile uyum için) */
+.hidden {
+    display: none !important;
+}

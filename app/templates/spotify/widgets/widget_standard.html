@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Widget - Standard</title>
+
+    <!-- TailwindCSS (Eğer kullanılıyorsa ve CDN'den alınıyorsa) -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+    <!-- Font Awesome (Eğer kullanılıyorsa ve CDN'den alınıyorsa) -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+
+    <!-- 1. Ortak CSS Dosyası -->
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
+    <!-- Not: Yukarıdaki path, projenizin dosya yapısına göre güncellenmelidir. -->
+
+    <!-- 2. Widget'a Özel CSS Dosyası -->
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_standard.css">
+    <!-- Not: Yukarıdaki path, projenizin dosya yapısına göre güncellenmelidir. -->
+
+    <style>
+        /* Sayfaya özel ek stiller (gerekirse) */
+        /* Örneğin, Tailwind kullanılmıyorsa body için temel font ayarları burada yapılabilir */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ana Widget Konteyneri -->
+    <!-- 'widget-container' sınıfı spotify_widget_core.css dosyasından gelir ve temel konumlandırmayı sağlar. -->
+    <!-- Widget'a özel animasyon sınıfları için data-* attributes kullanılabilir. -->
+    <div id="spotifyWidgetStandard" class="widget-container standard-widget"
+         data-intro-animation-class="standard-fade-in-up"
+         data-transition-animation-class="standard-content-pop"
+         data-outro-animation-class="standard-fade-out">
+
+        <!-- Arka Plan Albüm Sanatı (Bulanık) -->
+        <img id="albumArtBackground" class="widget-album-art-background" src="https://placehold.co/350x150/1f2937/e5e7eb?text=Beatify" alt="Arka Plan Albüm Sanatı">
+
+        <!-- Ana Albüm Kapağı -->
+        <img id="albumArt" class="widget-album-art-main" src="https://placehold.co/80x80/374151/e5e7eb?text=♪" alt="Albüm Kapağı">
+
+        <!-- Gradyan Overlay (Albüm kapağı üzerine metin okunurluğu için) -->
+        <div class="widget-gradient-overlay"></div>
+
+        <!-- İçerik Alanı -->
+        <div id="widgetContent" class="widget-content-area">
+            <!-- Şarkı Bilgileri -->
+            <div class="widget-track-info">
+                <h3 id="trackName" class="widget-track-name" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
+                <p id="artistName" class="widget-artist-name" title="Sanatçı Adı Yükleniyor...">...</p>
+            </div>
+
+            <!-- Kontroller ve Progress Bar Alanı -->
+            <div class="widget-player-controls">
+                <!-- Progress Bar ve Zaman Gösterimi -->
+                <div class="widget-progress-section">
+                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
+                        <div id="progressBar" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="core-time-display widget-time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Spotify Logosu (Opsiyonel) -->
+                <div class="widget-spotify-logo">
+                    <!-- Font Awesome ikonu örneği, SVG veya resim de olabilir -->
+                    <!-- <i class="fab fa-spotify"></i> -->
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="currentColor" width="24" height="24"><path d="M248 8C111.1 8 0 119.1 0 256s111.1 248 248 248 248-111.1 248-248S384.9 8 248 8zm100.5 364.3c-4.5 7.7-16.5 10.2-24.2 5.7-63.2-36.7-142.4-44.8-233.6-24.4-9.9 2.2-19.7-2.5-21.9-12.4s2.5-19.7 12.4-21.9c98.8-22 185.6-13.2 256.5 28.2 7.7 4.5 10.2 16.5 5.7 24.2zm19.2-56.2c-5.7 9.2-20.2 12-29.4 6.2-70.3-43.5-182.8-56.5-268.7-30.9-11.2 3.2-23.2-1.9-26.4-13.2s1.9-23.2 13.2-26.4c95.2-27.9 218.4-13.7 298.4 35.5 9.3 5.7 12.2 20.2 6.4 29.5zm21.3-59.3c-86.4-50.6-225.1-54.2-307.6-29.9-12.9 3.8-26.3-2.9-30.1-15.8s2.9-26.3 15.8-30.1c89.9-26.3 239.3-22.1 336.3 34.1 11.2 6.5 14.9 21.6 8.4 32.8-6.5 11.3-21.6 14.9-32.8 8.4z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hata Mesajı Alanı -->
+        <div id="errorMessage" class="core-error-message">
+            <!-- Mesaj JS ile doldurulacak -->
+        </div>
+    </div>
+
+    <script>
+        // WIDGET_TOKEN ve DATA_ENDPOINT_TEMPLATE global scope'a tanımlanır.
+        // Bu değerler backend tarafından render edilirken HTML içine yerleştirilmelidir.
+        // Örnek Flask/Jinja2: window.WIDGET_TOKEN_FROM_HTML = "{{ config.widgetToken|safe }}";
+        // Güvenlik notu: Token'ları doğrudan client-side JS'te ifşa etmek yerine,
+        // backend proxy üzerinden veri çekmek daha güvenli bir yöntem olabilir.
+        window.WIDGET_TOKEN_FROM_HTML = "YOUR_WIDGET_TOKEN"; // GERÇEK TOKEN İLE DEĞİŞTİRİN
+        window.DATA_ENDPOINT_TEMPLATE = '/spotify/api/widget-data/{TOKEN}'; // API ENDPOINTİNİZ
+        // Örnek olarak: window.DATA_ENDPOINT_TEMPLATE = 'https://api.example.com/spotify-widget/{TOKEN}';
+    </script>
+
+    <!-- 3. Ortak JavaScript Dosyası -->
+    <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>
+    <!-- Not: Yukarıdaki path, projenizin dosya yapısına göre güncellenmelidir. -->
+
+    <!-- 4. Widget'a Özel JavaScript Dosyası -->
+    <script src="/static/js/spotify/widget-manager/widgets/widget_standard.js"></script>
+    <!-- Not: Yukarıdaki path, projenizin dosya yapısına göre güncellenmelidir. -->
+</body>
+</html>
