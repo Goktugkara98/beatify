@@ -14,6 +14,100 @@ document.addEventListener('DOMContentLoaded', function() {
     // Pixel canvas elementlerini saklamak için
     const pixelCanvases = {};
     
+    // Carousel değişkenleri
+    let currentSlide = 0;
+    const cardsPerSlide = window.innerWidth < 768 ? 1 : window.innerWidth < 1200 ? 2 : 3;
+    const cardsContainer = document.querySelector('.widget-cards-container');
+    const totalSlides = Math.ceil(widgetCards.length / cardsPerSlide);
+    const indicators = document.querySelectorAll('.indicator');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    
+    // Carousel göstergelerini ayarla
+    updateIndicators();
+    
+    // Carousel navigasyon butonları için event listener'lar
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            navigateCarousel('prev');
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            navigateCarousel('next');
+        });
+    }
+    
+    // Gösterge noktaları için event listener'lar
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', function() {
+            goToSlide(index);
+        });
+    });
+    
+    // Carousel'i kaydırma fonksiyonu
+    function navigateCarousel(direction) {
+        if (direction === 'next') {
+            currentSlide = (currentSlide + 1) % totalSlides;
+        } else {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        }
+        
+        goToSlide(currentSlide);
+    }
+    
+    // Belirli bir slide'a gitme fonksiyonu
+    function goToSlide(slideIndex) {
+        currentSlide = slideIndex;
+        const offset = -slideIndex * (cardsPerSlide * (widgetCards[0].offsetWidth + 24)); // 24px = gap
+        cardsContainer.style.transform = `translateX(${offset}px)`;
+        updateIndicators();
+    }
+    
+    // Göstergeleri ve navigasyon butonlarını güncelleme fonksiyonu
+    function updateIndicators() {
+        // Gösterge noktalarını güncelle
+        indicators.forEach((indicator, index) => {
+            if (index === currentSlide) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+        
+        // İlk slide'daysa geri butonunu gizle, değilse göster
+        if (prevBtn) {
+            if (currentSlide === 0) {
+                prevBtn.style.opacity = '0';
+                prevBtn.style.pointerEvents = 'none';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.pointerEvents = 'auto';
+            }
+        }
+        
+        // Son slide'daysa ileri butonunu gizle, değilse göster
+        if (nextBtn) {
+            if (currentSlide === totalSlides - 1) {
+                nextBtn.style.opacity = '0';
+                nextBtn.style.pointerEvents = 'none';
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.pointerEvents = 'auto';
+            }
+        }
+    }
+    
+    // Ekran boyutu değiştiğinde carousel'i güncelle
+    window.addEventListener('resize', function() {
+        const newCardsPerSlide = window.innerWidth < 768 ? 1 : window.innerWidth < 1200 ? 2 : 3;
+        if (newCardsPerSlide !== cardsPerSlide) {
+            // Ekran boyutu değiştiğinde sayfayı yenile
+            location.reload();
+        }
+    });
+    
     // Tüm pixel canvas elementlerini topla
     document.querySelectorAll('pixel-canvas').forEach(canvas => {
         // Parent widget kartını bul

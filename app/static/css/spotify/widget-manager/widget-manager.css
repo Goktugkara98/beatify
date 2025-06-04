@@ -2,7 +2,7 @@
 
 /* Container styles */
 .widget-manager-container {
-    padding: 3rem 1.5rem;
+    padding: 1rem 1.5rem;
     color: rgba(255, 255, 255, 0.9);
     background-color: rgba(29, 29, 29, 0.5);
     border-radius: 12px;
@@ -10,7 +10,7 @@
 
 /* Header styles */
 .widget-manager-header {
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     text-align: center;
 }
 
@@ -29,19 +29,91 @@
     color: rgba(255, 255, 255, 1);
 }
 
+/* Widget Carousel Container */
+.widget-carousel-container {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Carousel Navigation Buttons */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.carousel-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.2);
+}
+
+.widget-carousel {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 0.5rem 0;
+}
+
 /* Widget cards container */
 .widget-cards-container {
     display: flex;
-    flex-wrap: wrap;
+    transition: transform 0.5s ease;
     gap: 1.5rem;
     justify-content: center;
     margin-bottom: 3rem;
+    padding-left: 2rem;
 }
 
 /* Widget card styles */
 .widget-card {
     flex: 1;
-    min-width: 250px;
+    min-width: 230px;
     max-width: 250px;
     position: relative;
     overflow: hidden;
