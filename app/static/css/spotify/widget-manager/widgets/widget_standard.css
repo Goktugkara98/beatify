@@ -108,7 +108,7 @@
 /* 4.1. Positioning, Padding, and Flex Layout */
 .standard-widget .widget-content-area {
     position: absolute;
-    top: 80px; /* Adjusted based on visual hierarchy */
+    top: 120px; /* Adjusted based on visual hierarchy */
     left: 290px; /* To the right of the main album art */
     right: 20px; /* Padding from the right edge */
     bottom: 15px; /* Space for progress bar and time */
@@ -127,7 +127,7 @@
 
 /* 5.1. Track Name */
 .standard-widget .widget-track-name {
-    font-size: 42px;
+    font-size: 40px;
     font-weight: 600;
     margin: 0 0 3px 0;
     white-space: nowrap;
@@ -139,7 +139,7 @@
 
 /* 5.2. Artist Name */
 .standard-widget .widget-artist-name {
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 400;
     margin: 0;
     opacity: 0.8;
@@ -265,17 +265,7 @@
 }
 
 /* 8.3. Playing Indicator (Example, similar to modern widget) */
-.standard-widget .widget-track-name.playing::after {
-    content: '';
-    display: inline-block;
-    width: 6px; /* Slightly smaller for standard widget proportions */
-    height: 6px;
-    background-color: #1DB954;
-    border-radius: 50%;
-    margin-left: 8px;
-    vertical-align: middle;
-    animation: pulsePlayingIndicator 2s infinite; /* Renamed to avoid conflict if core.css had 'pulse' */
-}
+
 
 /* 8.4. Animation Keyframes */
 @keyframes standardFadeInUpAnimation {
