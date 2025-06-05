@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     const INTRO_ANIMATION_CLASS = spotifyWidgetElement.dataset.introAnimationClass || 'modern-fade-in';
-    const TRANSITION_ANIMATION_CLASS = spotifyWidgetElement.dataset.transitionAnimationClass || 'modern-content-slide';
     const OUTRO_ANIMATION_CLASS = spotifyWidgetElement.dataset.outroAnimationClass || 'modern-fade-out';
 
     // 3. DURUM DEĞİŞKENLERİ
@@ -206,15 +205,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
+    let activeTransitionSet = {}; // Will be populated in initWidget
+
+    const TRANSITION_SETS = {
+        slideOutLeftInFromRight: {
+            albumArtOut: 'album-art-slide-out',           albumArtIn: 'album-art-slide-in',
+            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in',
+            trackNameOut: 'text-slide-out-left',          trackNameIn: 'text-slide-in-from-right',
+            artistNameOut: 'text-slide-out-left',         artistNameIn: 'text-slide-in-from-right',
+            spotifyLogoOut: 'logo-slide-out-left',        spotifyLogoIn: 'logo-slide-in-from-right',
+            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
+            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
+            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+        },
+        slideOutRightInFromLeft: {
+            albumArtOut: 'album-art-slide-out-right',     albumArtIn: 'album-art-slide-in-from-left',
+            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in', // Background fade is direction-agnostic
+            trackNameOut: 'text-slide-out-right',         trackNameIn: 'text-slide-in-from-left',
+            artistNameOut: 'text-slide-out-right',        artistNameIn: 'text-slide-in-from-left',
+            spotifyLogoOut: 'logo-slide-out-right',       spotifyLogoIn: 'logo-slide-in-from-left',
+            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
+            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
+            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+        }
+        // Add other animation sets here, e.g., for 'threeDCardFlip'
+    };
+
     const ANIMATION_DEFS = {
-        albumArt:    { out: 'album-art-slide-out',   in: 'album-art-slide-in',     duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-slide-out', 'album-art-slide-in', 'element-fade-out', 'element-fade-in'] },
-        albumArtBg:  { out: 'album-art-bg-fade-out', in: 'album-art-bg-fade-in',   duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-bg-fade-out', 'album-art-bg-fade-in', 'element-fade-out', 'element-fade-in'] },
-        trackName:   { out: 'text-slide-out-left',   in: 'text-slide-in-from-right', duration: 500, delay: 50,  element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
-        artistName:  { out: 'text-slide-out-left',   in: 'text-slide-in-from-right', duration: 500, delay: 150, element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
-        spotifyLogo: { out: 'logo-slide-out-left',   in: 'logo-slide-in-from-right', duration: 500, delay: 200, element: null, classesToRemove: ['logo-slide-out-left', 'logo-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
-        progressBar: { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 250, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
-        currentTime: { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
-        totalTime:   { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] }
+        albumArt:    { getOutClass: () => activeTransitionSet.albumArtOut,   getInClass: () => activeTransitionSet.albumArtIn,     duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-slide-out', 'album-art-slide-in', 'album-art-slide-out-right', 'album-art-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
+        albumArtBg:  { getOutClass: () => activeTransitionSet.albumArtBgOut, getInClass: () => activeTransitionSet.albumArtBgIn,   duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-bg-fade-out', 'album-art-bg-fade-in', 'element-fade-out', 'element-fade-in'] },
+        trackName:   { getOutClass: () => activeTransitionSet.trackNameOut,  getInClass: () => activeTransitionSet.trackNameIn,    duration: 500, delay: 50,  element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'text-slide-out-right', 'text-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
+        artistName:  { getOutClass: () => activeTransitionSet.artistNameOut, getInClass: () => activeTransitionSet.artistNameIn,   duration: 500, delay: 150, element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'text-slide-out-right', 'text-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
+        spotifyLogo: { getOutClass: () => activeTransitionSet.spotifyLogoOut,getInClass: () => activeTransitionSet.spotifyLogoIn,  duration: 500, delay: 200, element: null, classesToRemove: ['logo-slide-out-left', 'logo-slide-in-from-right', 'logo-slide-out-right', 'logo-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
+        progressBar: { getOutClass: () => activeTransitionSet.progressBarOut,getInClass: () => activeTransitionSet.progressBarIn,  duration: 300, delay: 250, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
+        currentTime: { getOutClass: () => activeTransitionSet.currentTimeOut,getInClass: () => activeTransitionSet.currentTimeIn,  duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
+        totalTime:   { getOutClass: () => activeTransitionSet.totalTimeOut,  getInClass: () => activeTransitionSet.totalTimeIn,    duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] }
     };
 
     /**
@@ -224,11 +249,16 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<void>}
      */
     async function animateElement(config, type) {
-        if (!config.element) {
+        if (!config.element || !config.getInClass || !config.getOutClass) { // Check for new function properties
+            // console.warn('animateElement: Element or animation class functions missing in config', config);
             return Promise.resolve();
         }
 
-        const animationClass = config[type];
+        const animationClass = type === 'in' ? config.getInClass() : config.getOutClass();
+        if (!animationClass) {
+            // console.warn(`animateElement: No animation class found for type '${type}' in config`, config);
+            return Promise.resolve(); // Skip if no class is resolved (e.g. bad activeTransitionSet)
+        }
         const duration = config.duration || 500;
         const delay = config.delay || 0;
 
@@ -237,8 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (config.classesToRemove && Array.isArray(config.classesToRemove)) {
                     WidgetCommon.triggerAnimation(config.element, animationClass, config.classesToRemove);
                 } else {
-                    const otherType = type === 'in' ? 'out' : 'in';
-                    WidgetCommon.triggerAnimation(config.element, animationClass, [config[otherType], config.in, config.out, 'element-fade-in', 'element-fade-out']);
+                    // classesToRemove is now more comprehensive and directly defined in ANIMATION_DEFS
+                    // So, no need to dynamically build it here. If config.classesToRemove is not there, it's an issue with ANIMATION_DEFS setup.
+                    // For safety, we can fall back to a generic list if needed, but it's better to ensure ANIMATION_DEFS is correct.
+                    const classesToRemove = config.classesToRemove || []; // Should always be present from ANIMATION_DEFS
+                    WidgetCommon.triggerAnimation(config.element, animationClass, classesToRemove);
                 }
                 setTimeout(resolve, duration);
             }, delay);
@@ -336,6 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * 9.1. Widget'ı başlatan ana fonksiyon.
      */
     function initWidget() {
+        const transitionClassName = spotifyWidgetElement?.dataset.transitionAnimationClass || 'slideOutLeftInFromRight'; // Default to L-R
+        activeTransitionSet = TRANSITION_SETS[transitionClassName] || TRANSITION_SETS.slideOutLeftInFromRight; // Fallback
+
+        if (!TRANSITION_SETS[transitionClassName]) {
+            console.warn(`Beatify Modern Widget: Unknown transition animation class '${transitionClassName}'. Defaulting to 'slideOutLeftInFromRight'.`);
+        }
         ANIMATION_DEFS.albumArt.element = albumArtElement;
         ANIMATION_DEFS.albumArtBg.element = albumArtBackgroundElement;
         ANIMATION_DEFS.trackName.element = trackNameElement;
