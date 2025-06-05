@@ -121,6 +121,47 @@ const WidgetCommon = (() => {
         }
     }
 
+    /**
+     * 1.2.6. Determines the appropriate polling interval based on the current playback state.
+     * @param {Object|null} data - The current track data from the API.
+     * @param {boolean} [isError=false] - Whether the last fetch resulted in an error.
+     * @returns {number} The polling interval in milliseconds.
+     */
+    function determinePollInterval(data, isError = false) {
+        const MIN_POLL_INTERVAL = 1500; // Minimum 1.5 seconds
+        const DEFAULT_POLL_INTERVAL = 7000; // Default 7 seconds (e.g., for live streams or when duration is unknown)
+        const NOT_PLAYING_POLL_INTERVAL = 15000; // When not playing, 15 seconds
+        const ERROR_POLL_INTERVAL = 30000; // On error, 30 seconds
+
+        if (isError) {
+            return ERROR_POLL_INTERVAL;
+        }
+
+        if (!data || (!data.item && !data.track_name)) { // No data or no track item
+            return NOT_PLAYING_POLL_INTERVAL;
+        }
+
+        // Check if is_playing exists and is explicitly false. If undefined, assume not playing for safety.
+        if (typeof data.is_playing === 'boolean' && data.is_playing === false) {
+            return NOT_PLAYING_POLL_INTERVAL;
+        }
+        // If data.is_playing is not a boolean (e.g. undefined), also treat as not playing for polling interval.
+        if (typeof data.is_playing !== 'boolean') {
+             return NOT_PLAYING_POLL_INTERVAL;
+        }
+
+        // If playing:
+        if (data.item && typeof data.item.duration_ms === 'number' && typeof data.progress_ms === 'number') {
+            const remainingTimeMs = data.item.duration_ms - data.progress_ms;
+            // Poll a bit after the song is expected to end.
+            // Add a small buffer (e.g., 1.5s) to account for API lag or slight timing discrepancies.
+            // Ensure it's not less than the minimum.
+            return Math.max(MIN_POLL_INTERVAL, remainingTimeMs + 1500);
+        }
+
+        return DEFAULT_POLL_INTERVAL; // Default for playing tracks with unknown duration (e.g., podcasts, live)
+    }
+
     // 2. BACKEND İLETİŞİMİ
     /**
      * 2.1. Widget verilerini backend'den çeker
@@ -329,6 +370,9 @@ const WidgetCommon = (() => {
         playOutroAnimation,
         // 4. Progress Bar Yönetimi
         updateProgressBar,
+        // 1.2.6. determinePollInterval (Yeni eklendi)
+        determinePollInterval,
+
         // 5. Olay Dinleyicileri
         setupPageUnloadAnimation
     };

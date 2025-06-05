@@ -34,7 +34,9 @@
  *      7.1. fetchAndDisplayData (Veri çekme ve UI güncelleme döngüsü)
  * =====================================
  * 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
- *      8.1. playStandardSongChangeAnimation
+ *      8.1. ANIMATION_DEFS (Yeni)
+ *      8.2. animateElement (Yeni)
+ *      8.3. playStandardSongChangeAnimation (Yeniden düzenlendi)
  * =====================================
  * 9. BAŞLATMA (Initialization)
  *      9.1. initWidget (Widget'ı başlatan ana fonksiyon)
@@ -73,12 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // TRANSITION_ANIMATION_CLASS 'standard-content-pop' ana widget'a eklenir ve CSS'ten çocukları hedefler.
     // Biz şarkı değişimi için elementlere özel animasyon sınıflarını kullanacağız.
     const OUTRO_ANIMATION_CLASS = spotifyWidgetElement.dataset.outroAnimationClass || 'standard-fade-out';
-    
-    // CSS'te tanımlı özel animasyon sınıfları (JS ile elementlere direkt uygulanacak)
-    const ALBUM_ART_POP_CLASS = 'album-art-pop';
-    const CONTENT_POP_ANIMATION_CLASS = 'content-pop-animation';
-    const LOGO_TRANSITION_CLASS = 'spotify-logo-transition'; // CSS'teki spotifyLogoTransitionAnimation keyframe'ine karşılık gelir
-
 
     // 3. DURUM DEĞİŞKENLERİ
     let currentTrackProgressInterval = null;
@@ -215,14 +211,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const data = await WidgetCommon.fetchWidgetData(token, endpointTemplate);
-            const currentTrackId = data?.item?.id || data?.track_name || null;
+            const currentTrackId = data?.item?.id || (data?.track_name ? `${data.track_name}___${data.artist_name || data.item?.artists?.[0]?.name || 'Unknown Artist'}` : null);
 
-            if (lastTrackId !== null && currentTrackId && currentTrackId !== lastTrackId) {
-                playStandardSongChangeAnimation();
+            if (lastTrackId === null) { // Initial load
+                updateWidgetUI(data);
+                lastTrackId = currentTrackId;
+                if (spotifyWidgetElement && INTRO_ANIMATION_CLASS) {
+                    WidgetCommon.triggerAnimation(spotifyWidgetElement, INTRO_ANIMATION_CLASS);
+                }
+            } else if (currentTrackId && currentTrackId !== lastTrackId) { // Song has changed
+                await playStandardSongChangeAnimation(data);
+                lastTrackId = currentTrackId; // Update after animations and UI update
+            } else if (currentTrackId && currentTrackId === lastTrackId) { // Song is the same, potentially update progress
+                updateWidgetUI(data);
+            } else if (!currentTrackId && lastTrackId) { // Was playing, now stopped or error
+                await playStandardSongChangeAnimation(data); // Animate out old info, updateUI will show 'nothing playing'
+                lastTrackId = null;
+            } else { // No current track, nothing was playing before
+                updateWidgetUI(data);
+                lastTrackId = null;
             }
-            lastTrackId = currentTrackId;
-
-            updateWidgetUI(data);
 
             const refreshInterval = (data?.is_playing && data?.item?.duration_ms)
                 ? Math.min(7000, (data.item.duration_ms - (data.progress_ms || 0)) + 1500)
@@ -237,63 +245,111 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
-    /**
-     * 8.1. Standart widget için şarkı değişiminde özel animasyonları tetikler.
-     * WidgetCommon.triggerAnimation doğru şekilde çağrılır ve animasyon sınıfları manuel olarak kaldırılır.
-     */
-    function playStandardSongChangeAnimation() {
-        const animationDuration = 1200; // ms, CSS animasyon süreleriyle eşleşmeli
+// 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
+// 8.1. Animasyon Konfigürasyonları (ANIMATION_DEFS)
+const ANIMATION_DEFS = {
+    albumArt: {
+        element: null, // DOM element assigned in initWidget
+        in: { className: 'std-fade-in', duration: 300, delay: 0 },
+        out: { className: 'std-fade-out', duration: 300, delay: 0 }
+    },
+    albumArtBg: {
+        element: null,
+        in: { className: 'std-fade-in', duration: 300, delay: 0 },
+        out: { className: 'std-fade-out', duration: 300, delay: 0 }
+    },
+    trackInfo: {
+        element: null,
+        in: { className: 'std-fade-in', duration: 300, delay: 100 },
+        out: { className: 'std-fade-out', duration: 300, delay: 100 }
+    },
+    playerControls: {
+        element: null,
+        in: { className: 'std-fade-in', duration: 300, delay: 200 },
+        out: { className: 'std-fade-out', duration: 300, delay: 200 }
+    },
+    spotifyLogo: {
+        element: null,
+        in: { className: 'std-fade-in', duration: 300, delay: 250 },
+        out: { className: 'std-fade-out', duration: 300, delay: 250 }
+    }
+};
 
-        if (albumArtElement) {
-            WidgetCommon.triggerAnimation(albumArtElement, ALBUM_ART_POP_CLASS);
-            setTimeout(() => {
-                albumArtElement.classList.remove(ALBUM_ART_POP_CLASS);
-            }, animationDuration);
-        }
-
-        if (trackInfoElement) {
-            setTimeout(() => { // trackInfo için hafif gecikme
-                WidgetCommon.triggerAnimation(trackInfoElement, CONTENT_POP_ANIMATION_CLASS);
-                setTimeout(() => {
-                    trackInfoElement.classList.remove(CONTENT_POP_ANIMATION_CLASS);
-                }, animationDuration);
-            }, 100);
-        }
-
-        if (playerControlsElement) {
-            setTimeout(() => { // playerControls için biraz daha gecikme
-                WidgetCommon.triggerAnimation(playerControlsElement, CONTENT_POP_ANIMATION_CLASS);
-                setTimeout(() => {
-                    playerControlsElement.classList.remove(CONTENT_POP_ANIMATION_CLASS);
-                }, animationDuration);
-            }, 200);
-        }
-
-        if (spotifyLogoElement) {
-            setTimeout(() => { // logo için en son gecikme
-                WidgetCommon.triggerAnimation(spotifyLogoElement, LOGO_TRANSITION_CLASS);
-                setTimeout(() => {
-                    spotifyLogoElement.classList.remove(LOGO_TRANSITION_CLASS);
-                }, animationDuration);
-            }, 300);
-        }
+/**
+ * 8.2. Helper function to apply an animation and return a Promise that resolves when the animation is presumed complete.
+ * It uses the nested 'in'/'out' structure of ANIMATION_DEFS.
+ * @param {Object} config - The animation configuration object for a specific element from ANIMATION_DEFS.
+ * @param {'in' | 'out'} type - The type of animation ('in' or 'out').
+ * @returns {Promise<void>}
+ */
+async function animateElement(config, type) {
+    if (!config.element || !config[type]) {
+        // console.warn('animateElement: Element or animation type config missing for element', config.element, type);
+        return Promise.resolve();
     }
 
+    const animDetails = config[type]; // e.g., config.in or config.out
+    const animationClass = animDetails.className;
+    const duration = animDetails.duration || 300;
+    const delay = animDetails.delay || 0;
+
+    // Always remove both 'in' and 'out' classes to ensure a clean state before applying the new one.
+    const classesToRemove = [config.in.className, config.out.className].filter(Boolean);
+
+    return new Promise(resolve => {
+        setTimeout(() => {
+            WidgetCommon.triggerAnimation(config.element, animationClass, classesToRemove);
+            setTimeout(resolve, duration); // Resolve after the animation duration
+        }, delay); // Apply delay before starting animation
+    });
+}
+
+/**
+ * 8.3. Orchestrates the animations for song changes in the standard widget.
+ * @param {Object} newData - The new song data from the API.
+ * @returns {Promise<void>}
+ */
+async function playStandardSongChangeAnimation(newData) {
+    const elementsToAnimate = [
+        ANIMATION_DEFS.albumArt,
+        ANIMATION_DEFS.albumArtBg,
+        ANIMATION_DEFS.trackInfo,
+        ANIMATION_DEFS.playerControls,
+        ANIMATION_DEFS.spotifyLogo
+    ].filter(def => def.element);
+
+    if (elementsToAnimate.length === 0) {
+        updateWidgetUI(newData); // Update UI even if no elements to animate
+        return Promise.resolve();
+    }
+
+    // Play 'out' animations
+    const outAnimations = elementsToAnimate.map(config => animateElement(config, 'out'));
+    await Promise.all(outAnimations);
+
+    updateWidgetUI(newData); // Update UI content after 'out' animations
+
+    // Play 'in' animations
+    const inAnimations = elementsToAnimate.map(config => animateElement(config, 'in'));
+    await Promise.all(inAnimations);
+}
 
     // 9. BAŞLATMA
     /**
      * 9.1. Widget'ı başlatır: İlk veri çekme, animasyonlar.
      */
     function initWidget() {
-        WidgetCommon.playIntroAnimation(spotifyWidgetElement, INTRO_ANIMATION_CLASS);
-        // Giriş animasyon sınıfının da (eğer `forwards` değilse) kaldırılması gerekebilir.
-        // Şimdilik CSS'in bunu yönettiğini varsayıyoruz.
-        // Alternatif:
-        // setTimeout(() => {
-        //     if (spotifyWidgetElement) spotifyWidgetElement.classList.remove(INTRO_ANIMATION_CLASS);
-        // }, CSS_INTRO_ANIM_DURATION);
+        // Assign DOM elements to ANIMATION_DEFS
+        ANIMATION_DEFS.albumArt.element = albumArtElement;
+        ANIMATION_DEFS.albumArtBg.element = albumArtBackgroundElement;
+        ANIMATION_DEFS.trackInfo.element = trackInfoElement; 
+        ANIMATION_DEFS.playerControls.element = playerControlsElement;
+        ANIMATION_DEFS.spotifyLogo.element = spotifyLogoElement;
 
+        // Verify all essential elements for animation are present
+        if (!albumArtElement || !albumArtBackgroundElement || !trackInfoElement || !playerControlsElement || !spotifyLogoElement) {
+            console.warn("Standard Widget: One or more elements for animation are missing. Animations might not work as expected.");
+        }
 
         WidgetCommon.setupPageUnloadAnimation(spotifyWidgetElement, OUTRO_ANIMATION_CLASS, 400); 
         fetchAndDisplayData();

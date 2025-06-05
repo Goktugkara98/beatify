@@ -39,14 +39,11 @@
  *      8.1. Widget State Animations (.standard-fade-in-up, .standard-content-pop, .standard-fade-out)
  *      8.2. Element Specific Animations (.album-art-pop, .content-pop-animation, .spotify-logo-transition)
  *      8.3. Playing Indicator (.widget-track-name.playing) - Placeholder, modern'deki gibi eklenebilir.
- *      8.4. Animation Keyframes
+ *      8.4. Generic Element Animations (JS Driven)
+ *      8.5. Animation Keyframes
  *========================================================
  * 9. UTILITY AND STATE CLASSES
  *      9.1. Disabled State (.widget-disabled)
- *      9.2. Error Message Styling (.core-error-message - Eğer core'dan geliyorsa)
- *========================================================
- * 10. RESPONSIVE ADJUSTMENTS (Varsa)
- */
 
 /* 1. WIDGET CONTAINER (.standard-widget) */
 /* 1.1. Layout, Sizing, and Basic Appearance */
@@ -84,7 +81,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.7) 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.9) 100%);
     z-index: 2;
     pointer-events: none;
 }
@@ -267,7 +264,16 @@
 /* 8.3. Playing Indicator (Example, similar to modern widget) */
 
 
-/* 8.4. Animation Keyframes */
+/* 8.4. Generic Element Animations (JS Driven) */
+.std-fade-in {
+    animation: std-fade-in-kf 0.3s ease-out forwards;
+}
+
+.std-fade-out {
+    animation: std-fade-out-kf 0.3s ease-in forwards;
+}
+
+/* 8.5. Animation Keyframes */
 @keyframes standardFadeInUpAnimation {
     from { opacity: 0; transform: translateY(25px); }
     to { opacity: 1; transform: translateY(0); }
@@ -279,6 +285,33 @@
 }
 
 @keyframes standardFadeOutAnimation {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes std-fade-in-kf {
+    from {
+        opacity: 0;
+        transform: translateY(15px); /* Increased slide distance slightly */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes std-fade-out-kf {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-15px); /* Increased slide distance slightly */
+    }
+}
+
+@keyframes standardWidgetFadeOut {
     from { opacity: 1; transform: scale(1); }
     to { opacity: 0; transform: scale(0.95); }
 }
@@ -310,40 +343,3 @@
     filter: grayscale(50%);
     pointer-events: none;
 }
-
-/* 9.2. Error Message Styling (Assuming .core-error-message is styled in a core file) */
-/* If specific styling for standard widget error is needed:
-.standard-widget .core-error-message {
-    bottom: 5px;
-    font-size: 12px;
-}
-.standard-widget .core-error-message.visible { ... }
-*/
-
-/* 10. RESPONSIVE ADJUSTMENTS */
-/* Example:
-@media (max-width: 750px) {
-    .standard-widget {
-        width: 100%;
-        height: auto; // Or a fixed smaller height
-    }
-    .standard-widget .widget-album-art-main {
-        width: 150px;
-        height: 150px;
-    }
-    .standard-widget .widget-content-area {
-        left: 170px; // Adjust based on new album art size
-        top: 20px;
-        bottom: 10px;
-    }
-    .standard-widget .widget-track-name {
-        font-size: 28px;
-    }
-    .standard-widget .widget-artist-name {
-        font-size: 18px;
-    }
-    .standard-widget .widget-time-display {
-        font-size: 12px;
-    }
-}
-*/

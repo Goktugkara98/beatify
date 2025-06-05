@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const artistNameElement = document.getElementById('artistName');
 
     // 4.3. Progress Bar Elementleri
-    const progressBarElement = document.getElementById('progressBar');
+    const progressBarContainerElement = document.getElementById('progressBarContainer'); // Animating the container
+    const progressBarElement = document.getElementById('progressBar'); // Actual bar, not directly animated here but part of container
     const currentTimeElement = document.getElementById('currentTime');
     const totalTimeElement = document.getElementById('totalTime');
 
@@ -204,88 +205,153 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
+    const ANIMATION_DEFS = {
+        albumArt:    { out: 'album-art-slide-out',   in: 'album-art-slide-in',     duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-slide-out', 'album-art-slide-in', 'element-fade-out', 'element-fade-in'] },
+        albumArtBg:  { out: 'album-art-bg-fade-out', in: 'album-art-bg-fade-in',   duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-bg-fade-out', 'album-art-bg-fade-in', 'element-fade-out', 'element-fade-in'] },
+        trackName:   { out: 'text-slide-out-left',   in: 'text-slide-in-from-right', duration: 500, delay: 50,  element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
+        artistName:  { out: 'text-slide-out-left',   in: 'text-slide-in-from-right', duration: 500, delay: 150, element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
+        spotifyLogo: { out: 'logo-slide-out-left',   in: 'logo-slide-in-from-right', duration: 500, delay: 200, element: null, classesToRemove: ['logo-slide-out-left', 'logo-slide-in-from-right', 'element-fade-out', 'element-fade-in'] },
+        progressBar: { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 250, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
+        currentTime: { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
+        totalTime:   { out: 'element-fade-out',      in: 'element-fade-in',        duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] }
+    };
+
+    /**
+     * Helper function to apply an animation and return a Promise that resolves when the animation is presumed complete.
+     * @param {Object} config - The animation configuration object from ANIMATION_DEFS.
+     * @param {'in' | 'out'} type - The type of animation ('in' or 'out').
+     * @returns {Promise<void>}
+     */
+    async function animateElement(config, type) {
+        if (!config.element) {
+            return Promise.resolve();
+        }
+
+        const animationClass = config[type];
+        const duration = config.duration || 500;
+        const delay = config.delay || 0;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (config.classesToRemove && Array.isArray(config.classesToRemove)) {
+                    WidgetCommon.triggerAnimation(config.element, animationClass, config.classesToRemove);
+                } else {
+                    const otherType = type === 'in' ? 'out' : 'in';
+                    WidgetCommon.triggerAnimation(config.element, animationClass, [config[otherType], config.in, config.out, 'element-fade-in', 'element-fade-out']);
+                }
+                setTimeout(resolve, duration);
+            }, delay);
+        });
+    }
+
+    /**
+     * 8.1. Orchestrates the 'Masked Slide & Reveal' animation for song changes.
+     * Elements slide/fade out, UI updates, then new elements slide/fade in.
+     * @param {Object} newData - The new song data from the API.
+     * @returns {Promise<void>}
+     */
+    async function playModernSongChangeAnimation(newData) {
+        if (!widgetContentElement) {
+            updateWidgetUI(newData);
+            return Promise.resolve();
+        }
+
+        const elementsToAnimate = [
+            ANIMATION_DEFS.albumArt,
+            ANIMATION_DEFS.albumArtBg,
+            ANIMATION_DEFS.trackName,
+            ANIMATION_DEFS.artistName,
+            ANIMATION_DEFS.spotifyLogo,
+            ANIMATION_DEFS.progressBar,
+            ANIMATION_DEFS.currentTime,
+            ANIMATION_DEFS.totalTime
+        ].filter(def => def.element);
+
+        const outAnimations = elementsToAnimate.map(config => animateElement(config, 'out'));
+        await Promise.all(outAnimations);
+
+        updateWidgetUI(newData);
+
+        const inAnimations = elementsToAnimate.map(config => animateElement(config, 'in'));
+        await Promise.all(inAnimations);
+    }
+
     // 7. VERİ YÖNETİMİ
     /**
      * 7.1. Veriyi backend'den çeker ve UI'ı günceller. Periyodik olarak kendini çağırır.
      */
     async function fetchAndDisplayData() {
-        clearCurrentFetchTimeout(); 
+        clearCurrentFetchTimeout();
 
-        const token = window.WIDGET_TOKEN_FROM_HTML; 
-        const endpointTemplate = window.DATA_ENDPOINT_TEMPLATE; 
-
-        if (!token || !endpointTemplate) {
-            const errorMsg = !token ? 'Widget token eksik.' : 'API endpoint şablonu eksik.';
-            updateWidgetUI(null, `Başlatma hatası: ${errorMsg}`);
-            if (spotifyWidgetElement) spotifyWidgetElement.classList.add('widget-disabled');
+        if (!WIDGET_TOKEN_FROM_HTML || !DATA_ENDPOINT_TEMPLATE) {
+            updateWidgetUI(null, 'Widget yapılandırma hatası: Token veya endpoint eksik.');
             return;
         }
-        if (spotifyWidgetElement) spotifyWidgetElement.classList.remove('widget-disabled');
-
+        const endpoint = DATA_ENDPOINT_TEMPLATE.replace('{widget_token}', WIDGET_TOKEN_FROM_HTML);
 
         try {
-            const data = await WidgetCommon.fetchWidgetData(token, endpointTemplate);
-
-            const currentTrackId = data?.item?.id || data?.track_name || null;
-            if (lastTrackId !== null && currentTrackId && currentTrackId !== lastTrackId) {
-                playModernSongChangeAnimation();
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({})); // Try to parse error, default to empty if fail
+                const errorMessage = errorData.error || `Sunucu hatası: ${response.status}`;
+                updateWidgetUI(null, errorMessage);
+                currentFetchTimeoutId = setTimeout(fetchAndDisplayData, WidgetCommon.determinePollInterval(null, true));
+                return;
             }
-            lastTrackId = currentTrackId;
 
-            updateWidgetUI(data);
+            const data = await response.json();
 
-            const refreshInterval = (data?.is_playing && data?.item?.duration_ms)
-                ? Math.min(7000, (data.item.duration_ms - (data.progress_ms || 0)) + 1500) 
-                : (data?.is_playing ? 7000 : 15000); 
-            
-            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, Math.max(1500, refreshInterval)); 
+            if (data && (data.item || data.track_name)) {
+                const currentTrackId = data.item?.id || data.track_id || (data.track_name + (data.item?.artists?.[0]?.name || data.artist_name));
+
+                if (lastTrackId === null) { // Initial load
+                    updateWidgetUI(data);
+                    lastTrackId = currentTrackId;
+                    if (spotifyWidgetElement && INTRO_ANIMATION_CLASS) {
+                        WidgetCommon.triggerAnimation(spotifyWidgetElement, INTRO_ANIMATION_CLASS);
+                    }
+                } else if (lastTrackId !== currentTrackId) { // Song has changed
+                    await playModernSongChangeAnimation(data);
+                    lastTrackId = currentTrackId;
+                } else { // Song is the same
+                    updateWidgetUI(data);
+                }
+            } else { // No song playing or error in data structure
+                updateWidgetUI(data); // updateWidgetUI handles null/error data
+                if (!data?.item && !data?.track_name && !data?.error) { // If truly empty and not an API error response
+                    lastTrackId = null; // Reset lastTrackId if nothing is playing
+                }
+            }
+            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, WidgetCommon.determinePollInterval(data));
+
         } catch (error) {
-            console.error("Modern Widget: Veri çekme hatası:", error);
-            updateWidgetUI(null, `Veri alınırken bir hata oluştu: ${error.message || 'Sunucu hatası'}`);
-            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, 30000); 
-        }
-    }
-
-    // 8. WIDGET'A ÖZEL ANİMASYON FONKSİYONLARI
-    /**
-     * 8.1. Modern widget için şarkı değişiminde özel animasyonları tetikler.
-     */
-    function playModernSongChangeAnimation() {
-        if (!widgetContentElement || !albumArtElement) { 
-            console.warn("Modern Widget: Animasyon için content veya album art elementi bulunamadı.");
-            return;
-        }
-
-        if (albumArtElement) {
-            albumArtElement.style.opacity = '0.7';
-             setTimeout(() => { albumArtElement.style.opacity = '1'; }, 500); 
-        }
-        if (albumArtBackgroundElement) {
-            albumArtBackgroundElement.style.opacity = '0.7'; 
-            setTimeout(() => { albumArtBackgroundElement.style.opacity = '1'; }, 500); 
-        }
-        
-        WidgetCommon.triggerAnimation(widgetContentElement, TRANSITION_ANIMATION_CLASS);
-
-        // Logo için de bir animasyon eklenebilir (opsiyonel)
-        if (spotifyLogoElement) {
-            spotifyLogoElement.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                spotifyLogoElement.style.transform = 'scale(1)';
-            }, 300); // CSS transition süresiyle eşleşmeli veya ayrı bir animasyon sınıfı
+            updateWidgetUI(null, `İstemci tarafı hata: ${error.message}`);
+            currentFetchTimeoutId = setTimeout(fetchAndDisplayData, WidgetCommon.determinePollInterval(null, true));
         }
     }
 
     // 9. BAŞLATMA
     /**
-     * 9.1. Widget'ı başlatır: İlk veri çekme, animasyonlar.
+     * 9.1. Widget'ı başlatan ana fonksiyon.
      */
     function initWidget() {
-        WidgetCommon.playIntroAnimation(spotifyWidgetElement, INTRO_ANIMATION_CLASS);
-        WidgetCommon.setupPageUnloadAnimation(spotifyWidgetElement, OUTRO_ANIMATION_CLASS, 500);
+        ANIMATION_DEFS.albumArt.element = albumArtElement;
+        ANIMATION_DEFS.albumArtBg.element = albumArtBackgroundElement;
+        ANIMATION_DEFS.trackName.element = trackNameElement;
+        ANIMATION_DEFS.artistName.element = artistNameElement;
+        ANIMATION_DEFS.spotifyLogo.element = spotifyLogoElement;
+        ANIMATION_DEFS.progressBar.element = progressBarContainerElement; // Animating the container
+        ANIMATION_DEFS.currentTime.element = currentTimeElement;
+        ANIMATION_DEFS.totalTime.element = totalTimeElement;
+
+        if (!albumArtElement || !albumArtBackgroundElement || !trackNameElement || !artistNameElement || !widgetContentElement || !spotifyLogoElement || !progressBarContainerElement || !currentTimeElement || !totalTimeElement) {
+            // console.warn("Modern Widget: Animasyonlar için gerekli DOM elementlerinden bazıları eksik. Animasyonlar beklendiği gibi çalışmayabilir.");
+        }
+        
         fetchAndDisplayData();
-        console.log("Modern Spotify Widget Başlatıldı.");
     }
 
+    // 9.2. DOMContentLoaded Olay Dinleyicisi -> Call initWidget
     initWidget();
 });
