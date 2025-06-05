@@ -227,6 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
             progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
             currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
             totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+        },
+        "modern-content-slide": {
+            albumArtOut: 'album-art-slide-out',           albumArtIn: 'album-art-slide-in',
+            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in',
+            trackNameOut: 'text-slide-out-left',          trackNameIn: 'text-slide-in-from-right',
+            artistNameOut: 'text-slide-out-left',         artistNameIn: 'text-slide-in-from-right',
+            spotifyLogoOut: 'logo-slide-out-left',        spotifyLogoIn: 'logo-slide-in-from-right',
+            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
+            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
+            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
         }
         // Add other animation sets here, e.g., for 'threeDCardFlip'
     };
