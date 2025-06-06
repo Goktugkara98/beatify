@@ -45,7 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!element || !element.dataset) return null;
 
         const animType = element.dataset[`${phasePrefix}Type`];
-        if (!animType) return null; // Animasyon tipi belirtilmemişse animasyon yok
+        // Eğer animType belirtilmemişse VEYA 'anim-none' ya da 'none' ise, animasyon yok say.
+        if (!animType || animType === 'anim-none' || animType === 'none') {
+            return null;
+        }
 
         return {
             animType: animType,
@@ -112,7 +115,70 @@ document.addEventListener('DOMContentLoaded', () => {
         // Polling'in başlaması için bu fonksiyonun başarıyla tamamlanması (resolve olması) gerekir.
     }
 
-    // 3.2. ÇIKIŞ ANİMASYONU (OUTRO ANIMATION)
+    // ELEMENT LIST FOR SONG TRANSITIONS (EXIT/ENTRY)
+const ELEMENTS_FOR_SONG_TRANSITION = [
+    { el: albumArtElement, name: 'Album Art (Main)' },
+    { el: albumArtBackgroundElement, name: 'Album Art (Background)' },
+    { el: widgetTrackInfoElement, name: 'Track Info Container' },
+    { el: playerControlsElement, name: 'Player Controls' },
+    { el: spotifyLogoElement, name: 'Spotify Logo' }
+];
+
+// Mevcut playExitAnimations fonksiyonunuzu bununla değiştirin
+async function playExitAnimations() {
+    WidgetCore.log("ModernWidget: Şarkı geçişi - Çıkış animasyonları (exit) hazırlanıyor...", 'debug');
+    const animationPromises = [];
+    const animatedElementsForHiding = []; // Çıkış animasyonu olan elementleri takip et
+
+    for (const item of ELEMENTS_FOR_SONG_TRANSITION) {
+        if (item.el) {
+            const animConfig = getAnimationConfig(item.el, 'exit');
+            if (animConfig) { // animConfig null ise (type='none' veya belirtilmemişse) animasyon yok
+                WidgetCore.log(`ModernWidget: Şarkı geçişi (çıkış) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
+                animationPromises.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
+                animatedElementsForHiding.push(item.el); // Bu elemente çıkış animasyonu uygulandı
+            }
+        }
+    }
+
+    if (animationPromises.length > 0) {
+        await Promise.all(animationPromises);
+        WidgetCore.log("ModernWidget: Tüm çıkış animasyonları (exit) tamamlandı. Elementler kalıcı olarak gizleniyor.", 'debug');
+        for (const element of animatedElementsForHiding) {
+            element.style.opacity = '0';
+        }
+    } else {
+        WidgetCore.log("ModernWidget: Çıkış için (exit) animasyon bulunamadı veya hepsi 'none'.", 'debug');
+    }
+}
+
+// Mevcut playEntryAnimations fonksiyonunuzu bununla değiştirin
+async function playEntryAnimations() {
+    WidgetCore.log("ModernWidget: Şarkı geçişi - Giriş animasyonları (entry) hazırlanıyor...", 'debug');
+    const animationPromises = [];
+
+    for (const item of ELEMENTS_FOR_SONG_TRANSITION) {
+        if (item.el) {
+            const animConfig = getAnimationConfig(item.el, 'entry');
+            if (animConfig) { // animConfig null ise (type='none' veya belirtilmemişse) animasyon yok
+                WidgetCore.log(`ModernWidget: Şarkı geçişi (giriş) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
+                
+                item.el.style.removeProperty('opacity');
+
+                animationPromises.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
+            }
+        }
+    }
+
+    if (animationPromises.length > 0) {
+        await Promise.all(animationPromises);
+        WidgetCore.log("ModernWidget: Tüm giriş animasyonları (entry) tamamlandı.", 'debug');
+    } else {
+        WidgetCore.log("ModernWidget: Giriş için (entry) animasyon bulunamadı veya hepsi 'none'.", 'debug');
+    }
+}
+
+// 3.2. ÇIKIŞ ANİMASYONU (OUTRO ANIMATION)
     async function playFullOutroAnimation() {
         WidgetCore.log("ModernWidget: Çıkış animasyonları başlatılıyor...", 'info');
 
