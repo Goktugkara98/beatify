@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // 2. ANA WIDGET ELEMENTİ VE DOM REFERANSLARI
+    // 2. ANA WIDGET ELEMENTİ VE DETAYLI DOM REFERANSLARI
     const spotifyWidgetElement = document.getElementById('spotifyWidgetModern');
     if (!spotifyWidgetElement) {
         console.error("Modern Widget: Ana widget elementi (#spotifyWidgetModern) DOM'da bulunamadı.");
@@ -33,6 +33,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalTimeElement = document.getElementById('totalTime');
     const errorMessageElement = document.getElementById('errorMessage');
     const widgetContentElement = document.getElementById('widgetContent');
+    const widgetTrackInfoElement = spotifyWidgetElement.querySelector('.widget-track-info');
+    const playerControlsElement = spotifyWidgetElement.querySelector('.widget-player-controls');
+    const spotifyLogoElement = spotifyWidgetElement.querySelector('.widget-spotify-logo');
+    // Not: albumArtElement, albumArtBackgroundElement vb. zaten yukarıda tanımlı.
+
+    // Animasyon temel sınıfları (module scope)
+    let introAnimationClassBase = '';
+    let transitionAnimationClassBase = '';
+    let outroAnimationClassBase = '';
+
+    // 3.1. GİRİŞ ANİMASYONU (INTRO ANIMATION)
+    async function playFullIntroAnimation() {
+        if (!introAnimationClassBase) {
+            WidgetCore.log("ModernWidget: Giriş animasyon seti tanımlanmamış, atlanıyor.", 'warn');
+            return;
+        }
+        WidgetCore.log(`ModernWidget: "${introAnimationClassBase}" giriş animasyon seti kullanılıyor.`, 'info');
+
+        // İlk veriyi al ve UI'ı güncelle (animasyondan önce)
+        const initialData = WidgetCore.getLastFetchedData();
+        if (initialData) {
+            updateWidgetUI(initialData);
+            WidgetCore.log('ModernWidget: İlk UI güncellemesi giriş animasyonundan önce yapıldı.', 'info');
+        } else {
+            WidgetCore.log('ModernWidget: Giriş animasyonu için ilk veri bulunamadı.', 'warn');
+            // Opsiyonel: Hata durumu veya boş UI gösterilebilir.
+            // updateWidgetUI(null, "Başlangıç verisi yüklenemedi.");
+        }
+
+        const animations = [];
+        if (albumArtElement) animations.push(WidgetCore.triggerAnimation(albumArtElement, `${introAnimationClassBase}-art`));
+        if (albumArtBackgroundElement) animations.push(WidgetCore.triggerAnimation(albumArtBackgroundElement, `${introAnimationClassBase}-art`)); // Genellikle aynı animasyon
+        if (widgetTrackInfoElement) animations.push(WidgetCore.triggerAnimation(widgetTrackInfoElement, `${introAnimationClassBase}-text`));
+        if (playerControlsElement) animations.push(WidgetCore.triggerAnimation(playerControlsElement, `${introAnimationClassBase}-controls`));
+        if (spotifyLogoElement) animations.push(WidgetCore.triggerAnimation(spotifyLogoElement, `${introAnimationClassBase}-logo`));
+
+        try {
+            await Promise.all(animations);
+            WidgetCore.log("ModernWidget: Giriş animasyonları tamamlandı.", 'info');
+        } catch (error) {
+            WidgetCore.log("ModernWidget: Giriş animasyonları sırasında hata.", 'error', error);
+        }
+    }
+
+    // 3.2. ÇIKIŞ ANİMASYONU (OUTRO ANIMATION)
+    async function playFullOutroAnimation() {
+        if (!outroAnimationClassBase) {
+            WidgetCore.log("ModernWidget: Çıkış animasyon seti tanımlanmamış, atlanıyor.", 'warn');
+            return;
+        }
+        WidgetCore.log(`ModernWidget: "${outroAnimationClassBase}" çıkış animasyon seti kullanılıyor.`, 'info');
+
+        const animations = [];
+        // Outro animasyonları genellikle daha basittir ve tüm elemanları aynı anda etkileyebilir
+        // veya belirli elemanlara özel olabilir. HTML'deki data-outro-animation-class="modern-fade-out"
+        // gibi bir değere göre -art, -text ekleyerek özelleştirebiliriz.
+        if (albumArtElement) animations.push(WidgetCore.triggerAnimation(albumArtElement, `${outroAnimationClassBase}-art`));
+        if (albumArtBackgroundElement) animations.push(WidgetCore.triggerAnimation(albumArtBackgroundElement, `${outroAnimationClassBase}-art`)); 
+        if (widgetTrackInfoElement) animations.push(WidgetCore.triggerAnimation(widgetTrackInfoElement, `${outroAnimationClassBase}-text`));
+        if (playerControlsElement) animations.push(WidgetCore.triggerAnimation(playerControlsElement, `${outroAnimationClassBase}-controls`));
+        if (spotifyLogoElement) animations.push(WidgetCore.triggerAnimation(spotifyLogoElement, `${outroAnimationClassBase}-logo`));
+        // Alternatif olarak, ana widget elementine tek bir animasyon uygulanabilir:
+        // animations.push(WidgetCore.triggerAnimation(spotifyWidgetElement, outroAnimationClassBase));
+
+        try {
+            await Promise.all(animations);
+            WidgetCore.log("ModernWidget: Çıkış animasyonları tamamlandı.", 'info');
+        } catch (error) {
+            WidgetCore.log("ModernWidget: Çıkış animasyonları sırasında hata.", 'error', error);
+        }
+    }
 
     // 3. UI GÜNCELLEME FONKSİYONU (Bu fonksiyon widget'ın "kas gücüdür")
     /**
@@ -87,18 +158,60 @@ document.addEventListener('DOMContentLoaded', () => {
      * Core "şarkı değişti" dediğinde tetiklenir.
      * Geçiş animasyonunu yönetmek için en doğru yerdir.
      */
-    function handleSongChange(newData, oldData) {
-        WidgetCore.log('ModernWidget: Gerçek şarkı değişimi algılandı, animasyon tetikleniyor.', 'info', { new: newData.item?.name, old: oldData.item?.name });
-        
-        const transitionAnimation = spotifyWidgetElement.dataset.transitionAnimation;
-        if (widgetContentElement && transitionAnimation) {
-            WidgetCore.playSongTransitionAnimation(widgetContentElement, transitionAnimation).then(() => {
-                updateWidgetUI(newData); // Animasyon tamamlandığında içeriği güncelle
-                WidgetCore.log('ModernWidget: Animasyon tamamlandı, içeriği güncellendi.', 'info', { newData });
-            });
+    async function handleSongChange(newData, oldData) {
+        WidgetCore.log('ModernWidget: Gerçek şarkı değişimi algılandı.', 'info', { 
+            newTrack: newData?.item?.name || newData?.track_name,
+            oldTrack: oldData?.item?.name || oldData?.track_name 
+        });
+
+        // Eğer oldData yoksa (bu ilk yüklemedir), geçiş animasyonunu atla, UI zaten playFullIntroAnimation'da güncellendi.
+        // Veya playFullIntroAnimation'da UI güncellenmiyorsa burada güncellenir ama animasyonsuz.
+        // Mevcut akışta playFullIntroAnimation UI'ı güncelleyecek.
+        if (!oldData) {
+            WidgetCore.log('ModernWidget: İlk yükleme, onSongChange içinde geçiş animasyonu atlanıyor.', 'info');
+            // updateWidgetUI(newData); // playFullIntroAnimation zaten bunu yapacak.
+            return; // Erken çıkış, geçiş animasyonuna gerek yok.
+        }
+
+        const transitionSetBaseName = spotifyWidgetElement.dataset.transitionAnimationClass; // HTML'deki data-transition-animation-class
+
+        if (transitionSetBaseName && albumArtElement && widgetTrackInfoElement) {
+            WidgetCore.log(`ModernWidget: "${transitionSetBaseName}" geçiş animasyon seti kullanılıyor.`, 'info');
+            
+            // Çıkış (Out) Aşaması
+            const outAnimations = [];
+            if (albumArtElement) outAnimations.push(WidgetCore.triggerAnimation(albumArtElement, `${transitionSetBaseName}-art-out`));
+            if (albumArtBackgroundElement) outAnimations.push(WidgetCore.triggerAnimation(albumArtBackgroundElement, `${transitionSetBaseName}-art-out`));
+            if (widgetTrackInfoElement) outAnimations.push(WidgetCore.triggerAnimation(widgetTrackInfoElement, `${transitionSetBaseName}-text-out`));
+            // Gerekirse playerControlsElement için de bir çıkış animasyonu eklenebilir.
+
+            if (outAnimations.length > 0) {
+                await Promise.all(outAnimations);
+                WidgetCore.log('ModernWidget: Geçiş animasyonu - Çıkış aşaması tamamlandı.', 'info');
+            }
+
+            updateWidgetUI(newData); // İçeriği güncelle
+            WidgetCore.log('ModernWidget: UI, yeni şarkı verisiyle güncellendi.', 'info');
+
+            // Giriş (In) Aşaması
+            const inAnimations = [];
+            if (albumArtElement) inAnimations.push(WidgetCore.triggerAnimation(albumArtElement, `${transitionSetBaseName}-art-in`));
+            if (albumArtBackgroundElement) inAnimations.push(WidgetCore.triggerAnimation(albumArtBackgroundElement, `${transitionSetBaseName}-art-in`));
+            if (widgetTrackInfoElement) inAnimations.push(WidgetCore.triggerAnimation(widgetTrackInfoElement, `${transitionSetBaseName}-text-in`));
+            // Gerekirse playerControlsElement için de bir giriş animasyonu eklenebilir.
+
+            if (inAnimations.length > 0) {
+                await Promise.all(inAnimations);
+                WidgetCore.log('ModernWidget: Geçiş animasyonu - Giriş aşaması tamamlandı.', 'info');
+            }
+
         } else {
-            updateWidgetUI(newData); // Animasyon tanımlı değilse doğrudan güncelle
-            WidgetCore.log('ModernWidget: Animasyon tanımlı değilse doğrudan güncelle', 'info', { newData });
+            updateWidgetUI(newData); // Animasyon tanımlı değilse veya elementler yoksa doğrudan güncelle
+            if (!transitionSetBaseName) {
+                WidgetCore.log('ModernWidget: Geçiş animasyon seti tanımlanmamış, UI doğrudan güncellendi.', 'warn');
+            } else {
+                WidgetCore.log('ModernWidget: Geçiş animasyonu için gerekli elementler bulunamadı, UI doğrudan güncellendi.', 'warn');
+            }
         }
     }
 
@@ -119,18 +232,52 @@ document.addEventListener('DOMContentLoaded', () => {
         updateWidgetUI(null, error.error || 'Bilinmeyen bir hata oluştu.');
     }
 
+    // WidgetCore'dan gelen olaylara tepki vermek için event listener'lar
+    spotifyWidgetElement.addEventListener('coreSongChange', (event) => {
+        handleSongChange(event.detail.newData, event.detail.oldData);
+    });
+
+    spotifyWidgetElement.addEventListener('coreDataUpdate', (event) => {
+        handleDataUpdate(event.detail.newData);
+    });
+
+    spotifyWidgetElement.addEventListener('coreError', (event) => {
+        handleError(event.detail.errorData);
+    });
 
     // 5. BAŞLATMA (INITIALIZATION)
     /**
      * Widget'ı başlatan ana fonksiyon.
      * HTML'den yapılandırmayı okur ve WidgetCore'u bu yapılandırmayla başlatır.
      */
-    function initWidget() {
+    async function initWidget() { // async yaptık
+        // Defensive check for spotifyWidgetElement and its dataset property
+        if (!spotifyWidgetElement || typeof spotifyWidgetElement.dataset === 'undefined') {
+            console.error(
+                "Modern Widget initWidget: spotifyWidgetElement is invalid or does not have a 'dataset' property.",
+                {
+                    element: spotifyWidgetElement,
+                    typeofElement: typeof spotifyWidgetElement,
+                    hasDataset: spotifyWidgetElement ? typeof spotifyWidgetElement.dataset !== 'undefined' : false
+                }
+            );
+            // Attempt to show error on UI if possible, though DOM might be compromised
+            if (errorMessageElement) {
+                 WidgetCore.showError(errorMessageElement, "Widget initialization error: Main element invalid.");
+            } else {
+                // Fallback if even errorMessageElement is not available
+                document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">Critical widget init error.</div>');
+            }
+            return; // Stop further execution in initWidget
+        }
+
         // Yapılandırmayı HTML elementinin data-* özelliklerinden al
         const token = spotifyWidgetElement.dataset.token;
         const endpointTemplate = spotifyWidgetElement.dataset.endpointTemplate;
-        const introAnimation = spotifyWidgetElement.dataset.introAnimation;
-        // Geçiş animasyonu handleSongChange içinde okunuyor.
+        // Module scope'taki değişkenleri initialize et
+        introAnimationClassBase = spotifyWidgetElement.dataset.introAnimationClass || null;
+        transitionAnimationClassBase = spotifyWidgetElement.dataset.transitionAnimationClass || 'modern-content-pop'; // Varsayılan
+        outroAnimationClassBase = spotifyWidgetElement.dataset.outroAnimationClass || null;
 
         if (!token || !endpointTemplate) {
             handleError({ error: "Yapılandırma eksik: 'data-token' veya 'data-endpoint-template' bulunamadı." });
@@ -139,15 +286,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // WidgetCore'u başlatmak için tüm yapılandırmayı bir nesne olarak hazırla
         const coreConfig = {
+            widgetElement: spotifyWidgetElement,
             token: token,
             endpointTemplate: endpointTemplate,
-            widgetElement: spotifyWidgetElement,
-            introAnimationClass: introAnimation,
-            
-            // Core'dan gelen olaylara hangi fonksiyonların tepki vereceğini bildir
-            onSongChange: handleSongChange,
-            onDataUpdate: handleDataUpdate,
-            onError: handleError
+            introAnimationClass: null, // Core artık intro/outro'yu doğrudan tetiklemiyor
+            outroAnimationClass: null,
+            onActivate: playFullIntroAnimation, // WidgetCore.activateWidget çağrıldığında bu çalışacak
+            onDeactivate: playFullOutroAnimation, // WidgetCore.deactivateWidget çağrıldığında bu çalışacak
+            onSongChange: (newData, oldData) => {
+                spotifyWidgetElement.dispatchEvent(new CustomEvent('coreSongChange', { detail: { newData, oldData } }));
+            },
+            onDataUpdate: (newData) => {
+                spotifyWidgetElement.dispatchEvent(new CustomEvent('coreDataUpdate', { detail: { newData } }));
+            },
+            onError: (errorData) => {
+                spotifyWidgetElement.dispatchEvent(new CustomEvent('coreError', { detail: { errorData } }));
+            }
         };
         
         // Orkestra şefine (WidgetCore) notalarını (coreConfig) ver ve başlat komutu gönder.
