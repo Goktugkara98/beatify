@@ -420,25 +420,48 @@ function triggerAnimation(element, animationClass) {
             resolve();
             return;
         }
-        const elementId = element.id ? `#${element.id}` : 'IDsiz Element';
-        _log(`Animasyon başlatıldı (Core): [${animationClass}] -> ${elementId}`, 'info', { element: element });
+
+        // YENİ KONTROL: Element 'display: none' ise animasyonu atla
+        const computedStyle = window.getComputedStyle(element);
+        if (computedStyle.display === 'none') {
+            _log(`Animasyon atlanıyor (element gizli): [${animationClass}] -> ${element.id || 'IDsiz Element'}`, 'info', { element });
+            resolve(); // Promise'ı hemen çöz, böylece Promise.all takılmaz
+            return;
+        }
+
         const handleAnimationEnd = (event) => {
-            if (event.target === element) {
+            if (event.target === element && element.classList.contains(animationClass)) {
                 element.classList.remove(animationClass);
                 element.removeEventListener('animationend', handleAnimationEnd);
+                element.removeEventListener('animationcancel', handleAnimationCancel); // İptal dinleyicisini de kaldır
                 resolve();
             }
         };
+
+        const handleAnimationCancel = (event) => {
+            if (event.target === element && element.classList.contains(animationClass)) {
+                _log(`Animasyon iptal edildi: [${animationClass}] -> ${element.id || 'IDsiz Element'}`, 'warn', { element });
+                element.classList.remove(animationClass);
+                element.removeEventListener('animationend', handleAnimationEnd);
+                element.removeEventListener('animationcancel', handleAnimationCancel);
+                resolve(); // İptal durumunda da Promise'ı çözerek takılmayı önle
+            }
+        };
+
         element.addEventListener('animationend', handleAnimationEnd);
+        element.addEventListener('animationcancel', handleAnimationCancel); // animationcancel olayını da dinle
         element.classList.add(animationClass);
     });
 }
+
 function playIntroAnimation(element, specificIntroAnimationClass) {
     return triggerAnimation(element, specificIntroAnimationClass);
 }
+
 function playSongTransitionAnimation(element, specificTransitionAnimationClass) {
     return triggerAnimation(element, specificTransitionAnimationClass);
 }
+
 function playOutroAnimation(element, specificOutroAnimationClass) {
     return triggerAnimation(element, specificOutroAnimationClass);
 }

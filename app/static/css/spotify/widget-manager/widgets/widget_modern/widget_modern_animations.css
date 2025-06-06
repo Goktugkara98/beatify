@@ -69,6 +69,28 @@
     }
 }
 
+@keyframes kf-slide-in-from-right {
+    from {
+        transform: translateX(100%);
+        opacity: 1; /* Ensure visible if previously hidden */
+    }
+    to {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+
+@keyframes kf-slide-out-to-left {
+    from {
+        transform: translateX(0%);
+        opacity: 1; /* Ensure visible */
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 1; /* Stays visible as it slides out */
+    }
+}
+
 /* ==========================================================================
    2. BAŞLANGIÇ DURUMLARI (Animasyon Öncesi Elementleri Gizlemek İçin)
    ========================================================================== */
@@ -138,3 +160,67 @@
 .modern-fade-out {
     animation: kf-fade-out 0.5s ease-out forwards;
 }
+
+/* ==========================================================================
+   6. SLIDE GİRİŞ ANİMASYONU (TİP: modern-slide-in)
+   ========================================================================== */
+.modern-slide-in-art,
+.modern-slide-in-text,
+.modern-slide-in-controls,
+.modern-slide-in-logo {
+    animation-duration: 0.6s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-name: kf-slide-in-from-right;
+}
+
+.modern-slide-in-text { animation-delay: 0.05s; }
+.modern-slide-in-controls { animation-delay: 0.1s; }
+.modern-slide-in-logo { animation-delay: 0.15s; }
+
+
+/* ==========================================================================
+   7. SLIDE ŞARKI GEÇİŞ ANİMASYONU (TİP: modern-slide-transition)
+   ========================================================================== */
+
+/* --- ÇIKIŞ (OUT) FAZI --- */
+.modern-slide-transition-art-out,
+.modern-slide-transition-text-out,
+.modern-slide-transition-controls-out { 
+    animation-duration: 0.4s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+    animation-name: kf-slide-out-to-left;
+}
+
+/* --- GİRİŞ (IN) FAZI --- */
+.modern-slide-transition-art-in,
+.modern-slide-transition-text-in,
+.modern-slide-transition-controls-in {
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-name: kf-slide-in-from-right;
+    animation-delay: 0.05s; /* Start after out-elements begin moving */
+}
+.modern-slide-transition-text-in { animation-delay: 0.1s; }
+.modern-slide-transition-controls-in { animation-delay: 0.15s; }
+
+
+/* ==========================================================================
+   8. SLIDE ÇIKIŞ ANİMASYONU (TİP: modern-slide-out)
+   ========================================================================== */
+.modern-slide-out-art,
+.modern-slide-out-text,
+.modern-slide-out-controls,
+.modern-slide-out-logo {
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-name: kf-slide-out-to-left;
+}
+
+.modern-slide-out-logo { animation-delay: 0.0s; } /* Example: logo starts first */
+.modern-slide-out-controls { animation-delay: 0.05s; }
+.modern-slide-out-text { animation-delay: 0.1s; }
+.modern-slide-out-art { animation-delay: 0.15s; } /* Example: art is last to leave */
