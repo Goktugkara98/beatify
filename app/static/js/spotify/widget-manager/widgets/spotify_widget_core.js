@@ -414,7 +414,7 @@ function stopPolling(calledInternally = false) {
 // -------------------------------------------------------------------------
 // 4. ANİMASYON YÖNETİMİ (ANIMATION MANAGEMENT)
 // -------------------------------------------------------------------------
-function triggerAnimation(element, animationClass) {
+function triggerAnimation(element, animationClass, options = {}) {
     return new Promise((resolve) => {
         if (!element || !animationClass) {
             resolve();
@@ -429,11 +429,21 @@ function triggerAnimation(element, animationClass) {
             return;
         }
 
+        // CSS Özel Özelliklerini Ayarla
+        if (options.duration) element.style.setProperty('--anim-duration', options.duration);
+        if (options.delay) element.style.setProperty('--anim-delay', options.delay);
+        if (options.timingFunction) element.style.setProperty('--anim-timing-function', options.timingFunction);
+
         const handleAnimationEnd = (event) => {
             if (event.target === element && element.classList.contains(animationClass)) {
                 element.classList.remove(animationClass);
+                // CSS Özel Özelliklerini Temizle
+                if (options.duration) element.style.removeProperty('--anim-duration');
+                if (options.delay) element.style.removeProperty('--anim-delay');
+                if (options.timingFunction) element.style.removeProperty('--anim-timing-function');
+                
                 element.removeEventListener('animationend', handleAnimationEnd);
-                element.removeEventListener('animationcancel', handleAnimationCancel); // İptal dinleyicisini de kaldır
+                element.removeEventListener('animationcancel', handleAnimationCancel);
                 resolve();
             }
         };
@@ -442,6 +452,11 @@ function triggerAnimation(element, animationClass) {
             if (event.target === element && element.classList.contains(animationClass)) {
                 _log(`Animasyon iptal edildi: [${animationClass}] -> ${element.id || 'IDsiz Element'}`, 'warn', { element });
                 element.classList.remove(animationClass);
+                // CSS Özel Özelliklerini Temizle
+                if (options.duration) element.style.removeProperty('--anim-duration');
+                if (options.delay) element.style.removeProperty('--anim-delay');
+                if (options.timingFunction) element.style.removeProperty('--anim-timing-function');
+
                 element.removeEventListener('animationend', handleAnimationEnd);
                 element.removeEventListener('animationcancel', handleAnimationCancel);
                 resolve(); // İptal durumunda da Promise'ı çözerek takılmayı önle
