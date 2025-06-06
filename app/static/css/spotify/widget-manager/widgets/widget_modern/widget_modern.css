@@ -35,11 +35,6 @@
  *      7.2. Logo SVG Icon (CSS ile boyutlandırma)
  *      7.3. Logo Text (.spotify-text)
  *========================================================
- * 8. ANIMATIONS
- *      8.1. Widget State Animations (.modern-fade-in, .modern-content-slide, .modern-fade-out)
- *      8.2. Element Specific Animations (.playing::after pulse)
- *      8.3. Animation Keyframes
- *========================================================
  * 9. UTILITY AND STATE CLASSES
  *      9.1. Disabled State (.widget-disabled)
  *      9.2. Error Message Styling (.core-error-message, .visible)
@@ -70,7 +65,6 @@
     object-fit: cover;
     filter: blur(10px) brightness(0.5);
     transform: scale(1.1);
-    transition: opacity 0.5s ease-in-out; /* Yumuşak geçiş için */
     z-index: 1; /* En altta */
 }
 
@@ -118,7 +112,6 @@
     height: 100%;
     object-fit: cover;
     object-position: top; /* Align image to the top */
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-out; /* Transform da eklendi */
 }
 
 /* 4. CONTENT AREA SECTION (.widget-content-area) */
@@ -200,7 +193,6 @@
     background: linear-gradient(90deg, #1DB954 0%, #1ED760 100%);
     height: 100%;
     border-radius: 3px;
-    transition: width 0.25s linear;
 }
 
 /* 6.3. Time Display */
@@ -220,7 +212,6 @@
     top: 25px;
     right: 25px;
     z-index: 10; /* Diğer her şeyin üzerinde */
-    transition: transform 0.3s ease, opacity 0.3s ease;
     transform-origin: center center;
 }
 
@@ -276,7 +267,6 @@
     padding: 10px 15px;
     font-size: 14px;
     border-radius: 6px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
     z-index: 20;
     box-sizing: border-box;
     opacity: 0;

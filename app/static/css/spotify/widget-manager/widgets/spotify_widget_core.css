@@ -10,18 +10,6 @@
  * 2. WIDGET KONTEYNER TEMEL STİLLERİ
  *      2.1. Boyutlandırma ve Konumlandırma
  *      2.2. Görsel Temeller (Kenarlık, Gölge vb.)
- * 3. ORTAK ANİMASYON SINIFLARI
- *      3.1. Giriş Animasyonları
- *          3.1.1. .core-fade-in-up
- *          3.1.2. .core-fade-in
- *          3.1.3. .core-slide-in
- *      3.2. Çıkış Animasyonları
- *          3.2.1. .core-fade-out
- *      3.3. Animasyon Keyframes
- *          3.3.1. @keyframes coreFadeInUp
- *          3.3.2. @keyframes coreFadeIn
- *          3.3.3. @keyframes coreSlideIn
- *          3.3.4. @keyframes coreFadeOut
  * 4. ORTAK UI ELEMANLARI
  *      4.1. Progress Bar
  *          4.1.1. .core-progress-container
@@ -83,66 +71,6 @@ body {
 }
 
 
-/* 3. ORTAK ANİMASYON SINIFLARI */
-/* 3.1. Giriş Animasyonları */
-/* 3.1.1. .core-fade-in-up */
-.core-fade-in-up {
-    animation: coreFadeInUp 0.5s ease-out forwards;
-}
-
-/* 3.1.2. .core-fade-in */
-.core-fade-in {
-    animation: coreFadeIn 0.5s ease-out forwards;
-}
-
-/* 3.1.3. .core-slide-in */
-.core-slide-in { /* Soldan kayarak gelme */
-    animation: coreSlideIn 0.5s ease-out forwards;
-}
-
-/* 3.2. Çıkış Animasyonları */
-/* 3.2.1. .core-fade-out */
-.core-fade-out {
-    animation: coreFadeOut 0.5s ease-out forwards;
-}
-
-/* 3.3. Animasyon Keyframes */
-/* 3.3.1. @keyframes coreFadeInUp */
-@keyframes coreFadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 3.3.2. @keyframes coreFadeIn */
-@keyframes coreFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* 3.3.3. @keyframes coreSlideIn */
-@keyframes coreSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* 3.3.4. @keyframes coreFadeOut */
-@keyframes coreFadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
 /* 4. ORTAK UI ELEMANLARI */
 /* 4.1. Progress Bar */
 /* 4.1.1. .core-progress-container */
@@ -159,7 +87,6 @@ body {
     height: 100%;
     background-color: #1DB954; /* Spotify yeşili, widget'a göre değişebilir */
     border-radius: 4px;
-    transition: width 0.25s linear; /* Yumuşak geçiş */
     width: 0%; /* JS ile güncellenecek */
 }
 
@@ -188,7 +115,6 @@ body {
     font-size: 12px;
     text-align: center;
     border-radius: 6px;
-    transition: opacity 0.3s ease-in-out;
     z-index: 100; /* Diğer elementlerin üzerinde olması için */
     pointer-events: none; /* Üzerine tıklanmasını engelle */
 }
