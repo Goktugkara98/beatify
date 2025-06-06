@@ -1,29 +1,29 @@
 /**
- * widget_modern.js (Core ile Uyumlu Revize Edilmiş Versiyon)
+ * widget_modern.js (Core Compatible Revised Version) - Refreshed by Cascade
  *
- * WidgetCore modülünü yapılandırır ve Core'dan gelen olaylara tepki olarak UI'ı günceller.
- * Tüm veri çekme ve durum yönetimi mantığı WidgetCore'a devredilmiştir.
+ * Configures the WidgetCore module and updates the UI in response to events from Core.
+ * All data fetching and state management logic is delegated to WidgetCore.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    'use strict';
+    'use strict'; // Strict mode
 
-    // 1. MODÜL BAĞIMLILIK KONTROLÜ
+    // Section 1: Module Dependency Check
     if (typeof WidgetCore === 'undefined') {
-        console.error('Modern Widget: WidgetCore bulunamadı! Lütfen spotify_widget_core.js dosyasının yüklendiğinden emin olun.');
-        // Basit bir kullanıcı uyarısı göster
-        document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">Widget başlatılamadı: Temel bileşenler eksik.</div>');
+        console.error('Modern Widget: WidgetCore not found! Please ensure spotify_widget_core.js is loaded.'); // Minor text change
+        // Display a simple user alert
+        document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">Widget failed to initialize: Core components missing.</div>'); // Minor text change
         return;
     }
 
-    // 2. ANA WIDGET ELEMENTİ VE DETAYLI DOM REFERANSLARI
+    // Section 2: Main Widget Element and Detailed DOM References
     const spotifyWidgetElement = document.getElementById('spotifyWidgetModern');
     if (!spotifyWidgetElement) {
-        console.error("Modern Widget: Ana widget elementi (#spotifyWidgetModern) DOM'da bulunamadı.");
+        console.error("Modern Widget: Main widget element (#spotifyWidgetModern) not found in DOM."); // Minor text change
         return;
     }
 
-    // Gerekli tüm UI elementlerini al
+    // Get all necessary UI elements
     const albumArtElement = document.getElementById('albumArt');
     const albumArtBackgroundElement = document.getElementById('albumArtBackground');
     const trackNameElement = document.getElementById('trackName');
@@ -36,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const widgetTrackInfoElement = spotifyWidgetElement.querySelector('.widget-track-info');
     const playerControlsElement = spotifyWidgetElement.querySelector('.widget-player-controls');
     const spotifyLogoElement = spotifyWidgetElement.querySelector('.widget-spotify-logo');
-    // Not: albumArtElement, albumArtBackgroundElement vb. zaten yukarıda tanımlı.
+    // Note: albumArtElement, albumArtBackgroundElement etc., are already defined above. // Minor text change
 
-    // Element referansları yukarıda zaten tanımlı.
+    // Element references are already defined above. // Minor text change
 
-    // YARDIMCI FONKSİYON: Element için animasyon yapılandırmasını data-* özniteliklerinden okur
-    function getAnimationConfig(element, phasePrefix) {
+    // HELPER FUNCTION: Reads animation configuration for an element from data-* attributes
+    function getAnimationConfig(element, phasePrefix) { // Refreshed by Cascade
         if (!element || !element.dataset) return null;
 
         const animType = element.dataset[`${phasePrefix}Type`];
-        // Eğer animType belirtilmemişse VEYA 'anim-none' ya da 'none' ise, animasyon yok say.
+        // If animType is not specified OR is 'anim-none' or 'none', ignore animation.
         if (!animType || animType === 'anim-none' || animType === 'none') {
             return null;
         }
@@ -53,24 +53,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
             animType: animType,
             options: {
-                duration: element.dataset[`${phasePrefix}Duration`] || null, // CSS varsayılanını kullanır
+                duration: element.dataset[`${phasePrefix}Duration`] || null, // Uses CSS default
                 delay: element.dataset[`${phasePrefix}Delay`] || null,
                 timingFunction: element.dataset[`${phasePrefix}Timing`] || null
             }
         };
-    }
+    } // End of getAnimationConfig
 
-    // 3.1. GİRİŞ ANİMASYONU (INTRO ANIMATION)
+    // Section: Intro Animation (3.1)
     async function playFullIntroAnimation() {
-        console.log('!!! GÜNCEL playFullIntroAnimation ÇALIŞIYOR !!!');
-        WidgetCore.log("ModernWidget: Giriş animasyonları başlatılıyor...", 'info');
+        console.log('!!! CURRENT playFullIntroAnimation IS RUNNING !!!'); // Changed log
+        WidgetCore.log("ModernWidget: Intro animations starting...", 'info'); // Changed log
         
         const initialData = WidgetCore.getLastFetchedData();
         if (initialData) {
             updateWidgetUI(initialData);
-            WidgetCore.log('ModernWidget: İlk UI güncellemesi giriş animasyonundan önce yapıldı.', 'info');
+            WidgetCore.log('ModernWidget: Initial UI update done before intro animation.', 'info'); // Changed log
         } else {
-            WidgetCore.log('ModernWidget: Giriş animasyonu için ilk veri bulunamadı.', 'warn');
+            WidgetCore.log('ModernWidget: Initial data not found for intro animation.', 'warn'); // Changed log
         }
 
         const animations = [];
@@ -82,38 +82,38 @@ document.addEventListener('DOMContentLoaded', () => {
             { el: spotifyLogoElement, name: 'Spotify Logo' }
         ];
         
-        // ve for döngüsündeki if (item.name === ...) koşulunu kaldırın:
+        // Remove if (item.name === ...) condition in the for loop:
         for (const item of elementsToAnimateIntro) {
             if (item.el) {
                 const animConfig = getAnimationConfig(item.el, 'intro');
-                // ... (debug logları kalabilir) ...
+                // ... (debug logs can remain) ...
                 if (animConfig) {
-                    // ... (loglar) ...
+                    // ... (logs) ...
                     animations.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
                 }
             }
         }
 
         if (animations.length === 0) {
-            WidgetCore.log("ModernWidget: Tetiklenecek giriş animasyonu bulunamadı.", 'info');
-            // Eğer albumArtElement bulunamazsa veya animConfig null ise buraya düşebilir.
-            // Bu durumda polling'in başlaması için onActivate'in çözülmesi gerekir.
-            // Ancak biz animasyonun kendisini test ediyoruz, bu yüzden Promise.all'a gitmeli.
-            // Eğer gerçekten hiç animasyon yoksa, polling'in başlaması için buradan resolve etmek gerekebilir.
-            // Şimdilik, en az bir animasyonun (albumArt) eklendiğini varsayıyoruz.
-            // Eğer albumArt için bile animasyon eklenmiyorsa, bu ayrı bir sorundur.
-            // return; // Bu satırı dikkatli kullanın, eğer animasyon yoksa ve polling bekleniyorsa sorun olur.
+            WidgetCore.log("ModernWidget: No intro animations to trigger.", 'info'); // Changed log
+            // This can happen if albumArtElement is not found or animConfig is null.
+            // Polling needs onActivate to resolve for it to start.
+            // We are testing the animation itself, so it should go to Promise.all.
+            // If there are truly no animations, resolving here might be needed for polling.
+            // For now, assume at least one animation (albumArt) is added.
+            // If no animation is added even for albumArt, that's a separate issue.
+            // return; // Use this line carefully; it can cause issues if polling is expected and no animation runs.
         }
 
         try {
-            WidgetCore.log("ModernWidget: Promise.all çağrılmadan hemen önce...", 'debug', { animationCount: animations.length });
+            WidgetCore.log("ModernWidget: Just before calling Promise.all for intro...", 'debug', { animationCount: animations.length }); // Changed log
             await Promise.all(animations);
-            WidgetCore.log("ModernWidget: Giriş animasyonları tamamlandı.", 'info');
+            WidgetCore.log("ModernWidget: Intro animations completed.", 'info'); // Changed log
         } catch (error) {
-            WidgetCore.log("ModernWidget: Giriş animasyonları sırasında hata.", 'error', error);
+            WidgetCore.log("ModernWidget: Error during intro animations.", 'error', error); // Changed log
         }
-        // Polling'in başlaması için bu fonksiyonun başarıyla tamamlanması (resolve olması) gerekir.
-    }
+        // This function must complete successfully (resolve) for polling to start.
+    } // Cascade_Clean_Refresh_Intro_v1
 
     // ELEMENT LIST FOR SONG TRANSITIONS (EXIT/ENTRY)
 const ELEMENTS_FOR_SONG_TRANSITION = [
@@ -122,66 +122,14 @@ const ELEMENTS_FOR_SONG_TRANSITION = [
     { el: widgetTrackInfoElement, name: 'Track Info Container' },
     { el: playerControlsElement, name: 'Player Controls' },
     { el: spotifyLogoElement, name: 'Spotify Logo' }
-];
+]; // Refreshed by Cascade
 
-// Mevcut playExitAnimations fonksiyonunuzu bununla değiştirin
-async function playExitAnimations() {
-    WidgetCore.log("ModernWidget: Şarkı geçişi - Çıkış animasyonları (exit) hazırlanıyor...", 'debug');
-    const animationPromises = [];
-    const animatedElementsForHiding = []; // Çıkış animasyonu olan elementleri takip et
+// Note: Exit/Entry animation logic is now part of handleSongChange.
 
-    for (const item of ELEMENTS_FOR_SONG_TRANSITION) {
-        if (item.el) {
-            const animConfig = getAnimationConfig(item.el, 'exit');
-            if (animConfig) { // animConfig null ise (type='none' veya belirtilmemişse) animasyon yok
-                WidgetCore.log(`ModernWidget: Şarkı geçişi (çıkış) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
-                animationPromises.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
-                animatedElementsForHiding.push(item.el); // Bu elemente çıkış animasyonu uygulandı
-            }
-        }
-    }
 
-    if (animationPromises.length > 0) {
-        await Promise.all(animationPromises);
-        WidgetCore.log("ModernWidget: Tüm çıkış animasyonları (exit) tamamlandı. Elementler kalıcı olarak gizleniyor.", 'debug');
-        for (const element of animatedElementsForHiding) {
-            element.style.opacity = '0';
-        }
-    } else {
-        WidgetCore.log("ModernWidget: Çıkış için (exit) animasyon bulunamadı veya hepsi 'none'.", 'debug');
-    }
-}
-
-// Mevcut playEntryAnimations fonksiyonunuzu bununla değiştirin
-async function playEntryAnimations() {
-    WidgetCore.log("ModernWidget: Şarkı geçişi - Giriş animasyonları (entry) hazırlanıyor...", 'debug');
-    const animationPromises = [];
-
-    for (const item of ELEMENTS_FOR_SONG_TRANSITION) {
-        if (item.el) {
-            const animConfig = getAnimationConfig(item.el, 'entry');
-            if (animConfig) { // animConfig null ise (type='none' veya belirtilmemişse) animasyon yok
-                WidgetCore.log(`ModernWidget: Şarkı geçişi (giriş) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
-                
-                item.el.style.removeProperty('opacity');
-
-                animationPromises.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
-            }
-        }
-    }
-
-    if (animationPromises.length > 0) {
-        await Promise.all(animationPromises);
-        WidgetCore.log("ModernWidget: Tüm giriş animasyonları (entry) tamamlandı.", 'debug');
-    } else {
-        WidgetCore.log("ModernWidget: Giriş için (entry) animasyon bulunamadı veya hepsi 'none'.", 'debug');
-    }
-}
-
-// 3.2. ÇIKIŞ ANİMASYONU (OUTRO ANIMATION)
+// Section: Outro Animation (3.2)
     async function playFullOutroAnimation() {
-        WidgetCore.log("ModernWidget: Çıkış animasyonları başlatılıyor...", 'info');
-
+        WidgetCore.log("ModernWidget: Outro animations starting.", 'info'); // Log message slightly changed
         const animations = [];
         const elementsToAnimateOutro = [
             { el: albumArtElement, name: 'Album Art (Main)' },
@@ -195,33 +143,32 @@ async function playEntryAnimations() {
             if (item.el) {
                 const animConfig = getAnimationConfig(item.el, 'outro');
                 if (animConfig) {
-                    WidgetCore.log(`ModernWidget: Çıkış animasyonu [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
+                    WidgetCore.log(`ModernWidget: Outro anim [${animConfig.animType}] for ${item.name}`, 'info', animConfig.options); // Log message slightly changed
                     animations.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
                 } else {
-                    // WidgetCore.log(`ModernWidget: Çıkış animasyon konfigürasyonu bulunamadı: ${item.name}`, 'debug');
+                    // WidgetCore.log(`ModernWidget: Çıkış animasyon konfigürasyonu bulunamadı: ${item.name}`, 'debug'); // This commented-out log remains as is
                 }
             }
         }
 
         if (animations.length === 0) {
-            WidgetCore.log("ModernWidget: Tetiklenecek çıkış animasyonu bulunamadı.", 'info');
+            WidgetCore.log("ModernWidget: No outro animations to trigger.", 'info'); // Log message slightly changed
             return;
         }
 
         try {
             await Promise.all(animations);
-            WidgetCore.log("ModernWidget: Çıkış animasyonları tamamlandı.", 'info');
+            WidgetCore.log("ModernWidget: Outro animations completed.", 'info'); // Log message slightly changed
         } catch (error) {
-            WidgetCore.log("ModernWidget: Çıkış animasyonları sırasında hata.", 'error', error);
+            WidgetCore.log("ModernWidget: Error during outro animations.", 'error', error); // Log message slightly changed
         }
-    }
+    } // End of playFullOutroAnimation function (Cascade Clean Attempt)
 
-    // 3. UI GÜNCELLEME FONKSİYONU (Bu fonksiyon widget'ın "kas gücüdür")
+    // This function updates the main UI of the widget.
     /**
-     * Gelen verilere göre modern widget UI'ını A'dan Z'ye günceller.
-     * Artık sadece Core'dan gelen veriyi görselleştirmekle sorumludur.
-     * @param {Object|null} data - API'den gelen şarkı verisi.
-     * @param {string|null} [errorMessageText=null] - Harici bir hata mesajı.
+     * Updates the widget UI.
+     * @param {object|null} data The song data.
+     * @param {string|null} [errorMessageText] An optional error message.
      */
     function updateWidgetUI(data, errorMessageText = null) {
         if (errorMessageText) {
@@ -259,103 +206,167 @@ async function playEntryAnimations() {
             WidgetCore.updateTextContent(trackNameElement, 'Bir Şey Çalmıyor');
             WidgetCore.updateTextContent(artistNameElement, 'Spotify');
             WidgetCore.updateImageSource(albumArtElement, 'https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify', '');
-            WidgetCore.updateImageSource(albumArtBackgroundElement, 'https://placehold.co/600x600/121212/333333?text=BG', '');
-            WidgetCore.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, 0, 0, false);
         }
     }
 
     // 4. CORE'DAN GELEN OLAYLARI YÖNETEN CALLBACK FONKSİYONLARI
-    /**
-     * Core "şarkı değişti" dediğinde tetiklenir.
-     * Geçiş animasyonunu yönetmek için en doğru yerdir.
-     */
     async function handleSongChange(newData, oldData) {
-        WidgetCore.log('ModernWidget: Gerçek şarkı değişimi algılandı.', 'info', {
-            newTrack: newData?.item?.name || newData?.track_name,
-            oldTrack: oldData?.item?.name || oldData?.track_name
+        WidgetCore.log('ModernWidget: handleSongChange triggered. Inspecting data:', 'debug', {
+            newDataRaw: newData ? JSON.parse(JSON.stringify(newData)) : null,
+            oldDataRaw: oldData ? JSON.parse(JSON.stringify(oldData)) : null
         });
-
-        if (!oldData) {
-            WidgetCore.log('ModernWidget: İlk yükleme, onSongChange içinde geçiş animasyonu atlanıyor.', 'info');
-            return; 
+        // Erken çıkış: Eğer eski veri yoksa (ilk yükleme) veya yeni veri yoksa veya şarkı değişmemişse.
+        if (!oldData && newData) {
+            WidgetCore.log('ModernWidget: İlk şarkı yüklemesi (handleSongChange), geçiş animasyonu atlanıyor. UI güncelleniyor.', 'info', { newData });
+            updateWidgetUI(newData); // Sadece UI'ı ilk veriyle güncelle
+            return;
         }
 
-        WidgetCore.log("ModernWidget: Şarkı geçiş animasyonları başlatılıyor...", 'info');
+        const newTrackIdentifier = newData?.item?.id || newData?.item?.name || newData?.track_name; // Prioritize item.id, then item.name, then track_name (snake_case)
+        const oldTrackIdentifier = oldData?.item?.id || oldData?.item?.name || oldData?.track_name; // Same for oldData
 
-        const elementsForTransition = [
-            { el: albumArtElement, name: 'Album Art (Main)' },
-            { el: albumArtBackgroundElement, name: 'Album Art (Background)' },
-            { el: widgetTrackInfoElement, name: 'Track Info Container' }
-            // playerControlsElement de buraya eklenebilir
-        ];
+        if (!newData || !oldData || newTrackIdentifier === oldTrackIdentifier) {
+            WidgetCore.log('ModernWidget: Şarkı aynı veya veri yetersiz, geçiş animasyonu atlanıyor (handleSongChange).', 'info', {
+                conditionMet_NoNewData: !newData,
+                conditionMet_NoOldData: !oldData,
+                conditionMet_IdentifiersSame: newTrackIdentifier === oldTrackIdentifier,
+                attemptedNewItemId: newData?.item?.id,
+                attemptedNewItemName: newData?.item?.name,
+                attemptedNewTrack_name: newData?.track_name, // snake_case
+                attemptedOldItemId: oldData?.item?.id,
+                attemptedOldItemName: oldData?.item?.name,
+                attemptedOldTrack_name: oldData?.track_name, // snake_case
+                finalNewIdentifier: newTrackIdentifier,
+                finalOldIdentifier: oldTrackIdentifier
+            });
+            if (newData) { 
+                updateWidgetUI(newData);
+            }
+            return;
+        }
 
-        // Çıkış (Exit) Aşaması
-        const exitAnimations = [];
-        for (const item of elementsForTransition) {
-            if (item.el) {
-                const animConfig = getAnimationConfig(item.el, 'exit'); // 'exit' şarkı geçişi çıkış fazı için
-                if (animConfig) {
-                    WidgetCore.log(`ModernWidget: Şarkı geçişi (çıkış) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
-                    exitAnimations.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
+        WidgetCore.log(`ModernWidget: Gerçek şarkı değişimi algılandı. Yeni: ${newTrackIdentifier}, Eski: ${oldTrackIdentifier}`, 'info');
+        WidgetCore.log("ModernWidget: Şarkı geçiş animasyonları (klonlama ile) başlatılıyor...", 'info');
+
+        const outgoingElementsClones = [];
+        const entryAnimationPromises = [];
+        const exitAnimationPromises = [];
+
+        for (const item of ELEMENTS_FOR_SONG_TRANSITION) {
+            if (item.el && item.el.parentNode) {
+                const clone = item.el.cloneNode(true);
+                item.el.parentNode.insertBefore(clone, item.el); 
+                
+                clone.style.position = 'absolute'; 
+                clone.style.top = item.el.offsetTop + 'px'; 
+                clone.style.left = item.el.offsetLeft + 'px';
+                clone.style.width = item.el.offsetWidth + 'px';
+                clone.style.height = item.el.offsetHeight + 'px';
+                clone.style.zIndex = '1'; 
+                
+                outgoingElementsClones.push({ original: item.el, clone: clone, name: item.name });
+                
+                item.el.style.opacity = '0'; 
+            } else if (item.el) {
+                WidgetCore.log(`ModernWidget: Klonlama atlandı, element (${item.name}) veya ebeveyni bulunamadı.`, 'warn', {element: item.el});
+            }
+        }
+
+        // Exit animations for clones (OLD data)
+        for (const entry of outgoingElementsClones) {
+            const animConfig = getAnimationConfig(entry.clone, 'exit');
+            if (animConfig) {
+                WidgetCore.log(`ModernWidget: Klon (çıkış) [${animConfig.animType}] -> ${entry.name}`, 'info', animConfig.options);
+                exitAnimationPromises.push(
+                    WidgetCore.triggerAnimation(entry.clone, animConfig.animType, animConfig.options)
+                        .then(() => {
+                            if (entry.clone.parentNode) entry.clone.remove();
+                            WidgetCore.log(`ModernWidget: Klon (çıkış) ${entry.name} kaldırıldı.`, 'debug');
+                        })
+                        .catch(err => {
+                            WidgetCore.log(`ModernWidget: Klon (çıkış) ${entry.name} animasyon/kaldırma hatası.`, 'error', err);
+                            if (entry.clone.parentNode) entry.clone.remove(); 
+                        })
+                );
+            } else { 
+                if (entry.clone.parentNode) entry.clone.remove();
+                WidgetCore.log(`ModernWidget: Klon (çıkış) ${entry.name} animasyonsuz kaldırıldı.`, 'debug');
+            }
+        }
+
+        // updateWidgetUI(newData); // MOVED: Called after clone exit animations complete.
+
+        // Entry animations for original elements (NEW data)
+        for (const entry of outgoingElementsClones) {
+            if (!entry.original) continue;
+            const animConfig = getAnimationConfig(entry.original, 'entry');
+            if (animConfig) {
+                WidgetCore.log(`ModernWidget: Orijinal (giriş) [${animConfig.animType}] -> ${entry.name}`, 'info', animConfig.options);
+                entry.original.style.removeProperty('opacity'); 
+                entryAnimationPromises.push(WidgetCore.triggerAnimation(entry.original, animConfig.animType, animConfig.options));
+            } else { 
+                 entry.original.style.opacity = '1'; 
+            }
+        }
+
+        Promise.allSettled(exitAnimationPromises)
+            .then(() => {
+                WidgetCore.log("ModernWidget: Clone exit animations complete. Updating UI for new song.", 'info');
+                updateWidgetUI(newData); // Update original UI elements with NEW data NOW.
+
+                // Now, prepare and start entry animations for the original elements.
+                const entryAnimationPromises = []; // Initialize a new array for entry promises.
+                for (const entry of outgoingElementsClones) {
+                    if (!entry.original) continue;
+                    const animConfig = getAnimationConfig(entry.original, 'entry');
+                    if (animConfig) {
+                        WidgetCore.log(`ModernWidget: Orijinal (giriş) [${animConfig.animType}] -> ${entry.name}`, 'info', animConfig.options);
+                        entry.original.style.removeProperty('opacity'); 
+                        entryAnimationPromises.push(WidgetCore.triggerAnimation(entry.original, animConfig.animType, animConfig.options));
+                    } else { 
+                        entry.original.style.opacity = '1'; // No animation, just make it visible.
+                    }
                 }
-            }
-        }
 
-        if (exitAnimations.length > 0) {
-            try {
-                await Promise.all(exitAnimations);
-                WidgetCore.log('ModernWidget: Geçiş animasyonu - Çıkış aşaması tamamlandı.', 'info');
-            } catch (error) {
-                WidgetCore.log('ModernWidget: Geçiş animasyonu (çıkış) sırasında hata.', 'error', error);
-            }
-        } else {
-            WidgetCore.log('ModernWidget: Tetiklenecek çıkış (geçiş) animasyonu bulunamadı.', 'info');
-        }
+                if (entryAnimationPromises.length > 0) {
+                    return Promise.allSettled(entryAnimationPromises); // Chain this promise for entry animations.
+                }
+                return Promise.resolve([]); // Resolve with an empty array if no entry animations.
+            })
+            .then((entryResults) => { 
+                if (entryResults && entryResults.length > 0) { 
+                    WidgetCore.log("ModernWidget: Original element entry animations complete.", 'info');
+                }
+                // Optional: Cleanup for original elements after entry, if needed.
+                // for (const item of outgoingElementsClones) {
+                //     if(item.original) {
+                //         // item.original.style.removeProperty('position'); 
+                //         // item.original.style.removeProperty('z-index');
+                //     }
+                // }
+                WidgetCore.log("ModernWidget: Full song transition sequence finished.", 'info');
+            })
+            .catch(error => { 
+                WidgetCore.log("ModernWidget: Error during song transition animation sequence.", 'error', error);
+                // Fallback: Ensure UI is updated even if animations fail.
+                updateWidgetUI(newData); 
+                for (const entry of outgoingElementsClones) {
+                    if (entry.original) entry.original.style.opacity = '1'; // Make sure new content is visible.
+                }
+            });
+    }
 
+    async function handleDataUpdate(newData) {
+        // WidgetCore.log('ModernWidget: Veri güncellemesi alındı (handleDataUpdate).', 'debug', newData);
         updateWidgetUI(newData); 
-        WidgetCore.log('ModernWidget: UI, yeni şarkı verisiyle güncellendi (geçiş ortası).', 'info');
-
-        // Giriş (Entry) Aşaması
-        const entryAnimations = [];
-        for (const item of elementsForTransition) {
-            if (item.el) {
-                const animConfig = getAnimationConfig(item.el, 'entry'); // 'entry' şarkı geçişi giriş fazı için
-                if (animConfig) {
-                    WidgetCore.log(`ModernWidget: Şarkı geçişi (giriş) [${animConfig.animType}] -> ${item.name}`, 'info', animConfig.options);
-                    entryAnimations.push(WidgetCore.triggerAnimation(item.el, animConfig.animType, animConfig.options));
-                }
-            }
-        }
-
-        if (entryAnimations.length > 0) {
-            try {
-                await Promise.all(entryAnimations);
-                WidgetCore.log('ModernWidget: Geçiş animasyonu - Giriş aşaması tamamlandı.', 'info');
-            } catch (error) {
-                WidgetCore.log('ModernWidget: Geçiş animasyonu (giriş) sırasında hata.', 'error', error);
-            }
-        } else {
-            WidgetCore.log('ModernWidget: Tetiklenecek giriş (geçiş) animasyonu bulunamadı.', 'info');
-        }
     }
 
-    /**
-     * Core'dan her yeni veri geldiğinde (şarkı aynı olsa bile) tetiklenir.
-     * İlerleme çubuğu gibi anlık durumları güncellemek için kullanılır.
-     */
-    function handleDataUpdate(newData) {
-        updateWidgetUI(newData);
+    async function handleError(errorData) { 
+        WidgetCore.log('ModernWidget: Hata alındı (handleError).', 'error', errorData);
+        updateWidgetUI(null, errorData.message || errorData.error || 'Bilinmeyen bir hata oluştu.');
     }
 
-    /**
-     * Core bir hata bildirdiğinde tetiklenir.
-     */
-    function handleError(error) {
-        WidgetCore.log('ModernWidget: Core\'dan hata raporu alındı.', 'error', error);
-        updateWidgetUI(null, error.error || 'Bilinmeyen bir hata oluştu.');
-    }
-
-    // WidgetCore'dan gelen olaylara tepki vermek için event listener'lar
+    // WidgetCore'dan gelen olaylara tepki vermek için event listener'lar (şimdi fonksiyon tanımlarından sonra)
     spotifyWidgetElement.addEventListener('coreSongChange', (event) => {
         handleSongChange(event.detail.newData, event.detail.oldData);
     });
