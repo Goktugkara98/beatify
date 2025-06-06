@@ -1,0 +1,208 @@
+/* ==========================================================================
+   MODERN WIDGET ANIMATIONS
+   Version: 2.0 - Reorganized by Category
+   ========================================================================== */
+
+/* Keyframes
+   ==========================================================================
+   Naming convention: kf-[category]-[name]
+   Categories: intro, outro, transition, util
+   -------------------------------------------------------------------------- */
+
+/* Keyframes: Utility (Genel Amaçlı) */
+@keyframes kf-util-fadeIn { /* Eskiden: elementFadeIn */
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes kf-util-fadeOut { /* Eskiden: elementFadeOut */
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes kf-util-backgroundFadeIn { /* Eskiden: backgroundFadeIn */
+    0% { opacity: 0; }
+    100% { opacity: 0.7; } /* Hedef opaklık */
+}
+@keyframes kf-util-backgroundFadeOut { /* Eskiden: backgroundFadeOut */
+    0% { opacity: 0.7; } /* Mevcut opaklık */
+    100% { opacity: 0; }
+}
+@keyframes kf-util-pulsePlayingIndicator { /* Eskiden: pulsePlayingIndicatorModern */
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(29, 185, 84, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(29, 185, 84, 0); }
+}
+
+/* Keyframes: Intro (Widget İlk Yüklenme) */
+@keyframes kf-intro-widgetFadeInUp { /* Eskiden: modernFadeInAnimation */
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Keyframes: Outro (Widget Kapanış) */
+@keyframes kf-outro-widgetFadeOut { /* Eskiden: modernFadeOutAnimation */
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Keyframes: Transition (İçerik Değişimi) */
+@keyframes kf-transition-contentSubtleSlideInFromLeft { /* Eskiden: modernContentSlideAnimation */
+    0% { opacity: 0.5; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Keyframes: Transition - Generic Element Sliding */
+@keyframes kf-transition-slideInFromLeft { /* Eskiden: slideInFromLeftKf */
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes kf-transition-slideInFromRight { /* Eskiden: slideInFromRight */
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0%); opacity: 1; }
+}
+@keyframes kf-transition-slideOutToLeft { /* Eskiden: slideOutLeft */
+    0% { transform: translateX(0%); opacity: 1; }
+    100% { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes kf-transition-slideOutToRight { /* Eskiden: slideOutRightKf */
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Keyframes: Transition - Text Element Sliding */
+@keyframes kf-transition-text-slideInFromLeft { /* Eskiden: textSlideInFromLeftKf */
+    from { transform: translateX(-100%) translateY(-50%); opacity: 0; }
+    to { transform: translateX(0) translateY(-50%); opacity: 1; }
+}
+@keyframes kf-transition-text-slideInFromRight { /* Eskiden: textSlideInFromRight */
+    0% { transform: translateX(60%); opacity: 0; }
+    100% { transform: translateX(0%); opacity: 1; }
+}
+@keyframes kf-transition-text-slideOutToLeft { /* Eskiden: textSlideOutLeft */
+    0% { transform: translateX(0%); opacity: 1; }
+    100% { transform: translateX(-60%); opacity: 0; }
+}
+@keyframes kf-transition-text-slideOutToRight { /* Eskiden: textSlideOutRightKf */
+    from { transform: translateX(0) translateY(-50%); opacity: 1; }
+    to { transform: translateX(100%) translateY(-50%); opacity: 0; }
+}
+
+/* Keyframes: Transition - Logo Element Sliding */
+@keyframes kf-transition-logo-slideInFromLeft { /* Eskiden: logoSlideInFromLeftKf */
+    from { transform: translateX(calc(-50% - 100%)) translateY(0); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes kf-transition-logo-slideInFromRight-scale { /* Eskiden: logoSlideInFromRight */
+    0% { transform: translateX(150%) scale(0.8); opacity: 0; }
+    100% { transform: translateX(0%) scale(1); opacity: 1; }
+}
+@keyframes kf-transition-logo-slideOutToLeft-scale { /* Eskiden: logoSlideOutLeft */
+    0% { transform: translateX(0%) scale(1); opacity: 1; }
+    100% { transform: translateX(-150%) scale(0.8); opacity: 0; }
+}
+@keyframes kf-transition-logo-slideOutToRight { /* Eskiden: logoSlideOutRightKf */
+    from { transform: translateX(-50%) translateY(0); opacity: 1; }
+    to { transform: translateX(calc(-50% + 100%)) translateY(0); opacity: 0; }
+}
+
+/* ==========================================================================
+   Animation Classes
+   Naming convention: anim-[category]-[element/purpose]-[action]
+   ========================================================================== */
+
+/* 1. INTRO ANIMATIONS
+   -------------------------------------------------------------------------- */
+.anim-intro-widgetFadeInUp { /* Eskiden: .modern-fade-in (HTML data-intro-animation-class için) */
+    animation: kf-intro-widgetFadeInUp 0.8s ease-out forwards;
+}
+
+/* 2. OUTRO ANIMATIONS
+   -------------------------------------------------------------------------- */
+.anim-outro-widgetFadeOut { /* Eskiden: .modern-fade-out (HTML data-outro-animation-class için) */
+    animation: kf-outro-widgetFadeOut 0.5s ease-in forwards;
+}
+
+/* 3. TRANSITION ANIMATIONS
+   --------------------------------------------------------------------------
+   Bu sınıflar, JavaScript tarafından `data-transition-animation-class`
+   gibi kavramsal isimlere göre elementlere uygulanır.
+   -------------------------------------------------------------------------- */
+
+/* 3.1. Genel İçerik Geçişi (Hafif Kayma) */
+.anim-transition-content-subtleSlideInFromLeft { /* Eskiden: .modern-content-slide */
+    animation: kf-transition-contentSubtleSlideInFromLeft 0.6s ease-out forwards;
+}
+
+/* 3.2. Kategori: SlideInFromLeft (Yeni içerik soldan sağa kayarak gelir) */
+/*    Alt Kategori: SlideOutToLeft (Eski içerik de soldan çıkarak bu geçişi tamamlar) */
+
+.anim-transition-album-slideInFromLeft { /* Eskiden: .album-art-slide-in-from-left */
+    animation: kf-transition-slideInFromLeft 0.6s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+.anim-transition-text-slideInFromLeft { /* Eskiden: .text-slide-in-from-left */
+    animation: kf-transition-text-slideInFromLeft 0.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+.anim-transition-logo-slideInFromLeft { /* Eskiden: .logo-slide-in-from-left */
+    animation: kf-transition-logo-slideInFromLeft 0.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+/* 3.3. Kategori: SlideInFromRight (Yeni içerik sağdan sola kayarak gelir) */
+/*    Alt Kategori: SlideOutToRight (Eski içerik de sağdan çıkarak bu geçişi tamamlar) */
+/*    HTML'deki `slideOutRightInFromRight` bu kategoriye işaret eder. */
+
+.anim-transition-album-slideInFromRight { /* Eskiden: .album-art-slide-in */
+    animation: kf-transition-slideInFromRight 0.6s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+.anim-transition-text-slideInFromRight { /* Eskiden: .text-slide-in-from-right */
+    animation: kf-transition-text-slideInFromRight 0.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+.anim-transition-logo-slideInFromRight-scale { /* Eskiden: .logo-slide-in-from-right */
+    animation: kf-transition-logo-slideInFromRight-scale 0.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+/* 3.4. Kategori: SlideOutToLeft (Eski içerik soldan çıkar) */
+/*    Bu, "SlideInFromRight" geçişinin bir parçası olabilir veya tek başına kullanılabilir. */
+
+.anim-transition-album-slideOutToLeft { /* Eskiden: .album-art-slide-out */
+    animation: kf-transition-slideOutToLeft 0.6s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.anim-transition-text-slideOutToLeft { /* Eskiden: .text-slide-out-left */
+    animation: kf-transition-text-slideOutToLeft 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.anim-transition-logo-slideOutToLeft-scale { /* Eskiden: .logo-slide-out-left */
+    animation: kf-transition-logo-slideOutToLeft-scale 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+/* 3.5. Kategori: SlideOutToRight (Eski içerik sağdan çıkar) */
+/*    Bu, "SlideInFromLeft" geçişinin bir parçası olabilir veya tek başına kullanılabilir. */
+/*    HTML'deki `slideOutRightInFromRight` bu kategoriye işaret eder. */
+
+.anim-transition-album-slideOutToRight { /* Eskiden: .album-art-slide-out-right */
+    animation: kf-transition-slideOutToRight 0.6s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.anim-transition-text-slideOutToRight { /* Eskiden: .text-slide-out-right */
+    animation: kf-transition-text-slideOutToRight 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.anim-transition-logo-slideOutToRight { /* Eskiden: .logo-slide-out-right */
+    animation: kf-transition-logo-slideOutToRight 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+/* 3.6. Kategori: Fade Transitions (Solma ile Geçişler) */
+.anim-transition-backgroundFadeIn { /* Eskiden: .album-art-bg-fade-in */
+    animation: kf-util-backgroundFadeIn 0.6s ease-in-out forwards;
+}
+.anim-transition-backgroundFadeOut { /* Eskiden: .album-art-bg-fade-out */
+    animation: kf-util-backgroundFadeOut 0.6s ease-in-out forwards;
+}
+.anim-transition-elementFadeIn { /* Eskiden: .element-fade-in, .element-fade-in-quick */
+    animation: kf-util-fadeIn 0.3s ease-out forwards;
+}
+.anim-transition-elementFadeOut { /* Eskiden: .element-fade-out, .element-fade-out-quick */
+    animation: kf-util-fadeOut 0.3s ease-in forwards;
+}
+
+/* 4. UTILITY ANIMATIONS (Genel Amaçlı / Geri Bildirim)
+   -------------------------------------------------------------------------- */
+.anim-util-pulsePlayingIndicator { /* Eğer .playing::after gibi bir yerde kullanılıyorsa */
+    animation: kf-util-pulsePlayingIndicator 1.5s infinite ease-in-out;
+    /* Bu sınıfın kullanımı JS'e veya doğrudan bir elemente bağlı olacaktır. */
+}

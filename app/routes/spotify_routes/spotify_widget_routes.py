@@ -247,7 +247,7 @@ def spotify_widget(widget_token: str) -> Any:
         if style == 'standard':
             template_name = "spotify/widgets/widget_standard.html"
         elif style == 'modern':
-            template_name = "spotify/widgets/widget_modern.html"
+            template_name = "spotify/widgets/widget_modern/widget_modern.html"
         elif style == 'legacy_modular':
             # Orijinal widget tasarımının modüler versiyonu
             template_name = "spotify/widgets/widget_legacy_modular.html"

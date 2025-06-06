@@ -9,15 +9,18 @@
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
 
     <!-- Widget'a Özel CSS Dosyası -->
-    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern.css">
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern.css">
+
+    <!-- Widget Animasyonları CSS Dosyası -->
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern_animations.css">
 
 </head>
 <body>
     <!-- Ana Widget Konteyneri -->
     <div id="spotifyWidgetModern" class="widget-container modern-widget"
-         data-intro-animation-class="modern-fade-in"
+         data-intro-animation-class="anim-intro-widgetFadeInUp"
          data-transition-animation-class="slideOutRightInFromRight"
-         data-outro-animation-class="modern-fade-out">
+         data-outro-animation-class="anim-outro-widgetFadeOut">
 
         <!-- Arka Plan Albüm Sanatı (Bulanık) - Standard widget ile tutarlılık için eklendi -->
         <img id="albumArtBackground" class="widget-album-art-background" src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı">
@@ -79,6 +82,6 @@
     <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>
 
     <!-- Widget'a Özel JavaScript Dosyası -->
-    <script src="/static/js/spotify/widget-manager/widgets/widget_modern.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/widget_modern.js"></script>
 </body>
 </html>

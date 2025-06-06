@@ -209,47 +209,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const TRANSITION_SETS = {
         slideOutLeftInFromRight: {
-            albumArtOut: 'album-art-slide-out',           albumArtIn: 'album-art-slide-in',
-            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in',
-            trackNameOut: 'text-slide-out-left',          trackNameIn: 'text-slide-in-from-right',
-            artistNameOut: 'text-slide-out-left',         artistNameIn: 'text-slide-in-from-right',
-            spotifyLogoOut: 'logo-slide-out-left',        spotifyLogoIn: 'logo-slide-in-from-right',
-            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
-            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
-            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+            albumArtOut:   'anim-transition-albumArt-slideOutLeft',      albumArtIn:   'anim-transition-albumArt-slideInFromRight',
+            albumArtBgOut: 'anim-transition-albumArtBg-fadeOut',         albumArtBgIn: 'anim-transition-albumArtBg-fadeIn',
+            trackNameOut:  'anim-transition-text-slideOutLeft',          trackNameIn:  'anim-transition-text-slideInFromRight',
+            artistNameOut: 'anim-transition-text-slideOutLeft',          artistNameIn: 'anim-transition-text-slideInFromRight',
+            spotifyLogoOut:'anim-transition-logo-slideOutLeftScale',     spotifyLogoIn:'anim-transition-logo-slideInFromRightScale',
+            progressBarOut:'anim-transition-element-fadeOut',            progressBarIn:'anim-transition-element-fadeIn',
+            currentTimeOut:'anim-transition-element-fadeOut',            currentTimeIn:'anim-transition-element-fadeIn',
+            totalTimeOut:  'anim-transition-element-fadeOut',            totalTimeIn:  'anim-transition-element-fadeIn'
         },
         slideOutRightInFromLeft: {
-            albumArtOut: 'album-art-slide-out-right',     albumArtIn: 'album-art-slide-in-from-left',
-            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in', // Background fade is direction-agnostic
-            trackNameOut: 'text-slide-out-right',         trackNameIn: 'text-slide-in-from-left',
-            artistNameOut: 'text-slide-out-right',        artistNameIn: 'text-slide-in-from-left',
-            spotifyLogoOut: 'logo-slide-out-right',       spotifyLogoIn: 'logo-slide-in-from-left',
-            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
-            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
-            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+            albumArtOut:   'anim-transition-albumArt-slideOutRight',     albumArtIn:   'anim-transition-albumArt-slideInFromLeft',
+            albumArtBgOut: 'anim-transition-albumArtBg-fadeOut',         albumArtBgIn: 'anim-transition-albumArtBg-fadeIn',
+            trackNameOut:  'anim-transition-text-slideOutRight',         trackNameIn:  'anim-transition-text-slideInFromLeft',
+            artistNameOut: 'anim-transition-text-slideOutRight',         artistNameIn: 'anim-transition-text-slideInFromLeft',
+            spotifyLogoOut:'anim-transition-logo-slideOutRightScale',    spotifyLogoIn:'anim-transition-logo-slideInFromLeftScale',
+            progressBarOut:'anim-transition-element-fadeOut',            progressBarIn:'anim-transition-element-fadeIn',
+            currentTimeOut:'anim-transition-element-fadeOut',            currentTimeIn:'anim-transition-element-fadeIn',
+            totalTimeOut:  'anim-transition-element-fadeOut',            totalTimeIn:  'anim-transition-element-fadeIn'
         },
-        "modern-content-slide": {
-            albumArtOut: 'album-art-slide-out',           albumArtIn: 'album-art-slide-in',
-            albumArtBgOut: 'album-art-bg-fade-out',       albumArtBgIn: 'album-art-bg-fade-in',
-            trackNameOut: 'text-slide-out-left',          trackNameIn: 'text-slide-in-from-right',
-            artistNameOut: 'text-slide-out-left',         artistNameIn: 'text-slide-in-from-right',
-            spotifyLogoOut: 'logo-slide-out-left',        spotifyLogoIn: 'logo-slide-in-from-right',
-            progressBarOut: 'element-fade-out',           progressBarIn: 'element-fade-in',
-            currentTimeOut: 'element-fade-out',           currentTimeIn: 'element-fade-in',
-            totalTimeOut: 'element-fade-out',             totalTimeIn: 'element-fade-in'
+        slideOutRightInFromRight: { // Added to match HTML data attribute
+            albumArtOut:   'anim-transition-albumArt-slideOutRight',     albumArtIn:   'anim-transition-albumArt-slideInFromRight',
+            albumArtBgOut: 'anim-transition-albumArtBg-fadeOut',         albumArtBgIn: 'anim-transition-albumArtBg-fadeIn',
+            trackNameOut:  'anim-transition-text-slideOutRight',         trackNameIn:  'anim-transition-text-slideInFromRight',
+            artistNameOut: 'anim-transition-text-slideOutRight',         artistNameIn: 'anim-transition-text-slideInFromRight',
+            spotifyLogoOut:'anim-transition-logo-slideOutRightScale',    spotifyLogoIn:'anim-transition-logo-slideInFromRightScale',
+            progressBarOut:'anim-transition-element-fadeOut',            progressBarIn:'anim-transition-element-fadeIn',
+            currentTimeOut:'anim-transition-element-fadeOut',            currentTimeIn:'anim-transition-element-fadeIn',
+            totalTimeOut:  'anim-transition-element-fadeOut',            totalTimeIn:  'anim-transition-element-fadeIn'
+        },
+        "modern-content-slide": { // Updated alias for slideOutLeftInFromRight
+            albumArtOut:   'anim-transition-albumArt-slideOutLeft',      albumArtIn:   'anim-transition-albumArt-slideInFromRight',
+            albumArtBgOut: 'anim-transition-albumArtBg-fadeOut',         albumArtBgIn: 'anim-transition-albumArtBg-fadeIn',
+            trackNameOut:  'anim-transition-text-slideOutLeft',          trackNameIn:  'anim-transition-text-slideInFromRight',
+            artistNameOut: 'anim-transition-text-slideOutLeft',          artistNameIn: 'anim-transition-text-slideInFromRight',
+            spotifyLogoOut:'anim-transition-logo-slideOutLeftScale',     spotifyLogoIn:'anim-transition-logo-slideInFromRightScale',
+            progressBarOut:'anim-transition-element-fadeOut',            progressBarIn:'anim-transition-element-fadeIn',
+            currentTimeOut:'anim-transition-element-fadeOut',            currentTimeIn:'anim-transition-element-fadeIn',
+            totalTimeOut:  'anim-transition-element-fadeOut',            totalTimeIn:  'anim-transition-element-fadeIn'
         }
         // Add other animation sets here, e.g., for 'threeDCardFlip'
     };
 
     const ANIMATION_DEFS = {
-        albumArt:    { getOutClass: () => activeTransitionSet.albumArtOut,   getInClass: () => activeTransitionSet.albumArtIn,     duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-slide-out', 'album-art-slide-in', 'album-art-slide-out-right', 'album-art-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
-        albumArtBg:  { getOutClass: () => activeTransitionSet.albumArtBgOut, getInClass: () => activeTransitionSet.albumArtBgIn,   duration: 600, delay: 0,   element: null, classesToRemove: ['album-art-bg-fade-out', 'album-art-bg-fade-in', 'element-fade-out', 'element-fade-in'] },
-        trackName:   { getOutClass: () => activeTransitionSet.trackNameOut,  getInClass: () => activeTransitionSet.trackNameIn,    duration: 500, delay: 50,  element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'text-slide-out-right', 'text-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
-        artistName:  { getOutClass: () => activeTransitionSet.artistNameOut, getInClass: () => activeTransitionSet.artistNameIn,   duration: 500, delay: 150, element: null, classesToRemove: ['text-slide-out-left', 'text-slide-in-from-right', 'text-slide-out-right', 'text-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
-        spotifyLogo: { getOutClass: () => activeTransitionSet.spotifyLogoOut,getInClass: () => activeTransitionSet.spotifyLogoIn,  duration: 500, delay: 200, element: null, classesToRemove: ['logo-slide-out-left', 'logo-slide-in-from-right', 'logo-slide-out-right', 'logo-slide-in-from-left', 'element-fade-out', 'element-fade-in'] },
-        progressBar: { getOutClass: () => activeTransitionSet.progressBarOut,getInClass: () => activeTransitionSet.progressBarIn,  duration: 300, delay: 250, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
-        currentTime: { getOutClass: () => activeTransitionSet.currentTimeOut,getInClass: () => activeTransitionSet.currentTimeIn,  duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] },
-        totalTime:   { getOutClass: () => activeTransitionSet.totalTimeOut,  getInClass: () => activeTransitionSet.totalTimeIn,    duration: 300, delay: 300, element: null, classesToRemove: ['element-fade-out', 'element-fade-in'] }
+        albumArt:    { getOutClass: () => activeTransitionSet.albumArtOut,   getInClass: () => activeTransitionSet.albumArtIn,     duration: 600, delay: 0,   element: null, classesToRemove: ['anim-transition-albumArt-slideOutLeft', 'anim-transition-albumArt-slideInFromRight', 'anim-transition-albumArt-slideOutRight', 'anim-transition-albumArt-slideInFromLeft'] },
+        albumArtBg:  { getOutClass: () => activeTransitionSet.albumArtBgOut, getInClass: () => activeTransitionSet.albumArtBgIn,   duration: 600, delay: 0,   element: null, classesToRemove: ['anim-transition-albumArtBg-fadeOut', 'anim-transition-albumArtBg-fadeIn'] },
+        trackName:   { getOutClass: () => activeTransitionSet.trackNameOut,  getInClass: () => activeTransitionSet.trackNameIn,    duration: 500, delay: 50,  element: null, classesToRemove: ['anim-transition-text-slideOutLeft', 'anim-transition-text-slideInFromRight', 'anim-transition-text-slideOutRight', 'anim-transition-text-slideInFromLeft'] },
+        artistName:  { getOutClass: () => activeTransitionSet.artistNameOut, getInClass: () => activeTransitionSet.artistNameIn,   duration: 500, delay: 150, element: null, classesToRemove: ['anim-transition-text-slideOutLeft', 'anim-transition-text-slideInFromRight', 'anim-transition-text-slideOutRight', 'anim-transition-text-slideInFromLeft'] },
+        spotifyLogo: { getOutClass: () => activeTransitionSet.spotifyLogoOut,getInClass: () => activeTransitionSet.spotifyLogoIn,  duration: 500, delay: 200, element: null, classesToRemove: ['anim-transition-logo-slideOutLeftScale', 'anim-transition-logo-slideInFromRightScale', 'anim-transition-logo-slideOutRightScale', 'anim-transition-logo-slideInFromLeftScale'] },
+        progressBar: { getOutClass: () => activeTransitionSet.progressBarOut,getInClass: () => activeTransitionSet.progressBarIn,  duration: 300, delay: 250, element: null, classesToRemove: ['anim-transition-element-fadeOut', 'anim-transition-element-fadeIn'] },
+        currentTime: { getOutClass: () => activeTransitionSet.currentTimeOut,getInClass: () => activeTransitionSet.currentTimeIn,  duration: 300, delay: 300, element: null, classesToRemove: ['anim-transition-element-fadeOut', 'anim-transition-element-fadeIn'] },
+        totalTime:   { getOutClass: () => activeTransitionSet.totalTimeOut,  getInClass: () => activeTransitionSet.totalTimeIn,    duration: 300, delay: 300, element: null, classesToRemove: ['anim-transition-element-fadeOut', 'anim-transition-element-fadeIn'] }
     };
 
     /**
