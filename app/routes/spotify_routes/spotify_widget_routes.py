@@ -291,25 +291,32 @@ def spotify_widget(widget_token: str) -> Any:
 # -----------------------------------------------------------------------------
 @spotify_widget_bp.route('/api/widget-data/<string:widget_token>', methods=['GET'])
 def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
-    MOCK_DATA = {
-        "is_playing": True,
-        "track_name": "Harika Mock Şarkı",
-        "artist_name": "Sahte Sanatçılar Topluluğu",
-        "album_name": "Mock Albümü Vol. 1",
-        "album_art_url": "https://i.scdn.co/image/ab67616d0000b2731b595731cd14ba6ba821ab0e",
-        "progress_ms": 60000,  # 1 dakika
-        "duration_ms": 240000, # 4 dakika
-        "device_name": "Beatify Mock Player",
-        "device_volume": 75,
-        "error": None,
-        "status_code": 200,
-        "track_id": "mockTrackID12345",
-        "context_uri": "spotify:album:mockAlbumURI123",
-        "track_url": "#mockTrackUrl",
-        "artist_url": "#mockArtistUrl",
-        "album_url": "#https://i.scdn.co/image/ab67616d0000b2731b595731cd14ba6ba821ab0e",
-        "source": "Mock Data Source"
-    }
+    MOCK_SONGS_LIST = [
+        {
+            "is_playing": True,
+            "track_name": "Mock Data 1",
+            "artist_name": "Mock Artist 1",
+            "album_image_url": "/static/img/mockimg.jfif",
+            "progress_ms": 15000, # 15 saniye
+            "duration_ms": 60000, # 1 dakika
+            "track_url": "https://open.spotify.com/track/mockTrackID1",
+            "artist_url": "https://open.spotify.com/artist/mockArtistID1",
+            "album_url": "https://open.spotify.com/album/mockAlbumID1",
+            "source": "Mock Data Source (Song 1)"
+        },
+        {
+            "is_playing": True,
+            "track_name": "Mock Data 2",
+            "artist_name": "Mock Artist 2",
+            "album_image_url": "/static/img/mockimg2.jfif",
+            "progress_ms": 30000, # 30 saniye
+            "duration_ms": 60000, # 1 dakika
+            "track_url": "https://open.spotify.com/track/mockTrackID2",
+            "artist_url": "https://open.spotify.com/artist/mockArtistID2",
+            "album_url": "https://open.spotify.com/album/mockAlbumID2",
+            "source": "Mock Data Source (Song 2)"
+        }
+    ]
     """
     Belirtilen `widget_token` ile ilişkili Spotify widget'ı için
     gerekli verileri (örn: şu an çalan parça bilgisi) JSON formatında sağlar.
@@ -322,12 +329,19 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         Tuple[Dict[str, Any], int]: JSON formatında widget verisi ve HTTP durum kodu.
     """
     try:
-        # print(f"Widget veri isteği alındı: {widget_token}") # Debug log
+        # print(f"Widget veri isteği alındı: {widget_token}, Args: {request.args}") # Debug log
         
         # Mock modu kontrolü - URL'de ?use_mock=true parametresi varsa sahte veri döndür
         if request.args.get('use_mock', '').lower() == 'true':
-            # print(f"Mock veri isteği alındı: {widget_token}") # Debug log
-            return jsonify(MOCK_DATA), 200
+            mock_song_index_str = request.args.get('mock_song_index', '0')
+            try:
+                mock_song_index = int(mock_song_index_str)
+            except ValueError:
+                mock_song_index = 0 # Hatalı değer gelirse varsayılana dön
+            
+            selected_song = MOCK_SONGS_LIST[mock_song_index % len(MOCK_SONGS_LIST)]
+            # print(f"Mock veri isteği alındı: {widget_token}, Index: {mock_song_index}, Song: {selected_song['track_name']}") # Debug log
+            return jsonify(selected_song), 200
         
         # Token doğrulamayı atlayarak doğrudan kullanıcı adını al
         # Bu basitleştirilmiş bir yaklaşımdır, gerçek uygulamada daha güçlü doğrulama yapılmalıdır

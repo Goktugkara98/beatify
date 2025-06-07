@@ -17,12 +17,12 @@
 </head>
 <body>
     <!-- Ana Widget Konteyneri -->
-    <div id="spotifyWidgetModern" class="widget-container modern-widget"
+    <div id="spotifyWidgetModern" class="widget-container modern-widget widget-inactive"
          data-token="j5Bp8lwM6iad"
          data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
 
         <!-- Arka Plan Albüm Sanatı (Bulanık) - Standard widget ile tutarlılık için eklendi -->
-        <div class="background-container">
+        <div class="background-container passive">
             <img id="albumArtBackground_a" class="widget-album-art-background" data-set="a"
                  src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı A"
                  data-intro-animation="fade-in"
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Gradyan Overlay (Genel) - Standard widget ile tutarlılık için eklendi -->
-        <div class="widget-gradient-overlay passive"></div>
+        <div class="widget-gradient-overlay"></div>
 
         <!-- Albüm Kapağı (Üst Kısım) -->
         <div class="cover-container passive">
@@ -88,7 +88,7 @@
         </div>
 
         <!-- İçerik Alanı -->
-        <div id="widgetContent" class="widget-content-area passive">
+        <div id="widgetContent" class="widget-content-area">
             <!-- Şarkı Bilgileri -->
             <div class="widget-track-info">
                 <div class="track-name-container">
@@ -150,7 +150,8 @@
             </div>
 
             <!-- Progress Bar Alanı -->
-            <div class="widget-player-controls" data-set="a"
+            <div class="widget-player-controls-container passive">
+                <div class="widget-player-controls" data-set="a"
                  data-intro-animation="none"
                  data-intro-duration="500"
                  data-intro-delay="400"
@@ -196,10 +197,12 @@
                     </div>
                 </div>
             </div>
+            </div> <!-- .widget-player-controls-container sonu -->
         </div>
 
         <!-- Spotify Logosu -->
-        <div class="widget-spotify-logo passive" data-set="a"
+        <div class="widget-spotify-logo-container passive">
+            <div class="widget-spotify-logo" data-set="a"
              data-intro-animation="slide-in-right"
              data-intro-duration="600"
              data-intro-delay="100"
@@ -239,6 +242,7 @@
                 <span class="spotify-text">Spotify</span>
             </div>
         </div>
+        </div> <!-- .widget-spotify-logo-container sonu -->
 
         <!-- Hata Mesajı Alanı -->
         <div id="errorMessage" class="core-error-message">
@@ -246,10 +250,23 @@
         </div>
     </div>
 
+    <!-- Mock Kontrol Butonu (Widget Dışında) -->
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
+        <button id="changeMockSongBtn" style="padding: 8px 12px; font-size: 12px; background-color: #1DB954; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Change Mock Song</button>
+    </div>
+
     <script>
         // WIDGET_TOKEN ve DATA_ENDPOINT_TEMPLATE global scope'a tanımlanır.
-        window.WIDGET_TOKEN_FROM_HTML = "j5Bp8lwM6iad"; // GERÇEK TOKEN İLE DEĞİŞTİRİN
-        window.DATA_ENDPOINT_TEMPLATE = '/spotify/api/widget-data/{TOKEN}?use_mock=true'; // API ENDPOINTİNİZ (MOCK AKTİF)
+        window.WIDGET_TOKEN_FROM_HTML = "{{ config.widgetToken }}"; 
+        // DATA_ENDPOINT_TEMPLATE, widget_data route'unda /spotify/api/widget-data/<widget_token> olarak tanımlı.
+        // config.dataEndpoint zaten use_mock=test_mode içeriyor, ancak burada mock_song_index eklemek için manuel olarak ayarlayacağız.
+        // Şimdilik, core.js'nin bunu işlemesini bekleyeceğiz ve endpoint'i basit tutacağız.
+        // window.DATA_ENDPOINT_TEMPLATE = "{{ config.dataEndpoint | replace('?test=true', '?use_mock=true') | replace('?test=false', '?use_mock=true') }}";
+        // Yukarıdaki Jinja filtresi yerine, core.js'nin mock_song_index'i eklemesi için endpoint'i temel haliyle bırakalım
+        // ve use_mock=true'yi core.js'de veya burada manuel olarak ekleyelim.
+        // En temizi, config.dataEndpoint'in zaten use_mock=true içerdiğini varsaymak veya core.js'de yönetmek.
+        // Kullanıcı isteği üzerine, doğrudan use_mock=true ve {TOKEN} placeholder'ı ile ayarlıyoruz.
+        window.DATA_ENDPOINT_TEMPLATE = '/spotify/api/widget-data/{TOKEN}?use_mock=true';
     </script>
 
     <!-- Ortak JavaScript Dosyası -->

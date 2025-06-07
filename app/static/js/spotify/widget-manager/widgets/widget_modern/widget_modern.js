@@ -106,6 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playIntroAnimation(setKey, data) {
+        if (spotifyWidgetElement) {
+            spotifyWidgetElement.classList.remove('widget-inactive');
+            WidgetCore.log('ModernWidget: widget-inactive class removed.', 'debug');
+        }
         isAnimating = true;
         updateElementSet(setKey, data); 
         const introElements = elements[setKey];
@@ -167,6 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             isAnimating = false;
             WidgetCore.log('ModernWidget: Outro animation complete.', 'debug');
+            if (spotifyWidgetElement) {
+                spotifyWidgetElement.classList.add('widget-inactive');
+                WidgetCore.log('ModernWidget: widget-inactive class added.', 'debug');
+            }
         }, longestOutro);
     }
 

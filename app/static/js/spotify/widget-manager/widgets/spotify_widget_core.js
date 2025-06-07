@@ -8,6 +8,7 @@ const WidgetCore = (() => {
     let isPollingActive = false;
     let isWidgetCurrentlyActive = false;
     let progressBarIntervalId = null;
+    let currentMockSongIndex = 0; // Index for cycling through mock songs
 
     let widgetConfig = {
         token: null,
@@ -95,6 +96,11 @@ const WidgetCore = (() => {
         }
 
         let endpoint = widgetConfig.endpointTemplate.replace('{TOKEN}', widgetConfig.token);
+
+        // Mock modu için endpoint'i kontrol et ve gerekirse 'use_mock=true' ekle
+        if (endpoint.includes('use_mock=true')) {
+            endpoint += `&mock_song_index=${currentMockSongIndex}`;
+        }
 
         // Mock modu için endpoint'i kontrol et ve gerekirse 'use_mock=true' ekle
         // Bu, endpointTemplate'in kendisinde bir işaretçi (örneğin '?mock' veya '&mock') içermesine dayanır.
@@ -189,20 +195,24 @@ const WidgetCore = (() => {
             });
 
             if (newTrackIdentifier && newTrackIdentifier !== currentTrackId) {
+                const isInitialSong = (currentTrackId === null);
                 _log('Yeni şarkı tespit edildi. Callback tetikleniyor.', 'info', { 
                     previousTrackId: currentTrackId, 
                     newTrackId: newTrackIdentifier,
-                    trackName: newData.item?.name || newData.track_name
+                    trackName: newData.item?.name || newData.track_name,
+                    isInitial: isInitialSong
                 });
                 
-                const oldData = { ...lastFetchedData };
-                lastFetchedData = newData;
+                const oldData = { ...lastFetchedData }; // Capture old state before updating
+                const dataForCallback = isInitialSong ? { ...newData, is_initial_data: true } : { ...newData };
+
+                lastFetchedData = newData; // Update global state *after* preparing callbacks
                 currentTrackId = newTrackIdentifier;
                 
                 if (typeof widgetConfig.onSongChange === 'function') {
-                    _log('onSongChange callback çağrılıyor...', 'debug');
+                    _log('onSongChange callback çağrılıyor...', 'debug', { isInitialDataFlag: dataForCallback.is_initial_data });
                     try {
-                        await widgetConfig.onSongChange(newData, oldData);
+                        await widgetConfig.onSongChange(dataForCallback, oldData);
                         _log('onSongChange callback başarıyla tamamlandı.', 'debug');
                     } catch (error) {
                         _log('onSongChange callback hatası:', 'error', { error: error.toString(), stack: error.stack });
@@ -297,6 +307,54 @@ const WidgetCore = (() => {
         if (isPollingActive) {
             _log("Polling zaten aktif. Durdurulup yeniden başlatılıyor.", 'warn');
             stopPolling();
+        }
+
+        // Add event listener for the mock song change button
+        const changeMockSongBtn = document.getElementById('changeMockSongBtn');
+        if (changeMockSongBtn && widgetConfig.endpointTemplate && widgetConfig.endpointTemplate.includes('use_mock=true')) {
+            changeMockSongBtn.addEventListener('click', async () => { // Made async
+                currentMockSongIndex++; // Cycle to the next song (backend will handle modulo)
+                _log(`Mock song index changed to: ${currentMockSongIndex}. Widget active: ${isWidgetCurrentlyActive}`, 'info');
+                
+                if (!isWidgetCurrentlyActive) {
+                    _log('Widget is not active. Attempting to activate before refreshing mock song...', 'warn');
+                    try {
+                        await activateWidget(); // activateWidget should handle starting its own poll
+                        // _fetchData will pick up the new currentMockSongIndex automatically
+                        _log('Widget activated successfully by button click.', 'info');
+                    } catch (activationError) {
+                        _log('Failed to activate widget from button click.', 'error', activationError);
+                        // Potentially show error to user or stop here
+                        return; 
+                    }
+                } else {
+                    _log('Widget is active. Forcing data refresh for new mock song index.', 'info');
+                    
+                    stopPolling(true); // Stop existing poll, sets isPollingActive = false
+
+                    _fetchData().then(newData => {
+                        return _processNewData(newData); // This updates lastFetchedData
+                    }).catch(error => {
+                        _log('Error during forced refresh by button click', 'error', error);
+                        if (typeof widgetConfig.onError === 'function') {
+                            widgetConfig.onError({ error: 'Forced refresh failed', details: error });
+                        }
+                        // lastFetchedData might be updated by _fetchData with error info
+                        // or _processNewData might not have run. _determinePollInterval handles undefined data.
+                    }).finally(() => {
+                        if (isWidgetCurrentlyActive) {
+                            isPollingActive = true; // Reactivate polling flag
+                            const fetchErrorOccurred = !!(lastFetchedData && lastFetchedData.error);
+                            const interval = _determinePollInterval(lastFetchedData, fetchErrorOccurred);
+                            _log(`Forced refresh complete, next poll in ${interval}ms. Polling reactivated.`, 'info');
+                            pollTimeoutId = setTimeout(_pollForData, interval);
+                        } else {
+                            _log('Forced refresh complete, but widget is no longer active. Polling not restarted.', 'info');
+                            // isPollingActive should already be false from stopPolling()
+                        }
+                    });
+                }
+            });
         }
 
         _initiateFirstFetchAndActivate().catch(error => {
