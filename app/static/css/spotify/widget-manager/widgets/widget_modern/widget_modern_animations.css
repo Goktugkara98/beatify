@@ -1,198 +1,35 @@
 /**
  * widget_modern_animations.css
- *
- * Modern Spotify widget'ı için gelişmiş ve koordineli animasyon setleri.
- * Bu dosya, widget_modern.js tarafından dinamik olarak eklenen sınıfları kullanarak
- * giriş, şarkı geçişi ve çıkış animasyonlarını yönetir.
- *
- * Animasyonlar, HTML'deki `data-` özniteliklerinde belirtilen temel isme göre
- * isimlendirilmiş ve JavaScript tarafından bu isme ekler yapılarak tetiklenir.
- * Örn: data-transition-animation-class="modern-content-pop" ise, JS bu ismi kullanarak
- * `.modern-content-pop-album-art-out` gibi sınıfları elementlere uygular.
  */
 
-/* ==========================================================================
-   1. ANIMATION KEYFRAMES (Animasyonların Temel Hareket Tanımları)
-   ========================================================================== */
+/* Pasif elementleri gizler ama animasyon yeteneğini korur */
+.passive {
+    position: absolute; /* Akışı bozmadan diğerinin üzerine gelebilmesi için */
+    opacity: 0;
+    pointer-events: none; /* Tıklanamaz yapar */
+    /* display: none; KULLANILMAMALI, animasyonları bozar! */
+}
 
-@keyframes kf-fade-in {
+/* Örnek Animasyon Keyframe'leri */
+@keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; } /* Slide in from the right */
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out-left {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-100%); opacity: 0; } /* Slide out to the left */
+}
+@keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
 }
-
-@keyframes kf-fade-out {
+@keyframes fade-out {
     from { opacity: 1; }
     to { opacity: 0; }
 }
 
-@keyframes kf-slide-in-from-bottom {
-    from {
-        opacity: 0;
-        transform: translateY(25px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes none {
+  /* Bu animasyon kasıtlı olarak hiçbir şey yapmaz */
+  from { /* değişiklik yok */ }
+  to { /* değişiklik yok */ }
 }
-
-@keyframes kf-slide-out-to-bottom {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(25px);
-    }
-}
-
-@keyframes kf-pop-in {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes kf-pop-out {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-}
-
-@keyframes kf-slide-in-from-right {
-    from {
-        transform: translateX(100%);
-        opacity: 1; /* Ensure visible if previously hidden */
-    }
-    to {
-        transform: translateX(0%);
-        opacity: 1;
-    }
-}
-
-@keyframes kf-slide-out-to-left {
-    from {
-        transform: translateX(0%);
-        opacity: 1; /* Ensure visible */
-    }
-    to {
-        transform: translateX(-100%);
-        opacity: 1; /* Stays visible as it slides out */
-    }
-}
-
-/* ==========================================================================
-   2. BAŞLANGIÇ DURUMLARI (Animasyon Öncesi Elementleri Gizlemek İçin)
-   ========================================================================== */
-/* JS, animasyon başlamadan önce ana konteynere .animating sınıfını ekler. */
-.modern-widget.animating .widget-album-art-main,
-.modern-widget.animating .widget-album-art-background,
-.modern-widget.animating .widget-track-info > *,
-.modern-widget.animating .widget-player-controls,
-.modern-widget.animating .widget-spotify-logo {
-    opacity: 0;
-}
-
-
-/* ==========================================================================
-   3. GENEL ANİMASYON TİPİ SINIFLARI
-   ========================================================================== */
-
-/* --- Slide Animasyonları --- */
-.anim-slide-in-right {
-    animation-name: kf-slide-in-from-right;
-    animation-duration: var(--anim-duration, 0.6s); /* Varsayılan süre */
-    animation-timing-function: var(--anim-timing-function, ease-out); /* Varsayılan zamanlama */
-    animation-delay: var(--anim-delay, 0s); /* Varsayılan gecikme */
-    animation-fill-mode: forwards;
-}
-
-.anim-slide-out-left {
-    animation-name: kf-slide-out-to-left;
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-in);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-.anim-slide-in-from-bottom { /* Eski kf-slide-in-from-bottom kullananlar için */
-    animation-name: kf-slide-in-from-bottom;
-    animation-duration: var(--anim-duration, 0.6s);
-    animation-timing-function: var(--anim-timing-function, ease-out);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-.anim-slide-out-to-bottom { /* Eski kf-slide-out-to-bottom kullananlar için */
-    animation-name: kf-slide-out-to-bottom;
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-in);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-/* --- Fade Animasyonları --- */
-.anim-fade-in {
-    animation-name: kf-fade-in;
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-out);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-.anim-fade-out {
-    animation-name: kf-fade-out;
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-out);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-/* --- Pop Animasyonları --- */
-.anim-pop-in {
-    animation-name: kf-pop-in;
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-out);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-.anim-pop-out {
-    animation-name: kf-pop-out;
-    animation-duration: var(--anim-duration, 0.4s);
-    animation-timing-function: var(--anim-timing-function, ease-in);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-/* İhtiyaç duyulursa daha fazla genel animasyon sınıfı eklenebilir. */
-
-.anim-fade-in-up {
-    animation-name: kf-slide-in-from-bottom; /* Mevcut keyframe'i kullanıyoruz */
-    animation-duration: var(--anim-duration, 0.6s);
-    animation-timing-function: var(--anim-timing-function, ease-out);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-    /* opacity: 0; */ /* Keyframe zaten opacity:0 ile başlıyor */
-}
-
-.anim-fade-out-down {
-    animation-name: kf-slide-out-to-bottom; 
-    animation-duration: var(--anim-duration, 0.5s);
-    animation-timing-function: var(--anim-timing-function, ease-in);
-    animation-delay: var(--anim-delay, 0s);
-    animation-fill-mode: forwards;
-}
-
-/* ESKİ ANİMASYON BLOKLARI (3-8) BURADAN SİLİNECEK */
-/* Aşağıdaki .modern-slide-out-art son eleman olmalıydı, bu yüzden ondan sonrasını hedefliyorum */

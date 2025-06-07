@@ -121,7 +121,7 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 40%; /* Widget yüksekliğinin %40'ı */
+    height: 60%; /* Widget yüksekliğinin %40'ı */
     display: flex;
     flex-direction: column;
     justify-content: space-between;

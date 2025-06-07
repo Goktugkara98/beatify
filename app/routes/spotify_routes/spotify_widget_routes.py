@@ -291,6 +291,25 @@ def spotify_widget(widget_token: str) -> Any:
 # -----------------------------------------------------------------------------
 @spotify_widget_bp.route('/api/widget-data/<string:widget_token>', methods=['GET'])
 def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
+    MOCK_DATA = {
+        "is_playing": True,
+        "track_name": "Harika Mock Şarkı",
+        "artist_name": "Sahte Sanatçılar Topluluğu",
+        "album_name": "Mock Albümü Vol. 1",
+        "album_art_url": "https://i.scdn.co/image/ab67616d0000b2731b595731cd14ba6ba821ab0e",
+        "progress_ms": 60000,  # 1 dakika
+        "duration_ms": 240000, # 4 dakika
+        "device_name": "Beatify Mock Player",
+        "device_volume": 75,
+        "error": None,
+        "status_code": 200,
+        "track_id": "mockTrackID12345",
+        "context_uri": "spotify:album:mockAlbumURI123",
+        "track_url": "#mockTrackUrl",
+        "artist_url": "#mockArtistUrl",
+        "album_url": "#https://i.scdn.co/image/ab67616d0000b2731b595731cd14ba6ba821ab0e",
+        "source": "Mock Data Source"
+    }
     """
     Belirtilen `widget_token` ile ilişkili Spotify widget'ı için
     gerekli verileri (örn: şu an çalan parça bilgisi) JSON formatında sağlar.
@@ -305,21 +324,10 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
     try:
         # print(f"Widget veri isteği alındı: {widget_token}") # Debug log
         
-        # Test modu kontrolü - URL'de ?test=true parametresi varsa sahte veri döndür
-        if request.args.get('test', '').lower() == 'true':
-            # Sahte veri oluştur - geliştirme testi için
-            return jsonify({
-                "is_playing": True,
-                "track_name": "Neon Dreams",
-                "artist_name": "Beatify Test Artist",
-                "album_image_url": "https://i.scdn.co/image/ab67616d0000b273c5716278abba6a77fea33fa1",
-                "progress_ms": 45000,
-                "duration_ms": 180000,
-                "track_url": "https://open.spotify.com",
-                "artist_url": "https://open.spotify.com",
-                "album_url": "https://open.spotify.com",
-                "source": "Test Data"
-            }), 200
+        # Mock modu kontrolü - URL'de ?use_mock=true parametresi varsa sahte veri döndür
+        if request.args.get('use_mock', '').lower() == 'true':
+            # print(f"Mock veri isteği alındı: {widget_token}") # Debug log
+            return jsonify(MOCK_DATA), 200
         
         # Token doğrulamayı atlayarak doğrudan kullanıcı adını al
         # Bu basitleştirilmiş bir yaklaşımdır, gerçek uygulamada daha güçlü doğrulama yapılmalıdır
