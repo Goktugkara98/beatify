@@ -3,692 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Widget Yapısı - İnteraktif Rehber</title>
+    <title>Spotify Widget - Detaylı Analiz Raporu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide-react@0.368.0/dist/umd/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212; /* Koyu tema */
-            color: #e0e0e0; /* Açık gri metin */
-        }
-        .content-section {
-            background-color: #1e1e1e; /* İçerik arka planı */
-            border: 1px solid #2a2a2a; /* Kenarlık */
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .content-section h2 {
-            color: #1DB954; /* Spotify yeşili */
-            border-bottom: 2px solid #1DB954;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 1.75rem;
-            display: flex;
-            align-items: center;
-        }
-        .content-section h3 {
-            color: #b3b3b3; /* Daha açık gri */
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-            font-size: 1.25rem;
-            border-left: 3px solid #1DB954;
-            padding-left: 0.75rem;
-        }
-        .content-section h2 .lucide {
-            margin-right: 0.75rem;
-            color: #1DB954;
-        }
-        .code-block {
-            background-color: #282c34; /* Kod bloğu arka planı */
-            color: #abb2bf; /* Kod metni rengi */
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #3a3a3a;
-        }
-        .code-block pre {
-            margin: 0;
-        }
-        .clickable-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #3a3a3a;
-            margin-bottom: 0.5rem;
-        }
-        .clickable-header:hover {
-            background-color: #2a2a2a;
-        }
-        .clickable-header h3 {
-            border-left: none;
-            padding-left: 0;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-        .hidden-content {
-            display: none;
-            padding-top: 0.5rem;
-            border-top: 1px dashed #444;
-            margin-top: 0.5rem;
-        }
-        .file-path {
-            background-color: #333;
-            color: #1DB954;
-            padding: 0.2em 0.5em;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-        .badge {
-            background-color: #1DB954;
-            color: #121212;
-            padding: 0.25em 0.6em;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-left: 0.5rem;
-        }
-        .list-disc li {
-            margin-bottom: 0.5rem;
-        }
-        .list-decimal li {
-            margin-bottom: 0.5rem;
-        }
-        .note {
-            background-color: rgba(29, 185, 84, 0.1);
-            border-left: 4px solid #1DB954;
-            padding: 0.75rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-        .note p {
-            margin: 0;
+            background-color: #111827; /* Koyu Gri Arka Plan */
+            color: #d1d5db; /* Açık Gri Yazı */
         }
         .tab-button {
-            padding: 0.5rem 1rem;
-            margin-right: 0.5rem;
-            border-radius: 6px 6px 0 0;
-            cursor: pointer;
-            background-color: #282828;
-            border: 1px solid #3a3a3a;
-            border-bottom: none;
-            color: #b3b3b3;
-            transition: background-color 0.2s, color 0.2s;
+            transition: all 0.3s ease;
+            border-bottom-width: 2px;
+            border-color: transparent;
         }
         .tab-button.active {
-            background-color: #1e1e1e;
-            color: #1DB954;
-            border-bottom: 1px solid #1e1e1e; /* Arka planla aynı */
+            color: #34d399; /* Zümrüt Yeşili */
+            border-color: #34d399;
         }
         .tab-content {
             display: none;
-            padding: 1rem;
-            border: 1px solid #3a3a3a;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            background-color: #1e1e1e; /* Sekme içeriği için arka plan */
         }
         .tab-content.active {
             display: block;
         }
-        .sidebar {
-            width: 280px;
-            background-color: #181818;
-            padding: 1.5rem;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-y: auto;
-            border-right: 1px solid #2a2a2a;
+        code {
+            background-color: #1f2937; /* Daha Koyu Gri */
+            color: #93c5fd; /* Açık Mavi */
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
         }
-        .sidebar a {
-            display: block;
-            color: #b3b3b3;
-            padding: 0.6rem 0.8rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            text-decoration: none;
-            transition: background-color 0.2s, color 0.2s;
-            font-size: 0.95rem;
+        pre {
+            background-color: #1f2937;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #374151;
         }
-        .sidebar a:hover, .sidebar a.active-link {
-            background-color: #1DB954;
-            color: #121212;
-        }
-        .main-content-area {
-            margin-left: 280px; /* Sidebar genişliği kadar */
-            padding: 2rem;
-        }
-        .header-main {
-            background-color: #181818;
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #2a2a2a;
-            margin-left: 280px; /* Sidebar genişliği kadar */
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .header-main h1 {
-            color: #fff;
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-        }
-        .header-main h1 .lucide {
-            margin-right: 0.75rem;
-            color: #1DB954;
+        .pro { color: #34d399; }
+        .con { color: #f87171; }
+        .pro::before { content: '✓ '; }
+        .con::before { content: '✗ '; }
+        h3 {
+            border-left: 3px solid #34d399;
+            padding-left: 10px;
         }
     </style>
 </head>
-<body>
-    <div class="sidebar">
-        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-            <i data-lucide="spotify" class="mr-2 text-green-500"></i>Widget Rehberi
-        </h2>
-        <nav id="sidebarNav">
-            <a href="#section-introduction">Giriş</a>
-            <a href="#section-file-structure">Dosya Yapısı</a>
-            <a href="#section-core-files">Çekirdek Dosyalar</a>
-            <a href="#section-widget-anatomy">Widget Anatomisi</a>
-            <a href="#section-new-widget">Yeni Widget Oluşturma</a>
-            <a href="#section-customize-widget">Widget Özelleştirme</a>
-            <a href="#section-core-js-deepdive">Core JS Detayları</a>
-            <a href="#section-core-css-deepdive">Core CSS Detayları</a>
-            <a href="#section-best-practices">İyi Uygulamalar</a>
-        </nav>
-    </div>
+<body class="antialiased">
 
-    <div class="header-main">
-        <h1><i data-lucide="book-open-check"></i>Spotify Widget Modüler Yapı Rehberi</h1>
-    </div>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white">Spotify Widget Proje Analizi</h1>
+            <p class="mt-4 text-lg text-gray-400">Dosyaların derinlemesine incelenmesi, fonksiyonların ve yapıların değerlendirilmesi.</p>
+        </header>
 
-    <div class="main-content-area">
-        <section id="section-introduction" class="content-section">
-            <h2><i data-lucide="rocket"></i>Giriş ve Amaç</h2>
-            <p class="mb-4">Bu rehber, oluşturduğumuz modüler Spotify widget yapısını anlamana ve etkin bir şekilde kullanmana yardımcı olmak için tasarlanmıştır. Amaç, tekrar kullanılabilir bileşenler oluşturarak geliştirme sürecini hızlandırmak ve bakımı kolaylaştırmaktır.</p>
-            <p>Bu yapı sayesinde:</p>
-            <ul class="list-disc pl-5 mt-2">
-                <li>Farklı görünümlere sahip çeşitli widget'lar kolayca oluşturulabilir.</li>
-                <li>Ortak işlevler (veri çekme, animasyon, progress bar) merkezi bir yerden yönetilir.</li>
-                <li>Her widget kendi özel stil ve davranışlarına sahip olabilirken, temel altyapıyı paylaşır.</li>
-            </ul>
-        </section>
-
-        <section id="section-file-structure" class="content-section">
-            <h2><i data-lucide="folder-tree"></i>Dosya Yapısı Genel Bakış</h2>
-            <p class="mb-4">Projemizdeki widget'lar için önerilen temel dosya yapısı aşağıdaki gibidir. Bu yapı, dosyaların organize olmasını ve kolay bulunmasını sağlar.</p>
-            <div class="code-block">
-                <pre>
-/static/
-├── css/
-│   └── spotify/
-│       └── widget-manager/
-│           └── widgets/
-│               ├── spotify_widget_core.css  <span class="text-green-400">(Tüm widget'lar için ortak CSS)</span>
-│               ├── widget_standard.css      <span class="text-yellow-400">(Standard widget'a özel CSS)</span>
-│               └── widget_minimal.css       <span class="text-yellow-400">(Minimal widget'a özel CSS - Örnek)</span>
-│               └── ... (diğer widget özel CSS dosyaları)
-└── js/
-    └── spotify/
-        └── widget-manager/
-            └── widgets/
-                ├── spotify_widget_core.js   <span class="text-green-400">(Tüm widget'lar için ortak JS)</span>
-                ├── widget_standard.js       <span class="text-yellow-400">(Standard widget'a özel JS)</span>
-                └── widget_minimal.js        <span class="text-yellow-400">(Minimal widget'a özel JS - Örnek)</span>
-                └── ... (diğer widget özel JS dosyaları)
-
-/templates/ <span class="text-gray-500">(veya HTML dosyalarınızın bulunduğu dizin)</span>
-└── spotify/
-    └── widget-manager/
-        └── widgets/
-            ├── widget_standard.html     <span class="text-blue-400">(Standard widget HTML)</span>
-            └── widget_minimal.html      <span class="text-blue-400">(Minimal widget HTML - Örnek)</span>
-            └── ... (diğer widget HTML dosyaları)
-                </pre>
-            </div>
-            <p><strong>Not:</strong> <code class="file-path">/static/</code> ve <code class="file-path">/templates/</code> yolları projenizin backend framework'üne (örn: Flask, Django) göre değişiklik gösterebilir. Önemli olan, core ve widget'a özel dosyaların mantıksal olarak ayrılmasıdır.</p>
-        </section>
-
-        <section id="section-core-files" class="content-section">
-            <h2><i data-lucide="archive"></i>Çekirdek Dosyalar: Sistemin Kalbi</h2>
-            <p class="mb-4">Çekirdek dosyalar, tüm widget'ların paylaştığı temel işlevselliği ve stilleri içerir. Bu, kod tekrarını önler ve tutarlı bir altyapı sağlar.</p>
-
-            <div class="clickable-header" onclick="toggleContent('core-js-summary')">
-                <h3><i data-lucide="file-code-2" class="inline mr-2"></i>spotify_widget_core.js <span class="badge">JavaScript</span></h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="core-js-summary" class="hidden-content">
-                <p>Bu dosya, tüm widget'lar tarafından kullanılacak ortak JavaScript fonksiyonlarını barındırır. Ana sorumlulukları:</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li><strong>Backend ile İletişim:</strong> Spotify API'sinden (veya backend proxy'nizden) şarkı verilerini çekmek.</li>
-                    <li><strong>Animasyon Tetikleyicileri:</strong> Sayfa açılışı, şarkı geçişi ve sayfa kapanışı gibi durumlar için genel animasyon fonksiyonları. (Animasyonun kendisi widget'a özel CSS/JS'te tanımlanır).</li>
-                    <li><strong>Progress Bar Yönetimi:</strong> Şarkı ilerleme çubuğunun hesaplanması ve güncellenmesi.</li>
-                    <li><strong>Yardımcı Fonksiyonlar:</strong> Zaman formatlama, DOM manipülasyonu gibi sık kullanılan işlevler.</li>
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-4 md:p-6">
+            <!-- Genel Bakış -->
+            <div class="mb-8 border-b border-gray-700 pb-6">
+                <h2 class="text-2xl font-bold text-white mb-3">Genel Mimarî Bakış</h2>
+                <p class="text-gray-300">
+                    Bu proje, son derece modüler ve yeniden kullanılabilir bir yapıda tasarlanmıştır. İki ana katmandan oluşur:
+                </p>
+                <ul class="list-disc list-inside mt-4 space-y-2 text-gray-300">
+                    <li><strong class="text-white">Çekirdek (Core) Katmanı:</strong> <code>spotify_widget_core.js</code> ve <code>spotify_widget_core.css</code> dosyalarından oluşur. Bu katman, API ile iletişimi, veri işlemeyi, durum yönetimini ve tüm widget'lar için ortak olan temel stil ve fonksiyonları sağlar. Tamamen arayüzden bağımsızdır.</li>
+                    <li><strong class="text-white">Görünüm (View) Katmanı:</strong> <code>widget_modern.html</code>, <code>widget_modern.js</code>, <code>widget_modern.css</code> ve <code>widget_modern_animations.css</code> dosyalarından oluşur. Bu katman, Çekirdek'ten gelen veriyi alıp kullanıcıya sunmakla görevlidir. Widget'ın tüm görsel kimliği, animasyonları ve kullanıcı arayüzü mantığı bu katmanda yer alır.</li>
                 </ul>
-                <p class="mt-2">Detaylı fonksiyon listesi için <a href="#section-core-js-deepdive" class="text-green-400 hover:underline">Core JS Detayları</a> bölümüne bakınız.</p>
-            </div>
-
-            <div class="clickable-header" onclick="toggleContent('core-css-summary')">
-                <h3><i data-lucide="file-image" class="inline mr-2"></i>spotify_widget_core.css <span class="badge">CSS</span></h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="core-css-summary" class="hidden-content">
-                <p>Bu dosya, tüm widget'lar için geçerli olacak temel stil kurallarını içerir. Ana hedefleri:</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li><strong>Temel Sayfa Düzeni:</strong> Sayfa arka planının şeffaf olması, widget'ın varsayılan olarak ortalanması gibi genel ayarlar.</li>
-                    <li><strong>Ortak UI Elemanları:</strong> Hata mesajları, temel progress bar görünümü gibi tüm widget'larda benzer olabilecek elemanların temel stilleri.</li>
-                    <li><strong>Genel Animasyon Sınıfları:</strong> <code class="file-path">.core-fade-in</code> gibi temel animasyonlar için sınıflar (widget'lar bunları kullanabilir veya üzerine yazabilir).</li>
-                </ul>
-                 <p class="mt-2">Detaylı sınıf listesi için <a href="#section-core-css-deepdive" class="text-green-400 hover:underline">Core CSS Detayları</a> bölümüne bakınız.</p>
-            </div>
-        </section>
-
-        <section id="section-widget-anatomy" class="content-section">
-            <h2><i data-lucide="layout-template"></i>Bir Widget'ın Anatomisi</h2>
-            <p>Her widget tipi, genellikle üç ana dosyadan oluşur:</p>
-            <ul class="list-disc pl-5 mt-2 mb-4">
-                <li><strong>HTML Dosyası</strong> (örn: <code class="file-path">widget_standard.html</code>): Widget'ın yapısal iskeletini oluşturur.
-                    <ul class="list-disc pl-5 mt-1">
-                        <li><code class="file-path">spotify_widget_core.css</code> ve <code class="file-path">spotify_widget_core.js</code> dosyalarını import eder.</li>
-                        <li>Widget'a özel CSS ve JS dosyalarını import eder.</li>
-                        <li>Gerekli DOM elementlerini (albüm kapağı, şarkı adı vb.) içerir.</li>
-                    </ul>
-                </li>
-                <li><strong>CSS Dosyası</strong> (örn: <code class="file-path">widget_standard.css</code>): Widget'a özgü görsel stilleri, renkleri, fontları ve animasyonları tanımlar. <code class="file-path">spotify_widget_core.css</code>'deki stilleri genişletebilir veya üzerine yazabilir.</li>
-                <li><strong>JavaScript Dosyası</strong> (örn: <code class="file-path">widget_standard.js</code>): Widget'a özgü davranışları ve etkileşimleri yönetir.
-                    <ul class="list-disc pl-5 mt-1">
-                        <li><code class="file-path">WidgetCommon</code> objesi (core JS'den gelir) aracılığıyla ortak fonksiyonları kullanır.</li>
-                        <li>DOM elementlerini seçer ve günceller.</li>
-                        <li>Widget'a özel animasyonları tetikler.</li>
-                        <li>Veri çekme döngüsünü başlatır.</li>
-                    </ul>
-                </li>
-            </ul>
-             <div class="note">
-                <p><strong>Tutarlılık Önemlidir:</strong> Tüm widget'a özel JS ve CSS dosyalarında, ortak özelliklerin tanımlanma sırası ve genel dosya yapısı (içindekiler, kategorilendirme) benzer olmalıdır. Bu, okunabilirliği ve bakımı kolaylaştırır.</p>
-            </div>
-        </section>
-
-        <section id="section-new-widget" class="content-section">
-            <h2><i data-lucide="plus-circle"></i>Yeni Bir Widget Oluşturma Adımları</h2>
-            <p class="mb-4">Yeni bir widget (örneğin "Minimal Widget") oluşturmak için aşağıdaki adımları izleyebilirsiniz:</p>
-            <ol class="list-decimal pl-5">
-                <li>
-                    <strong>HTML Dosyası Oluşturma:</strong>
-                    <ul class="list-disc pl-5 mt-1 mb-2">
-                        <li><code class="file-path">widget_standard.html</code> dosyasını kopyalayıp <code class="file-path">widget_minimal.html</code> olarak yeniden adlandırın.</li>
-                        <li>İçindeki CSS ve JS import yollarını yeni widget'ınıza göre güncelleyin (örn: <code class="file-path">widget_minimal.css</code>, <code class="file-path">widget_minimal.js</code>).</li>
-                        <li>Widget'ın ana container div'inin ID'sini ve class'ını güncelleyin (örn: <code class="code-block">&lt;div id="spotifyWidgetMinimal" class="widget-container minimal-widget" ...&gt;</code>).</li>
-                        <li>HTML yapısını yeni widget'ınızın ihtiyaçlarına göre düzenleyin (elementleri kaldırın, ekleyin veya yeniden sıralayın).</li>
-                         <li>Animasyon sınıfları için <code class="file-path">data-</code> attribute'larını güncelleyin:
-                            <div class="code-block"><pre>&lt;div id="spotifyWidgetMinimal" class="widget-container minimal-widget"
-     data-intro-animation-class="minimal-slide-in"
-     data-transition-animation-class="minimal-quick-fade"
-     data-outro-animation-class="minimal-shrink-out"&gt;
-    ...
-&lt;/div&gt;</pre></div>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>CSS Dosyası Oluşturma:</strong>
-                    <ul class="list-disc pl-5 mt-1 mb-2">
-                        <li><code class="file-path">widget_standard.css</code> dosyasını kopyalayıp <code class="file-path">widget_minimal.css</code> olarak yeniden adlandırın.</li>
-                        <li>Dosyanın başındaki "İçindekiler" bölümünü ve yorumları güncelleyin.</li>
-                        <li>Yeni widget'ınızın görünümüne uygun stilleri tanımlayın. <code class="file-path">spotify_widget_core.css</code>'deki sınıfları kullanabilir veya kendi özel sınıflarınızı oluşturabilirsiniz.</li>
-                        <li>HTML'de tanımladığınız <code class="file-path">data-</code> attribute'larındaki animasyon sınıflarını (<code class="file-path">.minimal-slide-in</code> vb.) burada tanımlayın.</li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>JavaScript Dosyası Oluşturma:</strong>
-                    <ul class="list-disc pl-5 mt-1 mb-2">
-                        <li><code class="file-path">widget_standard.js</code> dosyasını kopyalayıp <code class="file-path">widget_minimal.js</code> olarak yeniden adlandırın.</li>
-                        <li>Dosyanın başındaki "İçindekiler" bölümünü ve yorumları güncelleyin.</li>
-                        <li>DOM element referanslarını yeni HTML yapınıza göre güncelleyin (ID'ler, class'lar).</li>
-                        <li>Placeholder resim URL'lerini veya widget'a özel sabitleri (varsa) güncelleyin.</li>
-                        <li><code class="file-path">updateWidgetUI</code> fonksiyonunu, yeni widget'ınızın verileri nasıl göstereceğine göre düzenleyin.</li>
-                        <li><code class="file-path">play...Animation</code> fonksiyonlarını (eğer özel animasyon mantığınız varsa) veya animasyon sınıfı referanslarını güncelleyin. Genellikle HTML'deki <code class="file-path">data-</code> attribute'larından okunur.</li>
-                        <li>Konsol loglarındaki widget adını güncelleyin (örn: "Minimal Spotify Widget Başlatıldı.").</li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Test Etme:</strong>
-                    <ul class="list-disc pl-5 mt-1">
-                        <li>Yeni HTML dosyanızı tarayıcıda açın (veya backend'iniz üzerinden sunun).</li>
-                        <li>Tüm işlevlerin (veri çekme, progress bar, animasyonlar) doğru çalıştığından emin olun.</li>
-                        <li>Tarayıcı konsolunda hata olup olmadığını kontrol edin.</li>
-                    </ul>
-                </li>
-            </ol>
-        </section>
-
-        <section id="section-customize-widget" class="content-section">
-            <h2><i data-lucide="settings-2"></i>Mevcut Bir Widget'ı Özelleştirme</h2>
-            <p class="mb-4">Mevcut bir widget'ı (örneğin "Standard Widget") özelleştirmek, genellikle widget'a özel dosyalarda değişiklik yapmayı içerir.</p>
-
-            <div class="clickable-header" onclick="toggleContent('customize-html')">
-                <h3><i data-lucide="file-code" class="inline mr-2"></i>HTML Yapısını Özelleştirme (<code class="file-path">widget_standard.html</code>)</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="customize-html" class="hidden-content">
-                <p>Widget'ın temel iskeletini değiştirmek için ilgili HTML dosyasını düzenleyin:</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li>Elementlerin sırasını değiştirin.</li>
-                    <li>Yeni DOM elementleri ekleyin (örn: ek bir bilgi alanı, kontrol butonu).</li>
-                    <li>Mevcut elementleri kaldırın.</li>
-                    <li>Elementlerin ID'lerini veya class'larını güncelleyin (bu durumda ilgili JS ve CSS dosyalarını da güncellemeniz gerekir).</li>
-                    <li>Animasyon davranışlarını değiştirmek için <code class="file-path">data-intro-animation-class</code>, <code class="file-path">data-transition-animation-class</code>, veya <code class="file-path">data-outro-animation-class</code> attribute'larını güncelleyebilirsiniz. Bu sınıfların ilgili widget CSS dosyasında tanımlanmış olması gerekir.</li>
-                </ul>
-            </div>
-
-            <div class="clickable-header" onclick="toggleContent('customize-css')">
-                <h3><i data-lucide="palette" class="inline mr-2"></i>Görsel Stilleri Özelleştirme (<code class="file-path">widget_standard.css</code>)</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="customize-css" class="hidden-content">
-                <p>Widget'ın görünümünü değiştirmek için ilgili CSS dosyasını düzenleyin:</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li>Renkleri, fontları, boşlukları (padding/margin) ve hizalamaları değiştirin.</li>
-                    <li>Mevcut animasyonları düzenleyin veya yeni animasyonlar ekleyin. HTML'deki <code class="file-path">data-</code> attribute'ları ile referans verilen animasyon sınıflarını burada tanımlayabilir/değiştirebilirsiniz.</li>
-                    <li><code class="file-path">spotify_widget_core.css</code>'den gelen sınıfların üzerine yazarak temel görünümleri özelleştirin. Örneğin, <code class="file-path">.core-progress-bar</code>'ın rengini değiştirebilirsiniz.</li>
-                    <li>Yeni eklediğiniz HTML elementleri için özel sınıflar ve stiller tanımlayın.</li>
-                </ul>
-            </div>
-
-            <div class="clickable-header" onclick="toggleContent('customize-js')">
-                <h3><i data-lucide="sliders-horizontal" class="inline mr-2"></i>Davranışları Özelleştirme (<code class="file-path">widget_standard.js</code>)</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="customize-js" class="hidden-content">
-                <p>Widget'ın işlevselliğini ve etkileşimlerini değiştirmek için ilgili JavaScript dosyasını düzenleyin:</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li><strong>DOM Element Referansları:</strong> Eğer HTML'de ID veya class değiştirdiyseniz, JS dosyasındaki element seçicilerini güncelleyin.</li>
-                    <li><strong>UI Güncelleme Mantığı (<code class="file-path">updateWidgetUI</code>):</strong>
-                        <ul class="list-disc pl-5 mt-1">
-                            <li>Verilerin DOM elementlerine nasıl yansıtılacağını değiştirin.</li>
-                            <li>Yeni eklenen DOM elementlerini verilerle doldurun.</li>
-                            <li>Farklı koşullara göre elementlerin görünürlüğünü veya içeriğini değiştirin.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Animasyon Tetikleme:</strong>
-                        <ul class="list-disc pl-5 mt-1">
-                           <li>Widget'ın HTML dosyasındaki <code class="file-path">data-intro-animation-class</code>, <code class="file-path">data-transition-animation-class</code>, <code class="file-path">data-outro-animation-class</code> attribute'larından okunan animasyon sınıflarını kullanın. Core JS'deki <code class="file-path">WidgetCommon.playIntroAnimation</code> gibi fonksiyonlar bu sınıfları parametre olarak alır.</li>
-                           <li>Gerekirse, belirli olaylara yanıt olarak ek özel animasyonlar tetikleyin.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Veri Çekme Sıklığı:</strong> <code class="file-path">fetchAndDisplayData</code> fonksiyonundaki <code class="file-path">refreshInterval</code> değerini değiştirerek verilerin ne sıklıkta yenileneceğini ayarlayın.</li>
-                    <li><strong>Ek İşlevsellik:</strong> Yeni butonlara tıklama olayları ekleyebilir, kullanıcı etkileşimlerine yanıt verebilirsiniz.</li>
-                </ul>
-            </div>
-        </section>
-
-        <section id="section-core-js-deepdive" class="content-section">
-            <h2><i data-lucide="function-square"></i>Core JS (<code class="file-path">spotify_widget_core.js</code>) Detayları</h2>
-            <p class="mb-4"><code class="file-path">spotify_widget_core.js</code> dosyası, <code class="file-path">WidgetCommon</code> adında global bir obje oluşturur ve aşağıdaki temel fonksiyonları sağlar:</p>
-            
-            <div id="coreJsTabs" class="mb-4">
-                <button class="tab-button active" onclick="openCoreJsTab(event, 'fetchData')">Veri Çekme</button>
-                <button class="tab-button" onclick="openCoreJsTab(event, 'animations')">Animasyonlar</button>
-                <button class="tab-button" onclick="openCoreJsTab(event, 'progressBar')">Progress Bar</button>
-                <button class="tab-button" onclick="openCoreJsTab(event, 'helpers')">Yardımcılar</button>
-            </div>
-
-            <div id="fetchData" class="tab-content active">
-                <h3><i data-lucide="database" class="inline mr-2"></i>Veri Çekme</h3>
-                <p><code class="code-block">async WidgetCommon.fetchWidgetData(token, endpointTemplate)</code></p>
-                <ul class="list-disc pl-5">
-                    <li><strong>Amaç:</strong> Backend'den widget verilerini (şarkı bilgisi, çalma durumu vb.) asenkron olarak çeker.</li>
-                    <li><strong>Parametreler:</strong>
-                        <ul class="list-disc pl-5">
-                            <li><code class="file-path">token</code> (string): Widget'a özel yetkilendirme token'ı.</li>
-                            <li><code class="file-path">endpointTemplate</code> (string): Veri çekilecek API endpoint şablonu (örn: <code class="file-path">'/api/data/{TOKEN}'</code>). <code class="file-path">{TOKEN}</code> kısmı gerçek token ile değiştirilir.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Dönüş Değeri:</strong> Başarılı olursa API'den gelen JSON objesi, hata olursa <code class="file-path">{ error: "mesaj" }</code> formatında bir obje döner.</li>
-                    <li><strong>Kullanım (Widget JS içinde):</strong>
-                        <div class="code-block"><pre>
-const data = await WidgetCommon.fetchWidgetData(window.WIDGET_TOKEN_FROM_HTML, window.DATA_ENDPOINT_TEMPLATE);
-if (data && !data.error) {
-    // Veriyi kullan
-} else {
-    // Hatayı işle
-    WidgetCommon.showError(errorMessageElement, data.error || 'Bilinmeyen bir hata oluştu.');
-}
-                        </pre></div>
-                    </li>
-                </ul>
-            </div>
-
-            <div id="animations" class="tab-content">
-                <h3><i data-lucide="film" class="inline mr-2"></i>Animasyon Fonksiyonları</h3>
-                <p><code class="code-block">WidgetCommon.triggerAnimation(element, animationClass, classesToRemove = [])</code></p>
-                <ul class="list-disc pl-5 mb-3">
-                    <li><strong>Amaç:</strong> Bir HTML elementine belirtilen CSS animasyon sınıfını uygular. Öncesinde belirtilen diğer sınıfları kaldırabilir.</li>
-                    <li><strong>Parametreler:</strong> <code class="file-path">element</code>, <code class="file-path">animationClass</code> (uygulanacak sınıf), <code class="file-path">classesToRemove</code> (kaldırılacak sınıflar dizisi).</li>
-                </ul>
-
-                <p><code class="code-block">WidgetCommon.playIntroAnimation(element, specificIntroAnimationClass)</code></p>
-                 <ul class="list-disc pl-5 mb-3">
-                    <li><strong>Amaç:</strong> Sayfa/widget açılış animasyonunu tetikler.</li>
-                    <li><strong>Parametreler:</strong> <code class="file-path">element</code> (animasyon uygulanacak ana widget elementi), <code class="file-path">specificIntroAnimationClass</code> (widget'ın HTML <code class="file-path">data-intro-animation-class</code> attribute'undan gelen veya JS'te tanımlanan CSS sınıfı).</li>
-                </ul>
-
-                <p><code class="code-block">WidgetCommon.playSongTransitionAnimation(element, specificTransitionAnimationClass, currentTrackId, lastTrackId)</code></p>
-                <ul class="list-disc pl-5 mb-3">
-                    <li><strong>Amaç:</strong> Şarkı değiştiğinde geçiş animasyonunu tetikler.</li>
-                     <li><strong>Parametreler:</strong> <code class="file-path">element</code>, <code class="file-path">specificTransitionAnimationClass</code> (widget'ın <code class="file-path">data-transition-animation-class</code> attribute'undan), <code class="file-path">currentTrackId</code>, <code class="file-path">lastTrackId</code>.</li>
-                </ul>
-
-                <p><code class="code-block">WidgetCommon.playOutroAnimation(element, specificOutroAnimationClass = 'core-fade-out', duration = 500)</code></p>
-                <ul class="list-disc pl-5 mb-3">
-                    <li><strong>Amaç:</strong> Sayfa/widget kapanış animasyonunu tetikler.</li>
-                    <li><strong>Parametreler:</strong> <code class="file-path">element</code>, <code class="file-path">specificOutroAnimationClass</code> (widget'ın <code class="file-path">data-outro-animation-class</code> attribute'undan veya varsayılan), <code class="file-path">duration</code> (animasyon süresi).</li>
-                    <li><strong>Not:</strong> Bu fonksiyon genellikle <code class="file-path">setupPageUnloadAnimation</code> içinde kullanılır.</li>
-                </ul>
-                 <p><code class="code-block">WidgetCommon.setupPageUnloadAnimation(animatedElement, outroAnimationClass, animationDuration)</code></p>
-                <ul class="list-disc pl-5">
-                    <li><strong>Amaç:</strong> Tarayıcı penceresi kapatılmadan hemen önce bir çıkış animasyonu oynatmak için <code class="file-path">beforeunload</code> olayını ayarlar.</li>
-                    <li><strong>Kullanım (Widget JS <code class="file-path">initWidget</code> içinde):</strong>
-                        <div class="code-block"><pre>
-const outroAnimClass = spotifyWidgetElement.dataset.outroAnimationClass || 'core-fade-out';
-WidgetCommon.setupPageUnloadAnimation(spotifyWidgetElement, outroAnimClass, 500);
-                        </pre></div>
-                    </li>
-                </ul>
-            </div>
-
-            <div id="progressBar" class="tab-content">
-                <h3><i data-lucide="gauge" class="inline mr-2"></i>Progress Bar Yönetimi</h3>
-                <p><code class="code-block">WidgetCommon.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, progressMs, durationMs, isPlaying, onComplete)</code></p>
-                <ul class="list-disc pl-5">
-                    <li><strong>Amaç:</strong> Şarkı ilerleme çubuğunu ve zaman göstergelerini günceller.</li>
-                    <li><strong>Parametreler:</strong>
-                        <ul class="list-disc pl-5">
-                            <li><code class="file-path">progressBarElement</code>: İlerleme çubuğunun <code class="file-path">div</code>'i.</li>
-                            <li><code class="file-path">currentTimeElement</code>: Geçerli süreyi gösteren <code class="file-path">span</code>.</li>
-                            <li><code class="file-path">totalTimeElement</code>: Toplam süreyi gösteren <code class="file-path">span</code>.</li>
-                            <li><code class="file-path">progressMs</code> (number): Şarkının mevcut ilerlemesi (milisaniye).</li>
-                            <li><code class="file-path">durationMs</code> (number): Şarkının toplam süresi (milisaniye).</li>
-                            <li><code class="file-path">isPlaying</code> (boolean): Şarkının çalıp çalmadığı.</li>
-                            <li><code class="file-path">onComplete</code> (function, opsiyonel): Şarkı bittiğinde çağrılacak callback fonksiyonu.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Dönüş Değeri:</strong> Eğer şarkı çalıyorsa bir <code class="file-path">setInterval</code> ID'si, aksi halde <code class="file-path">null</code>. Bu ID, şarkı durduğunda veya değiştiğinde interval'ı temizlemek için kullanılır (<code class="file-path">clearInterval(intervalId)</code>).</li>
-                </ul>
-            </div>
-
-            <div id="helpers" class="tab-content">
-                <h3><i data-lucide="wrench" class="inline mr-2"></i>Yardımcı Fonksiyonlar</h3>
-                <p><code class="code-block">WidgetCommon.msToTimeFormat(ms)</code>: Milisaniyeyi "dakika:saniye" formatına çevirir.</p>
-                <p><code class="code-block">WidgetCommon.updateTextContent(element, text, title)</code>: Bir DOM elementinin metin içeriğini ve (opsiyonel) başlığını günceller.</p>
-                <p><code class="code-block">WidgetCommon.updateImageSource(imgElement, newSrc, placeholderSrc, onLoadCallback)</code>: Bir resim elementinin kaynağını (src) günceller, yüklenme ve hata durumlarını yönetir.</p>
-                <p><code class="code-block">WidgetCommon.showError(errorElement, message)</code>: Belirtilen element içinde bir hata mesajı gösterir.</p>
-                <p><code class="code-block">WidgetCommon.hideError(errorElement)</code>: Hata mesajını gizler.</p>
-            </div>
-        </section>
-
-        <section id="section-core-css-deepdive" class="content-section">
-            <h2><i data-lucide="paint-roller"></i>Core CSS (<code class="file-path">spotify_widget_core.css</code>) Detayları</h2>
-            <p class="mb-4"><code class="file-path">spotify_widget_core.css</code> dosyası, tüm widget'lar için temel stil ve düzenleri sağlar. Widget'a özel CSS dosyaları bu sınıfları kullanabilir, genişletebilir veya üzerine yazabilir.</p>
-
-            <div class="clickable-header" onclick="toggleContent('core-css-layout')">
-                <h3><i data-lucide="layout-grid" class="inline mr-2"></i>Temel Düzen ve Konteyner</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="core-css-layout" class="hidden-content">
-                <p><code class="file-path">html, body</code>: Sayfanın tamamını kaplayan, şeffaf arka planlı temel ayarlar.</p>
-                <p><code class="file-path">body</code>: İçeriği (widget'ı) dikey ve yatayda ortalamak için flexbox kullanır.</p>
-                <p><code class="file-path">.widget-container</code>: Her widget'ın ana HTML elementine uygulanması beklenen temel sınıftır.
-                    <ul class="list-disc pl-5 mt-1">
-                        <li><code class="file-path">position: relative;</code> içerir, böylece içindeki absolut konumlandırılmış elementler buna göre hizalanır.</li>
-                        <li>Widget'a özel CSS'te <code class="file-path">width</code>, <code class="file-path">height</code>, <code class="file-path">border-radius</code>, <code class="file-path">box-shadow</code> gibi özellikler tanımlanmalıdır. Core CSS bu konuda genel bir kural koymaz.</li>
-                    </ul>
+                <p class="mt-4 text-gray-300">
+                    Bu mimari sayesinde, gelecekte farklı tasarımlara sahip yeni widget'lar oluşturmak, sadece yeni bir "Görünüm" katmanı yazarak mümkün olacaktır. Çekirdek mantığına dokunmaya gerek kalmaz. Bu, projenin en güçlü yönlerinden biridir.
                 </p>
             </div>
 
-            <div class="clickable-header" onclick="toggleContent('core-css-animations')">
-                <h3><i data-lucide="zap" class="inline mr-2"></i>Ortak Animasyon Sınıfları</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
+            <!-- Sekmeler -->
+            <div class="mb-6 border-b border-gray-700">
+                <nav class="flex flex-wrap -mb-px space-x-4 text-lg">
+                    <button class="tab-button active" data-target="html">HTML</button>
+                    <button class="tab-button" data-target="core-js">Core JS</button>
+                    <button class="tab-button" data-target="modern-js">Modern JS</button>
+                    <button class="tab-button" data-target="core-css">Core CSS</button>
+                    <button class="tab-button" data-target="modern-css">Modern CSS</button>
+                    <button class="tab-button" data-target="anim-css">Animation CSS</button>
+                </nav>
             </div>
-            <div id="core-css-animations" class="hidden-content">
-                <p>Core CSS, sık kullanılan bazı temel animasyonlar için sınıflar ve keyframe tanımları içerir. Widget'lar bunları doğrudan kullanabilir veya kendi özel animasyonlarını oluşturabilir.</p>
-                <ul class="list-disc pl-5 mt-2">
-                    <li><code class="file-path">.core-fade-in-up</code>: Aşağıdan yukarı doğru kayarak belirme.</li>
-                    <li><code class="file-path">.core-fade-in</code>: Yavaşça belirme.</li>
-                    <li><code class="file-path">.core-slide-in</code>: Soldan kayarak gelme.</li>
-                    <li><code class="file-path">.core-fade-out</code>: Yavaşça kaybolma.</li>
-                </ul>
-                <p class="mt-1">Bu sınıflara karşılık gelen <code class="file-path">@keyframes</code> tanımları da (<code class="file-path">coreFadeInUp</code>, <code class="file-path">coreFadeIn</code> vb.) bu dosyada bulunur.</p>
-                 <div class="note">
-                    <p><strong>Animasyon Önceliği:</strong> Widget'a özel CSS dosyanızda aynı isimde bir animasyon sınıfı tanımlarsanız, bu genellikle core CSS'deki tanımın üzerine yazar (CSS'in kaskad yapısı ve özgüllük kurallarına bağlı olarak). Widget'a özel animasyonlar için farklı isimler kullanmak (örn: <code class="file-path">.standard-fade-in-up</code>) daha net bir ayrım sağlar.</p>
+
+            <!-- Sekme İçerikleri -->
+            <div id="tab-contents">
+                <!-- widget_modern.html -->
+                <div id="html" class="tab-content active">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>widget_modern.html</code></h2>
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Genel Bakış</h3>
+                    <p>Bu dosya, widget'ın iskeletini oluşturur. Gerekli CSS ve JS dosyalarını yükler ve widget'ı oluşturan tüm HTML elemanlarını içerir. En dikkat çekici özelliği, animasyonlar ve konfigürasyon için yoğun bir şekilde <code>data-*</code> attribute'larını kullanmasıdır. Bu "deklaratif" yaklaşım, JS kodunu daha temiz tutar.</p>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Element Analizi</h3>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li><code>#spotifyWidgetModern</code>: Widget'ın ana konteyneridir. <code>data-token</code> ve <code>data-endpoint-template</code> ile JS için gerekli konfigürasyon bilgilerini barındırır.</li>
+                        <li><code>A/B Setleri (id sonu "_a" ve "_b" olanlar)</code>: Projenin en zekice kısımlarından biri. Şarkı geçişlerinde akıcı animasyonlar sağlamak için iki set element kullanılır. Biri (aktif set) ekranda görünürken, diğeri (pasif set) gizli bir şekilde yeni şarkı bilgileriyle doldurulur ve animasyonla ekrana gelir. Bu, kesintisiz bir kullanıcı deneyimi sunar.</li>
+                        <li><code>data-set="a|b"</code>: Bir elementin hangi sete ait olduğunu belirtir.</li>
+                        <li><code>data-type="..."</code>: Bir elementin türünü (ör: <code>albumArt</code>, <code>trackName</code>) belirtir. Bu, JS'nin elementleri kolayca bulup güncellemesini sağlar.</li>
+                        <li><code>data-transition-in-*</code>, <code>data-transition-out-*</code> vb.: Bir elementin farklı durumlarda (giriş, çıkış, geçiş) hangi animasyonu, ne kadar sürede ve ne kadar gecikmeyle alacağını tanımlar. Animasyon mantığını doğrudan HTML'de tanımlamak, esnekliği artırır.</li>
+                    </ul>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Değerlendirme</h3>
+                    <p class="pro"><strong>Olumlu Yönler:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="pro">Deklaratif Yapı:</span> Animasyonların HTML içinde tanımlanması, JS kodunu basitleştirir ve okunabilirliği artırır.</li>
+                        <li><span class="pro">A/B Geçiş Sistemi:</span> Akıcı ve profesyonel animasyonlar için mükemmel bir temel oluşturur.</li>
+                        <li><span class="pro">Semantik ve Anlaşılır ID'ler:</span> <code>trackName_a</code>, <code>albumArt_b</code> gibi isimlendirmeler yapıyı anlamayı kolaylaştırır.</li>
+                    </ul>
+                    <p class="con mt-4"><strong>Geliştirme Önerileri:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="con">Attribute Yoğunluğu:</span> Çok sayıda <code>data-*</code> attribute'u, HTML'i biraz kalabalık gösterebilir. Ancak bu, deklaratif yaklaşımın doğal bir sonucudur ve genellikle kabul edilebilir bir durumdur.</li>
+                    </ul>
+                </div>
+
+                <!-- spotify_widget_core.js -->
+                <div id="core-js" class="tab-content">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>spotify_widget_core.js</code></h2>
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Genel Bakış</h3>
+                    <p>Projenin beyni. Bu dosya, widget'ın tüm arka plan mantığını yönetir. API'den veri çeker, veriyi işler, ne zaman güncelleme yapılacağına karar verir ve bu değişiklikleri "callback" fonksiyonları aracılığıyla arayüze (görünüm katmanına) bildirir. Bu dosya, farklı görünümlere sahip başka widget'lar için de hiç değiştirilmeden kullanılabilir.</p>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Fonksiyon Analizi</h3>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li><code>initWidgetBase(config)</code>: Widget'ı başlatan ana fonksiyondur. Gerekli ayarları (token, endpoint, callback'ler) alır ve ilk veri çekme işlemini tetikler.</li>
+                        <li><code>_fetchData()</code>: Sunucuya (API endpoint'ine) <code>fetch</code> isteği göndererek anlık şarkı verisini çeker. Hata kontrolü yapar.</li>
+                        <li><code>_pollForData()</code>: Ana döngüdür. Belirli aralıklarla <code>_fetchData</code>'yı çağırır. Bu aralığı, şarkının çalıp çalmamasına veya bir hata olup olmamasına göre akıllıca ayarlar.</li>
+                        <li><code>_determinePollInterval(...)</code>: Bir sonraki API isteğinin ne kadar süre sonra yapılacağını belirler. Şarkı çalmıyorsa daha uzun, hata varsa daha da uzun bekleyerek gereksiz sunucu yükünü önler.</li>
+                        <li><code>_processNewData(newData)</code>: Gelen yeni veriyi bir önceki veriyle karşılaştırır. Eğer şarkı değişmişse <code>onSongChange</code> callback'ini, sadece ilerleme gibi küçük bir detay değişmişse <code>onDataUpdate</code> callback'ini tetikler.</li>
+                        <li><code>updateProgressBar(...)</code>: İlerleme çubuğunun animasyonunu ve zaman göstergelerini yöneten bir yardımcı fonksiyondur.</li>
+                        <li><code>activateWidget() / deactivateWidget()</code>: Widget'ın genel aktif/deaktif durumunu yönetir ve veri çekme döngüsünü (polling) başlatır/durdurur.</li>
+                    </ul>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Değerlendirme</h3>
+                    <p class="pro"><strong>Olumlu Yönler:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="pro">Mükemmel Modülerlik:</span> Çekirdek mantığı, arayüzden tamamen soyutlanmıştır. Bu, kodun yeniden kullanılabilirliğini ve bakımını çok kolaylaştırır.</li>
+                        <li><span class="pro">Verimli Polling:</span> Sorgulama aralığını dinamik olarak değiştirmesi, sistem kaynaklarını verimli kullanır.</li>
+                        <li><span class="pro">Callback Tabanlı Mimari:</span> <code>onSongChange</code>, <code>onError</code> gibi callback'ler sayesinde, bu çekirdek modülü, onu kullanan arayüz koduna esnek bir şekilde bağlanabilir.</li>
+                        <li><span class="pro">Detaylı Loglama:</span> Hata ayıklamayı kolaylaştıran iyi bir loglama sistemine sahiptir.</li>
+                    </ul>
+                     <p class="con mt-4"><strong>Geliştirme Önerileri:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="con">Global Durum Yönetimi:</span> Durum değişkenleri (<code>currentTrackId</code>, <code>isPollingActive</code> vb.) modül seviyesinde `let` ile tanımlanmış. Daha karmaşık uygulamalarda, bu değişkenleri tek bir state objesi içinde toplamak, yönetimi daha da kolaylaştırabilir.</li>
+                    </ul>
+                </div>
+
+                <!-- widget_modern.js -->
+                <div id="modern-js" class="tab-content">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>widget_modern.js</code></h2>
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Genel Bakış</h3>
+                    <p>Bu dosya, <code>WidgetCore</code> (beyin) ile <code>widget_modern.html</code> (iskelet) arasında bir köprü görevi görür. Core'dan gelen verileri alır ve bu verileri kullanarak HTML elementlerini günceller ve animasyonları yönetir. Kısacası, modern widget'ın "canlı" olmasını sağlayan koddur.</p>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Fonksiyon Analizi</h3>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li><code>initWidget()</code>: Sayfa yüklendiğinde çalışır. HTML'den <code>data-*</code> attribute'larını okur ve <code>WidgetCore</code>'u bu ayarlarla başlatır.</li>
+                        <li><code>handleSongChange(newData, oldData)</code>: <code>WidgetCore</code> tarafından bir şarkı değişikliği olduğunda çağrılır. Animasyonun meşgul olup olmadığını kontrol eder ve duruma göre <code>playIntroAnimation</code>, <code>playOutroAnimation</code> veya <code>playTransition</code> fonksiyonlarından uygun olanı çağırır.</li>
+                        <li><code>updateElementSet(setKey, data)</code>: Belirtilen sete (A veya B) ait tüm HTML elementlerini (şarkı adı, sanatçı, albüm kapağı vb.) gelen yeni verilerle günceller.</li>
+                        <li><code>playTransition(activeKey, passiveKey, data)</code>: Animasyon mantığının kalbidir. Aktif seti (eski şarkı) ekran dışına çıkarırken, yeni veriyle doldurulmuş pasif seti (yeni şarkı) ekrana getirir. Z-index ayarlarıyla elementlerin doğru katmanda kalmasını sağlar.</li>
+                        <li><code>_applyAnimations(...)</code>: HTML'deki <code>data-*</code> animasyon attribute'larını okuyup ilgili elementlere CSS animasyonlarını uygulayan çok önemli bir yardımcı fonksiyondur.</li>
+                    </ul>
+
+                    <h3 class="text-xl font-semibold text-white mt-6 mb-3">Değerlendirme</h3>
+                    <p class="pro"><strong>Olumlu Yönler:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="pro">Sorumlulukların Net Ayrımı:</span> Sadece arayüz mantığı ve animasyon orkestrasyonu ile ilgilenir. Veri çekme gibi işleri Core'a bırakır.</li>
+                        <li><span class="pro">Animasyon Yönetimi:</span> A/B setleri ve <code>isAnimating</code> bayrağı ile animasyonları temiz bir şekilde yönetir, çakışmaları önler.</li>
+                        <li><span class="pro">Esneklik:</span> Core'dan gelen olaylara (event/callback) tepki vererek çalışması, sistemi esnek kılar.</li>
+                    </ul>
+                     <p class="con mt-4"><strong>Geliştirme Önerileri:</strong></p>
+                    <ul class="list-disc list-inside ml-4 space-y-2 text-gray-300">
+                        <li><span class="con">Animasyon Kilidi:</span> <code>isAnimating</code> bayrağı basit bir kilitleme mekanizmasıdır. Çok hızlı art arda gelen güncellemelerde (pratikte pek olası olmasa da), bir sonraki animasyonun atlanmasına neden olabilir. Daha karmaşık senaryolar için bir "aksiyon kuyruğu" (action queue) düşünülebilirdi.</li>
+                    </ul>
+                </div>
+
+                <!-- CSS Dosyaları -->
+                <div id="core-css" class="tab-content">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>spotify_widget_core.css</code></h2>
+                    <p>Tüm widget'lar tarafından paylaşılabilecek temel ve ortak stilleri içerir. Sayfa sıfırlama (reset), widget konteyneri için temel kurallar, ilerleme çubuğu, zaman göstergesi ve hata mesajı gibi ortak bileşenlerin stillerini tanımlar. Ayrıca animasyon sisteminin bel kemiği olan <code>.passive</code> sınıfını içerir.</p>
+                </div>
+
+                <div id="modern-css" class="tab-content">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>widget_modern.css</code></h2>
+                    <p>Bu dosya, modern widget'ın görsel kimliğini tanımlar. <code>core.css</code>'deki temel stilleri alır ve üzerine modern widget'a özgü boyutlandırma, renkler, fontlar, gölgeler ve yerleşimleri (layout) ekler. Arka plandaki bulanık albüm kapağı, gradyan geçişleri ve metin stilleri gibi estetik detaylar burada tanımlanır. Yapı, yorum satırları ile çok iyi organize edilmiştir.</p>
+                </div>
+                
+                <div id="anim-css" class="tab-content">
+                    <h2 class="text-3xl font-bold text-white mb-4"><code>widget_modern_animations.css</code></h2>
+                     <p>Sadece CSS <code>@keyframes</code> animasyon tanımlarını içerir. <code>slide-in-right</code>, <code>fade-out</code> gibi animasyonların nasıl davranacağını belirtir. Animasyon tanımlarını diğer stillerden ayrı bir dosyada tutmak, kod organizasyonu açısından mükemmel bir pratiktir.</p>
                 </div>
             </div>
-
-            <div class="clickable-header" onclick="toggleContent('core-css-ui-elements')">
-                <h3><i data-lucide="box-select" class="inline mr-2"></i>Ortak UI Elemanları</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="core-css-ui-elements" class="hidden-content">
-                <p><code class="file-path">.core-progress-container</code> ve <code class="file-path">.core-progress-bar</code>:</p>
-                <ul class="list-disc pl-5 mt-1 mb-2">
-                    <li>Progress bar için temel yapı ve stil.</li>
-                    <li><code class="file-path">.core-progress-bar</code>'ın genişliği JS ile ayarlanır. Rengi (<code class="file-path">background-color</code>) widget'a özel CSS ile değiştirilebilir.</li>
-                </ul>
-                <p><code class="file-path">.core-time-display</code>:</p>
-                <ul class="list-disc pl-5 mt-1 mb-2">
-                    <li>Şarkı süresi göstergeleri (<code class="file-path">#currentTime</code>, <code class="file-path">#totalTime</code>) için temel düzen. Font boyutu ve rengi widget'a özel CSS ile ayarlanabilir.</li>
-                </ul>
-                <p><code class="file-path">.core-error-message</code>:</p>
-                <ul class="list-disc pl-5 mt-1">
-                    <li>Hata mesajlarının gösterimi için temel stil. Pozisyonu, arka plan rengi ve metin rengi widget'a özel CSS ile üzerine yazılabilir. JS ile <code class="file-path">.visible</code> sınıfı eklenerek görünür hale getirilir.</li>
-                </ul>
-            </div>
-             <div class="clickable-header" onclick="toggleContent('core-css-helpers')">
-                <h3><i data-lucide="atom" class="inline mr-2"></i>Yardımcı Sınıflar</h3>
-                <i data-lucide="chevron-down" class="toggle-icon"></i>
-            </div>
-            <div id="core-css-helpers" class="hidden-content">
-                <p><code class="file-path">.visible</code>: Bir elementi görünür yapmak için kullanılır (genellikle <code class="file-path">opacity: 1</code> ve <code class="file-path">pointer-events: auto</code> ayarlar). <code class="file-path">.core-error-message</code> için kullanılır.</p>
-                <p><code class="file-path">.hidden</code>: Bir elementi tamamen gizlemek için kullanılır (<code class="file-path">display: none !important</code>).</p>
-            </div>
-        </section>
-
-        <section id="section-best-practices" class="content-section">
-            <h2><i data-lucide="check-circle"></i>İyi Uygulamalar ve İpuçları</h2>
-            <ul class="list-disc pl-5">
-                <li><strong>Açıklayıcı İsimlendirme:</strong> CSS sınıfları, JS değişkenleri ve fonksiyonları için anlamlı ve tutarlı isimler kullanın.</li>
-                <li><strong>Yorum Satırları:</strong> Karmaşık mantıkları veya önemli kararları açıklamak için kodunuza yorumlar ekleyin. Her dosyanın başına "İçindekiler" bölümü eklemek iyi bir pratiktir.</li>
-                <li><strong>Modülerlik:</strong> Widget'a özel JS ve CSS dosyalarını mümkün olduğunca kendi içinde bağımsız tutmaya çalışın. Core fonksiyonlarını etkin kullanın.</li>
-                <li><strong>Performans:</strong>
-                    <ul class="list-disc pl-5 mt-1">
-                        <li>Gereksiz DOM manipülasyonlarından kaçının.</li>
-                        <li>Animasyonları mümkün olduğunca CSS transform ve opacity kullanarak yapın (GPU hızlandırması için).</li>
-                        <li>Resim boyutlarını optimize edin.</li>
-                    </ul>
-                </li>
-                <li><strong>Hata Yönetimi:</strong> <code class="file-path">WidgetCommon.fetchWidgetData</code>'dan dönen hataları ve diğer olası JS hatalarını kullanıcıya anlaşılır bir şekilde gösterin.</li>
-                <li><strong>Erişilebilirlik (a11y):</strong> Widget'larınızın klavye ile gezilebilir olmasına, ekran okuyucular için uygun ARIA attributelarına sahip olmasına dikkat edin (bu rehberde detaylandırılmamıştır ancak önemlidir).</li>
-                <li><strong>Token Güvenliği:</strong> <code class="file-path">WIDGET_TOKEN_FROM_HTML</code> gibi token'ları doğrudan client-side'a gömmek yerine, backend üzerinden bir proxy ile veri çekmeyi ve token'ı sunucu tarafında tutmayı değerlendirin. Bu, token'ın ifşa olma riskini azaltır.</li>
-                 <li><strong>Animasyon Sınıfı Yönetimi:</strong> Widget'a özel animasyon sınıflarını HTML'deki <code class="file-path">data-*-animation-class</code> attribute'ları aracılığıyla JS'e bildirmek, JS kodunu daha genel ve CSS'i animasyon tanımlamaları için merkezi bir yer haline getirir.</li>
-            </ul>
-        </section>
-
+        </div>
     </div>
 
     <script>
-        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
 
-        function toggleContent(elementId) {
-            const content = document.getElementById(elementId);
-            const icon = event.currentTarget.querySelector('.toggle-icon');
-            if (content) {
-                if (content.style.display === 'none' || content.style.display === '') {
-                    content.style.display = 'block';
-                    icon.setAttribute('data-lucide', 'chevron-up');
-                } else {
-                    content.style.display = 'none';
-                    icon.setAttribute('data-lucide', 'chevron-down');
-                }
-                lucide.createIcons(); // İkonu yeniden render et
-            }
-        }
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
 
-        function openCoreJsTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementById('coreJsTabs').getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove("active");
-            }
-            tablinks = document.getElementById('coreJsTabs').getElementsByClassName("tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).style.display = "block";
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-
-        // Sidebar active link highlighting
-        const sidebarLinks = document.querySelectorAll('#sidebarNav a');
-        const sections = document.querySelectorAll('.main-content-area section');
-
-        window.addEventListener('scroll', () => {
-            let currentSectionId = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
-                    currentSectionId = section.getAttribute('id');
-                }
-            });
-
-            sidebarLinks.forEach(link => {
-                link.classList.remove('active-link');
-                if (link.getAttribute('href') === `#${currentSectionId}`) {
-                    link.classList.add('active-link');
-                }
+                    // Activate clicked
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.target).classList.add('active');
+                });
             });
         });
-         // Sayfa yüklendiğinde ilk sekmeyi aktif et
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialTabButton = document.querySelector('#coreJsTabs .tab-button.active');
-            if (initialTabButton) {
-                const initialTabName = initialTabButton.getAttribute('onclick').match(/'([^']+)'/)[1];
-                 openCoreJsTab({currentTarget: initialTabButton} , initialTabName);
-            }
-        });
-
     </script>
 </body>
 </html>
