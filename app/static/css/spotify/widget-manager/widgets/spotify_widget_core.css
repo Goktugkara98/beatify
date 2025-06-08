@@ -132,3 +132,13 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* 5.2. Pasif Elementler */
+/* 5.2.1. .passive */
+.passive {
+    position: absolute !important; /* Akıştan çıkar ve üst üste binebilir */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important; /* Tıklanamaz yapar */
+    /* display: none; KULLANILMAMALI, animasyonları bozar! */
+}

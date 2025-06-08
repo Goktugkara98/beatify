@@ -32,6 +32,64 @@ document.addEventListener('DOMContentLoaded', () => {
         b: document.querySelectorAll('[data-set="b"]')
     };
 
+    // Helper function to apply animations based on data attributes
+    function _applyAnimations(elementsToAnimate, animationTypeKey, currentSetKeyForLogging = '', onCompletePerElement = null) {
+        let longestOverallDuration = 0;
+
+        const animAttrMap = {
+            intro: { name: 'introAnimation', duration: 'introDuration', delay: 'introDelay', isIncoming: true },
+            transitionIn: { name: 'transitionInAnimation', duration: 'transitionInDuration', delay: 'transitionInDelay', isIncoming: true },
+            transitionOut: { name: 'transitionOutAnimation', duration: 'transitionOutDuration', delay: 'transitionOutDelay', isIncoming: false },
+            outro: { name: 'outroAnimation', duration: 'outroDuration', delay: 'outroDelay', isIncoming: false }
+        };
+
+        const config = animAttrMap[animationTypeKey];
+        if (!config) {
+            WidgetCore.log(`ModernWidget: _applyAnimations - Invalid animationTypeKey: ${animationTypeKey}`, 'error');
+            return 0;
+        }
+
+        elementsToAnimate.forEach(el => {
+            const animName = el.dataset[config.name];
+            const duration = parseInt(el.dataset[config.duration], 10) || 0;
+            const delay = parseInt(el.dataset[config.delay], 10) || 0;
+            const elementTotalDuration = delay + duration;
+
+            if (config.isIncoming) {
+                el.classList.remove('passive');
+                el.style.opacity = 0; // Start all incoming elements (animating or 'none') as transparent
+            }
+            // For outgoing elements, they are already visible. Animation will handle fade-out.
+            // Final opacity 0 will be set in the setTimeout callback.
+
+            if (animName && animName !== 'none') {
+                el.style.animation = `${animName} ${duration}ms ease-out ${delay}ms forwards`;
+            }
+
+            setTimeout(() => {
+                el.style.animation = ''; // Clear animation style
+
+                if (config.isIncoming) {
+                    el.style.opacity = 1; // Ensure incoming elements are visible
+                    WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now active and visible.`, 'debug');
+                } else { // Outgoing
+                    el.style.opacity = 0; // Ensure outgoing elements are hidden
+                    el.classList.add('passive');
+                    WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now passive and hidden.`, 'debug');
+                }
+
+                if (typeof onCompletePerElement === 'function') {
+                    onCompletePerElement(el);
+                }
+            }, elementTotalDuration);
+
+            if (elementTotalDuration > longestOverallDuration) {
+                longestOverallDuration = elementTotalDuration;
+            }
+        });
+        return longestOverallDuration;
+    }
+
     // Helper function to update content of an element set
     function updateElementSet(setKey, data) {
         const suffix = (setKey === 'a') ? '_a' : '_b';
@@ -111,45 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
             WidgetCore.log('ModernWidget: widget-inactive class removed.', 'debug');
         }
         isAnimating = true;
-        updateElementSet(setKey, data); 
+        updateElementSet(setKey, data);
         const introElements = elements[setKey];
-        let longestIntro = 0;
 
-        introElements.forEach(el => {
-            const animName = el.dataset.introAnimation;
-            const duration = parseInt(el.dataset.introDuration, 10) || 0;
-            const delay = parseInt(el.dataset.introDelay, 10) || 0;
-            const elementTotalDuration = delay + duration;
-
-            el.classList.remove('passive');
-
-            if (animName && animName !== 'none') {
-                el.style.animation = `${animName} ${duration}ms ease-out ${delay}ms forwards`;
-                setTimeout(() => {
-                    el.style.animation = ''; // Clear animation for this element
-                }, elementTotalDuration);
-            } else { // animName is 'none' or not specified
-                if (delay > 0) {
-                    el.style.opacity = 0; // Start invisible if there's a delay
-                    setTimeout(() => {
-                        el.style.opacity = 1;
-                        // No animation to clear for 'none', but ensure final state after its 'duration'
-                        setTimeout(() => { /* Potentially do nothing or ensure opacity is 1 */ }, duration); 
-                    }, delay);
-                } else {
-                    el.style.opacity = 1; // Ensure visible if no animation and no delay
-                     // No animation to clear for 'none', but ensure final state after its 'duration'
-                    setTimeout(() => { /* Potentially do nothing or ensure opacity is 1 */ }, duration); 
-                }
-            }
-            if (elementTotalDuration > longestIntro) {
-                longestIntro = elementTotalDuration;
-            }
-        });
+        // _applyAnimations will handle removing 'passive' and other animation logic
+        const longestIntro = _applyAnimations(introElements, 'intro', setKey);
 
         setTimeout(() => {
-            // Individual animations are cleared by their own timeouts.
-            // This main timeout is now just for the global state.
             isAnimating = false;
             WidgetCore.log('ModernWidget: Intro animation sequence complete.', 'debug');
         }, longestIntro);
@@ -158,37 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function playOutroAnimation(setKey) {
         isAnimating = true;
         const outroElements = elements[setKey];
-        let longestOutro = 0;
 
-        outroElements.forEach(el => {
-            const animName = el.dataset.outroAnimation;
-            const duration = parseInt(el.dataset.outroDuration, 10) || 0;
-            const delay = parseInt(el.dataset.outroDelay, 10) || 0;
-            const elementTotalDuration = delay + duration;
-
-            if (animName && animName !== 'none') {
-                el.style.animation = `${animName} ${duration}ms ease-out ${delay}ms forwards`;
-            } else { // animName is 'none' or not specified
-                el.style.opacity = 1; // Ensure it's visible during its "none" animation time
-                // No actual animation, but we respect its duration for visibility
-            }
-
-            setTimeout(() => {
-                el.style.animation = ''; // Clear animation style
-                el.classList.add('passive');
-                el.style.opacity = 0;
-                el.style.zIndex = ''; // Reset z-index to default (from CSS)
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.tagName} (outgoing ${setKey}) animation/transition complete. Now passive, z-index reset.`, 'debug');
-            }, elementTotalDuration);
-
-            if (elementTotalDuration > longestOutro) {
-                longestOutro = elementTotalDuration;
-            }
-        });
+        // _applyAnimations will handle applying 'passive' class and other animation logic
+        const longestOutro = _applyAnimations(outroElements, 'outro', setKey);
 
         setTimeout(() => {
-            // Individual elements handle their own state changes (passive, opacity, animation clear).
-            // This main timeout is for global state updates.
             isAnimating = false;
             WidgetCore.log('ModernWidget: Outro animation sequence complete.', 'debug');
             if (spotifyWidgetElement) {
@@ -201,125 +201,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Animasyon Orkestrasyonu (Transition)
     function playTransition(activeKey, passiveKey, data) {
         isAnimating = true;
-        const activeElements = elements[activeKey];
-        const passiveElements = elements[passiveKey];
+        const activeElements = elements[activeKey]; // Outgoing elements
+        const passiveElements = elements[passiveKey]; // Incoming elements
 
-        updateElementSet(passiveKey, data);
+        updateElementSet(passiveKey, data); // Populate incoming elements with new data
 
         const zIndexConfig = {
-            outgoing: {
-                'albumArtBackground': '0',
-                'albumArt': '2',
-                'trackName': '4',
-                'artistName': '4',
-                'playerControls': '6',
-                'spotifyLogo': '6'
-            },
-            incoming: {
-                'albumArtBackground': '1',
-                'albumArt': '3',
-                'trackName': '5',
-                'artistName': '5',
-                'playerControls': '7',
-                'spotifyLogo': '7'
-            }
+            outgoing: { 'albumArtBackground': '0', 'albumArt': '2', 'trackName': '4', 'artistName': '4', 'playerControls': '6', 'spotifyLogo': '6' },
+            incoming: { 'albumArtBackground': '1', 'albumArt': '3', 'trackName': '5', 'artistName': '5', 'playerControls': '7', 'spotifyLogo': '7' }
         };
 
         function getElementType(element) {
-            if (element.id.startsWith('albumArtBackground_')) return 'albumArtBackground';
-            if (element.id.startsWith('albumArt_')) return 'albumArt';
-            if (element.id.startsWith('trackName_')) return 'trackName';
-            if (element.id.startsWith('artistName_')) return 'artistName';
-            if (element.classList.contains('widget-player-controls')) return 'playerControls';
-            if (element.classList.contains('widget-spotify-logo')) return 'spotifyLogo';
-            return null;
+            return element.dataset.type || null;
         }
 
+        // Apply z-indexes before starting animations
         passiveElements.forEach(el => {
-            el.classList.remove('passive'); // Make them part of the layout for animation
             const elementType = getElementType(el);
             if (elementType && zIndexConfig.incoming[elementType]) {
                 el.style.zIndex = zIndexConfig.incoming[elementType];
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (incoming ${passiveKey}) z-index set to ${zIndexConfig.incoming[elementType]}.`, 'debug');
-            } else if (elementType) {
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (incoming ${passiveKey}) type ${elementType} not in zIndexConfig.incoming.`, 'warn');
-            } else {
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (incoming ${passiveKey}) type unknown for z-index.`, 'warn');
             }
         });
-
         activeElements.forEach(el => {
             const elementType = getElementType(el);
             if (elementType && zIndexConfig.outgoing[elementType]) {
                 el.style.zIndex = zIndexConfig.outgoing[elementType];
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (outgoing ${activeKey}) z-index set to ${zIndexConfig.outgoing[elementType]}.`, 'debug');
-            } else if (elementType) {
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (outgoing ${activeKey}) type ${elementType} not in zIndexConfig.outgoing.`, 'warn');
-            } else {
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (outgoing ${activeKey}) type unknown for z-index.`, 'warn');
             }
         });
 
-        let longestAnimation = 0;
+        // Callback to reset z-index after individual animation completes
+        const onElementTransitionComplete = (element) => {
+            element.style.zIndex = ''; // Reset z-index to CSS default
+            WidgetCore.log(`ModernWidget: Element ${element.id || element.className} z-index reset post-transition.`, 'debug');
+        };
 
-        activeElements.forEach(el => {
-            const animName = el.dataset.transitionOutAnimation;
-            const duration = parseInt(el.dataset.transitionOutDuration, 10) || 0;
-            const delay = parseInt(el.dataset.transitionOutDelay, 10) || 0;
-            const elementOutDuration = delay + duration;
+        // Apply animations using the helper
+        const longestOutDuration = _applyAnimations(activeElements, 'transitionOut', activeKey, onElementTransitionComplete);
+        const longestInDuration = _applyAnimations(passiveElements, 'transitionIn', passiveKey, onElementTransitionComplete);
 
-            if (animName && animName !== 'none') {
-                el.style.animation = `${animName} ${duration}ms ease-out ${delay}ms forwards`;
-            } else { // animName is 'none' or not specified for transition-out
-                el.style.opacity = 1; // Ensure visible during its "none" out phase
-                el.style.animation = ''; // Clear any previous animation
-            }
+        const longestOverallTransition = Math.max(longestOutDuration, longestInDuration);
 
-            setTimeout(() => {
-                el.style.animation = ''; // Clear animation style
-                el.classList.add('passive');
-                el.style.opacity = 0;
-                el.style.zIndex = ''; // Reset z-index to default (from CSS)
-                WidgetCore.log(`ModernWidget: Element ${el.id || el.tagName} (outgoing ${activeKey}) animation/transition complete. Now passive, z-index reset.`, 'debug');
-            }, elementOutDuration);
-
-            if (elementOutDuration > longestAnimation) {
-                longestAnimation = elementOutDuration;
-            }
-        });
-
-        passiveElements.forEach(el => {
-            const animName = el.dataset.transitionInAnimation;
-            const duration = parseInt(el.dataset.transitionInDuration, 10) || 0;
-            const delay = parseInt(el.dataset.transitionInDelay, 10) || 0;
-            const elementInDuration = delay + duration;
-
-            if (animName && animName !== 'none') {
-                el.style.opacity = 0; // Start transparent for actual animations
-                el.style.animation = `${animName} ${duration}ms ease-in ${delay}ms forwards`;
-                setTimeout(() => {
-                    el.style.animation = '';
-                    el.style.opacity = 1; // Ensure fully visible after animation
-                }, elementInDuration);
-            } else { // animName is 'none' or not specified for transition-in
-                 el.style.animation = '';
-                 if (delay > 0) {
-                    el.style.opacity = 0; // Start transparent if there's a delay
-                    setTimeout(() => {
-                        el.style.opacity = 1;
-                        // After its 'duration' for 'none', ensure opacity is 1
-                        setTimeout(() => { el.style.opacity = 1; }, duration);
-                    }, delay);
-                 } else {
-                    el.style.opacity = 1; // Become visible immediately
-                    // After its 'duration' for 'none', ensure opacity is 1
-                    setTimeout(() => { el.style.opacity = 1; }, duration);
-                 }
-            }
-            if (elementInDuration > longestAnimation) {
-                longestAnimation = elementInDuration;
-            }
-        });
+        // Global cleanup after the entire transition animation sequence
 
         setTimeout(() => {
             // Individual elements handle their own state changes (passive, opacity, animation clear).
@@ -327,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentState = passiveKey;
             isAnimating = false;
             WidgetCore.log('ModernWidget: Transition sequence complete. Current set:', 'debug', currentState);
-        }, longestAnimation);
+        }, longestOverallTransition);
     }
 
     // CORE EVENT HANDLERS (for events other than song change)
@@ -377,13 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             widgetElement: spotifyWidgetElement,
             token: token,
             endpointTemplate: endpointTemplate,
-            onSongChange: (newData, oldData) => {
-                let markedNewData = newData ? {...newData} : null;
-                if (oldData === undefined && markedNewData !== null) { 
-                    markedNewData.is_initial_data = true;
-                }
-                handleSongChange(markedNewData, oldData);
-            },
+            onSongChange: handleSongChange,
             onDataUpdate: (newData) => {
                 spotifyWidgetElement.dispatchEvent(new CustomEvent('coreDataUpdate', { detail: { newData } }));
             },

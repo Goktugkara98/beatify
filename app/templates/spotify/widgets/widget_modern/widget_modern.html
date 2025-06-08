@@ -19,11 +19,11 @@
     <!-- Ana Widget Konteyneri -->
     <div id="spotifyWidgetModern" class="widget-container modern-widget widget-inactive"
          data-token="j5Bp8lwM6iad"
-         data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
+         data-endpoint-template="/spotify/api/widget-data/{TOKEN}?use_mock=true">
 
         <!-- Arka Plan Albüm Sanatı (Bulanık) - Standard widget ile tutarlılık için eklendi -->
         <div class="background-container">
-            <img id="albumArtBackground_a" class="widget-album-art-background" data-set="a"
+            <img id="albumArtBackground_a" class="widget-album-art-background" data-set="a" data-type="albumArtBackground"
                  src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı A"
                  data-intro-animation="fade-in"
                  data-intro-duration="1000"
@@ -38,7 +38,7 @@
                  data-outro-duration="1000"
                  data-outro-delay="0">
 
-            <img id="albumArtBackground_b" class="widget-album-art-background passive" data-set="b"
+            <img id="albumArtBackground_b" class="widget-album-art-background passive" data-set="b" data-type="albumArtBackground"
                  src="" alt="Arka Plan Albüm Sanatı B"
                  data-intro-animation="fade-in"
                  data-intro-duration="1000"
@@ -59,10 +59,10 @@
 
         <!-- Albüm Kapağı (Üst Kısım) -->
         <div class="cover-container">
-            <img id="albumArt_a" class="widget-album-art-main" data-set="a" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı A"
-                 data-intro-animation="slide-in-right"
+            <img id="albumArt_a" class="widget-album-art-main" data-set="a" data-type="albumArt" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı A"
+                 data-intro-animation="fade-in"
                  data-intro-duration="1000"
-                 data-intro-delay="0"
+                 data-intro-delay="200"
                  data-transition-in-animation="slide-in-right"
                  data-transition-in-duration="1000"
                  data-transition-in-delay="0"
@@ -72,10 +72,10 @@
                  data-outro-animation="slide-out-left"
                  data-outro-duration="1000"
                  data-outro-delay="0">
-            <img id="albumArt_b" class="widget-album-art-main passive" data-set="b" src="" alt="Albüm Kapağı B"
-                 data-intro-animation="slide-in-right"
+            <img id="albumArt_b" class="widget-album-art-main passive" data-set="b" data-type="albumArt" src="" alt="Albüm Kapağı B"
+                 data-intro-animation="fade-in"
                  data-intro-duration="1000"
-                 data-intro-delay="0"
+                 data-intro-delay="200"
                  data-transition-in-animation="slide-in-right"
                  data-transition-in-duration="1000"
                  data-transition-in-delay="0"
@@ -92,10 +92,10 @@
             <!-- Şarkı Bilgileri -->
             <div class="widget-track-info">
                 <div class="track-name-container">
-                    <h3 id="trackName_a" class="widget-track-name" data-set="a" title="Şarkı Adı Yükleniyor..."
-                        data-intro-animation="slide-in-right"
+                    <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor..."
+                        data-intro-animation="fade-in"
                         data-intro-duration="1000"
-                        data-intro-delay="0"
+                        data-intro-delay="400"
                         data-transition-in-animation="slide-in-right"
                         data-transition-in-duration="1000"
                         data-transition-in-delay="0"
@@ -105,10 +105,10 @@
                         data-outro-animation="slide-out-left"
                         data-outro-duration="1000"
                         data-outro-delay="0">Yükleniyor...</h3>
-                    <h3 id="trackName_b" class="widget-track-name passive" data-set="b" title=""
-                        data-intro-animation="slide-in-right"
+                    <h3 id="trackName_b" class="widget-track-name passive" data-set="b" data-type="trackName" title=""
+                        data-intro-animation="fade-in
                         data-intro-duration="1000"
-                        data-intro-delay="0"
+                        data-intro-delay="400"
                         data-transition-in-animation="slide-in-right"
                         data-transition-in-duration="1000"
                         data-transition-in-delay="0"
@@ -120,10 +120,10 @@
                         data-outro-delay="0"></h3>
                 </div>
                 <div class="artist-name-container">
-                    <p id="artistName_a" class="widget-artist-name" data-set="a" title="Sanatçı Adı Yükleniyor..."
-                       data-intro-animation="slide-in-right"
+                    <p id="artistName_a" class="widget-artist-name" data-set="a" data-type="artistName" title="Sanatçı Adı Yükleniyor..."
+                       data-intro-animation="fade-in
                        data-intro-duration="1000"
-                       data-intro-delay="0"
+                       data-intro-delay="400"
                        data-transition-in-animation="slide-in-right"
                        data-transition-in-duration="1000"
                        data-transition-in-delay="0"
@@ -133,10 +133,10 @@
                        data-outro-animation="slide-out-left"
                        data-outro-duration="1000"
                        data-outro-delay="0">...</p>
-                    <p id="artistName_b" class="widget-artist-name passive" data-set="b" title=""
-                       data-intro-animation="slide-in-right"
+                    <p id="artistName_b" class="widget-artist-name passive" data-set="b" data-type="artistName" title=""
+                       data-intro-animation="fade-in"
                        data-intro-duration="1000"
-                       data-intro-delay="0"
+                       data-intro-delay="400"
                        data-transition-in-animation="slide-in-right"
                        data-transition-in-duration="1000"
                        data-transition-in-delay="0"
@@ -151,10 +151,10 @@
 
             <!-- Progress Bar Alanı -->
             <div class="widget-player-controls-container">
-                <div class="widget-player-controls" data-set="a"
-                 data-intro-animation="slide-in-right"
+                <div class="widget-player-controls" data-set="a" data-type="playerControls"
+                 data-intro-animation="fade-in"
                  data-intro-duration="1000"
-                 data-intro-delay="0"
+                 data-intro-delay="400"
                  data-transition-in-animation="slide-in-right"
                  data-transition-in-duration="1000"
                  data-transition-in-delay="0"
@@ -174,10 +174,10 @@
                     </div>
                 </div>
             </div>
-            <div class="widget-player-controls" data-set="b"
-                 data-intro-animation="slide-in-right"
+            <div class="widget-player-controls" data-set="b" data-type="playerControls"
+                 data-intro-animation="fade-in"
                  data-intro-duration="1000"
-                 data-intro-delay="0"
+                 data-intro-delay="400"
                  data-transition-in-animation="slide-in-right"
                  data-transition-in-duration="1000"
                  data-transition-in-delay="0"
@@ -202,10 +202,10 @@
 
         <!-- Spotify Logosu -->
         <div class="widget-spotify-logo-container">
-            <div class="widget-spotify-logo" data-set="a"
-             data-intro-animation="slide-in-right"
+            <div class="widget-spotify-logo" data-set="a" data-type="spotifyLogo"
+             data-intro-animation="fade-in"
              data-intro-duration="1000"
-             data-intro-delay="0"
+             data-intro-delay="400"
              data-transition-in-animation="slide-in-right"
              data-transition-in-duration="1000"
              data-transition-in-delay="0"
@@ -222,10 +222,10 @@
                 <span class="spotify-text">Spotify</span>
             </div>
         </div>
-        <div class="widget-spotify-logo" data-set="b"
-             data-intro-animation="slide-in-right"
+        <div class="widget-spotify-logo passive" data-set="b" data-type="spotifyLogo"
+             data-intro-animation="fade-in"
              data-intro-duration="1000"
-             data-intro-delay="0"
+             data-intro-delay="400"
              data-transition-in-animation="slide-in-right"
              data-transition-in-duration="1000"
              data-transition-in-delay="0"
@@ -251,23 +251,9 @@
     </div>
 
     <!-- Mock Kontrol Butonu (Widget Dışında) -->
-    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: show;">
         <button id="changeMockSongBtn" style="padding: 8px 12px; font-size: 12px; background-color: #1DB954; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Change Mock Song</button>
     </div>
-
-    <script>
-        // WIDGET_TOKEN ve DATA_ENDPOINT_TEMPLATE global scope'a tanımlanır.
-        window.WIDGET_TOKEN_FROM_HTML = "{{ config.widgetToken }}"; 
-        // DATA_ENDPOINT_TEMPLATE, widget_data route'unda /spotify/api/widget-data/<widget_token> olarak tanımlı.
-        // config.dataEndpoint zaten use_mock=test_mode içeriyor, ancak burada mock_song_index eklemek için manuel olarak ayarlayacağız.
-        // Şimdilik, core.js'nin bunu işlemesini bekleyeceğiz ve endpoint'i basit tutacağız.
-        // window.DATA_ENDPOINT_TEMPLATE = "{{ config.dataEndpoint | replace('?test=true', '?use_mock=true') | replace('?test=false', '?use_mock=true') }}";
-        // Yukarıdaki Jinja filtresi yerine, core.js'nin mock_song_index'i eklemesi için endpoint'i temel haliyle bırakalım
-        // ve use_mock=true'yi core.js'de veya burada manuel olarak ekleyelim.
-        // En temizi, config.dataEndpoint'in zaten use_mock=true içerdiğini varsaymak veya core.js'de yönetmek.
-        // Kullanıcı isteği üzerine, doğrudan use_mock=true ve {TOKEN} placeholder'ı ile ayarlıyoruz.
-        window.DATA_ENDPOINT_TEMPLATE = '/spotify/api/widget-data/{TOKEN}?use_mock=true';
-    </script>
 
     <!-- Ortak JavaScript Dosyası -->
     <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>

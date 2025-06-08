@@ -2,13 +2,7 @@
  * widget_modern_animations.css
  */
 
-/* Pasif elementleri gizler ama animasyon yeteneğini korur */
-.passive {
-    position: absolute; /* Akışı bozmadan diğerinin üzerine gelebilmesi için */
-    opacity: 0;
-    pointer-events: none; /* Tıklanamaz yapar */
-    /* display: none; KULLANILMAMALI, animasyonları bozar! */
-}
+/* Pasif elementlerin stilleri spotify_widget_core.css dosyasında tanımlanmıştır */
 
 /* Örnek Animasyon Keyframe'leri */
 @keyframes slide-in-right {
