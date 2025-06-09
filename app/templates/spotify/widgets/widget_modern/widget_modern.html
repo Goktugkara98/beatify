@@ -20,7 +20,7 @@
         <div class="modern-background-container">
             <!-- 'widget-background-image' sınıfı, bir resim veya sadece bir renk katmanı olabileceği için daha genel bir isimdir. -->
             <img id="albumArtBackground_a" class="widget-background-image" data-set="a" data-type="albumArtBackground"
-                 src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Görseli A">
+                 src="" alt="Arka Plan Görseli A">
             <img id="albumArtBackground_b" class="widget-background-image passive" data-set="b" data-type="albumArtBackground"
                  src="" alt="Arka Plan Görseli B">
         </div>
@@ -43,7 +43,7 @@
             <!-- Şarkı ve sanatçı bilgileri için layout container'ı. -->
             <div class="modern-track-info-container">
                 <div class="modern-track-name-container">
-                    <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
+                    <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor..."></h3>
                     <h3 id="trackName_b" class="widget-track-name passive" data-set="b" data-type="trackName" title=""></h3>
                 </div>
                 <div class="modern-artist-name-container">
@@ -92,10 +92,6 @@
         </div>
     </div>
 
-    <!-- Test/Kontrol Butonları -->
-    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: hidden;">
-        <button id="changeMockSongBtn" style="padding: 8px 12px; font-size: 12px; background-color: #1DB954; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Change Mock Song</button>
-    </div>
     
     <script>
         window.configData = JSON.parse('{{ config|tojson|safe }}');

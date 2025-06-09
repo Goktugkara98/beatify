@@ -1,41 +1,123 @@
+/**
+ * WidgetCore.js - Spotify Widget Çekirdek Mantığı
+ * * Bu modül, Spotify'dan veri çekme, durumu yönetme, şarkı değişikliklerini
+ * algılama ve temel widget yaşam döngüsü (aktivasyon, deaktivasyon)
+ * olaylarını yönetmekten sorumludur. Arayüzden (UI) bağımsızdır ve
+ * herhangi bir widget görünümü (theme) tarafından kullanılabilir.
+ */
 const WidgetCore = (() => {
     'use strict';
 
-    // 1. ÇEKİRDEK DURUM VE AYARLAR
-    let currentTrackId = null;
-    let lastFetchedData = null;
-    let pollTimeoutId = null;
-    let isPollingActive = false;
-    let isWidgetCurrentlyActive = false;
-    let progressBarIntervalId = null;
-    let currentMockSongIndex = 0; // Index for cycling through mock songs
+    // =========================
+    // LOGGER SINIFI (DETAYLI)
+    // =========================
+    class Logger {
+        constructor(options = {}) {
+            this.levels = ['debug', 'info', 'warn', 'error'];
+            this.colors = {
+                debug: 'color: #9e9e9e;',
+                info: 'color: #1976d2;',
+                warn: 'color: #fbc02d;',
+                error: 'color: #d32f2f; font-weight:bold;'
+            };
+            this.activeLevels = options.activeLevels || this.levels;
+            this.memory = options.memory || false;
+            this.logs = [];
+            this.prefix = options.prefix || 'WidgetCore';
+            this.enabled = options.enabled !== undefined ? options.enabled : true;
+        }
 
+        setEnabled(val) { this.enabled = !!val; }
+        setActiveLevels(levels) { this.activeLevels = levels; }
+        clearMemory() { this.logs = []; }
+        getLogs() { return this.logs.slice(); }
+
+        _shouldLog(level) {
+            return this.enabled && this.activeLevels.includes(level);
+        }
+
+        _getTimestamp() {
+            return new Date().toISOString();
+        }
+
+        log(message, level = 'info', data = null) {
+            if (!this._shouldLog(level)) return;
+            const timestamp = this._getTimestamp();
+            const formatted = `[${timestamp}] [${this.prefix}] [${level.toUpperCase()}] ${message}`;
+            if (this.memory) {
+                this.logs.push({ timestamp, level, message, data });
+            }
+            if (data !== null && data !== undefined) {
+                // Renkli konsol çıktısı
+                console.log(`%c${formatted}`, this.colors[level] || '', data);
+            } else {
+                console.log(`%c${formatted}`, this.colors[level] || '');
+            }
+        }
+        debug(msg, data) { this.log(msg, 'debug', data); }
+        info(msg, data) { this.log(msg, 'info', data); }
+        warn(msg, data) { this.log(msg, 'warn', data); }
+        error(msg, data) { this.log(msg, 'error', data); }
+    }
+
+    // WidgetCore için logger örneği
+    const logger = new Logger({
+        activeLevels: ['debug', 'info', 'warn', 'error'],
+        memory: true,
+        prefix: 'WidgetCore',
+        enabled: true
+    });
+
+    // ===================================================================================
+    // BÖLÜM 1: ÇEKİRDEK DURUM (STATE) VE AYARLAR
+    // Bu bölümde, widget'ın çalışması boyunca kullanılacak tüm durum değişkenleri
+    // ve yapılandırma ayarları bulunmaktadır.
+    // ===================================================================================
+
+    let currentTrackId = null;          // Şu an çalan şarkının kimliği
+    let lastFetchedData = null;         // API'den alınan son başarılı veri
+    let pollTimeoutId = null;           // API sorgulama zamanlayıcısının kimliği
+    let isPollingActive = false;        // API'ye düzenli istek atılıp atılmadığını belirten bayrak
+    let isWidgetCurrentlyActive = false; // Widget'ın genel olarak aktif olup olmadığını belirten bayrak
+    let progressBarIntervalId = null;   // İlerleme çubuğu animasyonunun zamanlayıcı kimliği
+    let currentMockSongIndex = 0;       // Test için kullanılan sahte şarkı listesindeki indeks
+
+    // Widget'ın varsayılan ve kullanıcı tarafından üzerine yazılabilecek ayarları
     let widgetConfig = {
         token: null,
         endpointTemplate: null,
         widgetElement: null,
-        onSongChange: (newData, oldData) => { _log('Varsayılan onSongChange tetiklendi.', { newData, oldData }); },
-        onDataUpdate: (newData) => { /* Varsayılan boş, loglama ile izleniyor */ },
-        onError: (error) => { _log('Varsayılan onError tetiklendi.', 'error', error); },
-        onActivate: async () => { _log('Varsayılan onActivate tetiklendi.'); return Promise.resolve(); },
-        onDeactivate: async () => { _log('Varsayılan onDeactivate tetiklendi.'); return Promise.resolve(); },
-        minPollInterval: 1500,
-        defaultPollInterval: 7000,
-        notPlayingPollInterval: 15000,
-        errorPollInterval: 30000
+        minPollInterval: 1000,          // En kısa sorgulama aralığı (ms)
+        defaultPollInterval: 1000,      // Şarkı çalarken varsayılan sorgulama aralığı (ms)
+        notPlayingPollInterval: 1000,  // Şarkı çalmazken sorgulama aralığı (ms)
+        errorPollInterval: 30000,       // Hata durumunda sorgulama aralığı (ms)
+        onSongChange: (newData, oldData) => { logger.info('Varsayılan onSongChange tetiklendi.', { newData, oldData }); },
+        onDataUpdate: (newData) => { logger.debug('Varsayılan onDataUpdate tetiklendi.', newData); },
+        onError: (error) => { logger.error('Varsayılan onError tetiklendi.', error); },
+        onActivate: async () => { logger.info('Varsayılan onActivate tetiklendi.'); return Promise.resolve(); },
+        onDeactivate: async () => { logger.info('Varsayılan onDeactivate tetiklendi.'); return Promise.resolve(); },
     };
 
-    // 2. LOGLAMA VE YARDIMCI FONKSİYONLAR
-    function _log(message, level = 'log', data = null) {
-        const prefix = 'WidgetCore:';
-        const fullMessage = `${prefix} ${message}`;
-        if (data !== null && data !== undefined) {
-            console[level](fullMessage, data);
-        } else {
-            console[level](fullMessage);
-        }
+    // ===================================================================================
+    // BÖLÜM 2: YARDIMCI FONKSİYONLAR (UTILITIES)
+    // Genel amaçlı, tekrar kullanılabilir fonksiyonlar.
+    // ===================================================================================
+
+    /**
+     * Logger'ı kullanarak detaylı loglama yapar.
+     * @param {string} message - Log mesajı
+     * @param {string} [level='info'] - Log seviyesi (debug, info, warn, error)
+     * @param {*} [data=null] - Ek veri
+     */
+    function _log(message, level = 'info', data = null) {
+        logger.log(message, level, data);
     }
 
+    /**
+     * Milisaniyeyi "dakika:saniye" formatına çevirir.
+     * @param {number} ms - Milisaniye cinsinden süre
+     * @returns {string} Biçimlendirilmiş zaman (örn: "3:45")
+     */
     function msToTimeFormat(ms) {
         if (isNaN(ms) || ms === null || ms < 0) return '0:00';
         const totalSeconds = Math.floor(ms / 1000);
@@ -44,6 +126,12 @@ const WidgetCore = (() => {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
 
+    /**
+     * Bir DOM elementinin metin içeriğini ve başlığını günceller.
+     * @param {HTMLElement} element - Güncellenecek element
+     * @param {string} text - Yeni metin içeriği
+     * @param {string} [title] - Elementin yeni başlığı (tooltip)
+     */
     function updateTextContent(element, text, title) {
         if (element) {
             element.textContent = text;
@@ -53,6 +141,14 @@ const WidgetCore = (() => {
         }
     }
 
+    /**
+     * Bir <img> elementinin kaynağını güvenli bir şekilde günceller.
+     * Hata durumunda isteğe bağlı olarak bir yedek resim gösterir.
+     * @param {HTMLImageElement} imgElement - Güncellenecek resim elementi
+     * @param {string} newSrc - Yeni resim URL'si
+     * @param {string} [placeholderSrc] - Hata durumunda gösterilecek yedek URL
+     * @param {Function} [onLoadCallback] - Yükleme tamamlandığında veya hata alındığında çalışacak callback
+     */
     function updateImageSource(imgElement, newSrc, placeholderSrc, onLoadCallback) {
         if (!imgElement) return;
         if (imgElement.src === newSrc) {
@@ -72,6 +168,11 @@ const WidgetCore = (() => {
         };
     }
 
+    /**
+     * Hata mesajı elementini gösterir.
+     * @param {HTMLElement} errorElement - Hata mesajı elementi
+     * @param {string} message - Gösterilecek mesaj
+     */
     function showError(errorElement, message) {
         if (errorElement) {
             updateTextContent(errorElement, message);
@@ -80,6 +181,10 @@ const WidgetCore = (() => {
         }
     }
 
+    /**
+     * Hata mesajı elementini gizler.
+     * @param {HTMLElement} errorElement - Hata mesajı elementi
+     */
     function hideError(errorElement) {
         if (errorElement) {
             errorElement.classList.remove('visible');
@@ -87,8 +192,17 @@ const WidgetCore = (() => {
         }
     }
 
-    // 3. VERİ YÖNETİMİ VE SORGULAMA
+    // ===================================================================================
+    // BÖLÜM 3: API İLETİŞİMİ VE VERİ YÖNETİMİ
+    // Backend ile iletişim kurma, veriyi çekme, işleme ve sorgulama döngüsünü yönetme.
+    // ===================================================================================
+
+    /**
+     * Belirtilen endpoint'e API isteği göndererek güncel şarkı verisini çeker.
+     * @returns {Promise<object>} API'den gelen veri veya bir hata nesnesi.
+     */
     async function _fetchData() {
+        logger.debug('API veri çekme fonksiyonu çağrıldı.');
         if (!widgetConfig.token || !widgetConfig.endpointTemplate) {
             const errorMsg = `Token veya endpoint template eksik. Token: ${widgetConfig.token ? 'VAR' : 'YOK'}, Endpoint: ${widgetConfig.endpointTemplate || 'YOK'}`;
             _log(errorMsg, 'error');
@@ -96,34 +210,12 @@ const WidgetCore = (() => {
         }
 
         let endpoint = widgetConfig.endpointTemplate.replace('{TOKEN}', widgetConfig.token);
-
-        // Mock modu için endpoint'i kontrol et ve gerekirse 'use_mock=true' ekle
         if (endpoint.includes('use_mock=true')) {
             endpoint += `&mock_song_index=${currentMockSongIndex}`;
         }
-
-        // Mock modu için endpoint'i kontrol et ve gerekirse 'use_mock=true' ekle
-        // Bu, endpointTemplate'in kendisinde bir işaretçi (örneğin '?mock' veya '&mock') içermesine dayanır.
-        // VEYA global bir mock flag'i de kullanılabilir.
-        // Şimdilik, endpointTemplate'de '?use_mock=true' veya '&use_mock=true' olup olmadığını kontrol edelim.
-        // Eğer widget_modern.html'deki DATA_ENDPOINT_TEMPLATE'e ?use_mock=true eklersek, bu kısım otomatik çalışır.
-        // Daha sağlam bir çözüm için, widgetConfig'e bir `useMock` boolean eklenebilir ve burada kontrol edilebilir.
-
-        // Eğer endpointTemplate zaten use_mock içeriyorsa, bu blok atlanacak.
-        // Eğer widgetConfig.useMock gibi bir bayrak olsaydı, o zaman şöyle yapardık:
-        // if (widgetConfig.useMock) {
-        //     endpoint += (endpoint.includes('?') ? '&' : '?') + 'use_mock=true';
-        // }
-        // Şimdilik, HTML'den gelen template'in doğru ayarlandığını varsayıyoruz.
-        const requestDetails = {
-            endpoint: endpoint.replace(widgetConfig.token, '***TOKEN***'),
-            method: 'GET',
-            headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
-            credentials: 'same-origin'
-        };
-
-        _log('API isteği gönderiliyor...', 'debug', requestDetails);
         
+        _log('API isteği gönderiliyor...', 'debug', { endpoint: endpoint.replace(widgetConfig.token, '***TOKEN***') });
+
         try {
             const startTime = performance.now();
             const response = await fetch(endpoint, {
@@ -132,31 +224,17 @@ const WidgetCore = (() => {
                 credentials: 'same-origin'
             });
             const responseTime = Math.round(performance.now() - startTime);
-
-            _log(`API yanıtı alındı (${response.status} ${response.statusText}) - ${responseTime}ms`, 'debug');
+            _log(`API yanıtı alındı (${response.status}) - ${responseTime}ms`, 'debug');
 
             const responseText = await response.text();
-            
             if (!response.ok) {
-                let errorData;
-                try {
-                    errorData = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
-                } catch (e) {
-                    errorData = { message: `HTTP ${response.status} - ${response.statusText}`, responseText: responseText };
-                }
-                _log('API hatası alındı', 'error', { status: response.status, errorData });
-                return { error: `API hatası: ${response.status} ${response.statusText}`, status: response.status, details: errorData };
+                const errorData = { message: `API Hatası: ${response.status} ${response.statusText}`, responseText };
+                _log('API hatası alındı', 'error', errorData);
+                return { error: errorData.message, status: response.status, details: errorData };
             }
 
-            let data;
-            try {
-                data = responseText ? JSON.parse(responseText) : {};
-                _log('API yanıtı başarıyla ayrıştırıldı', 'debug', data);
-            } catch (parseError) {
-                _log('API yanıtı JSON olarak ayrıştırılamadı', 'error', { error: parseError.toString(), responseText });
-                return { error: 'Geçersiz JSON yanıtı', parseError: parseError.toString(), responseText: responseText };
-            }
-
+            const data = JSON.parse(responseText);
+            _log('API yanıtı başarıyla işlendi', 'debug', data);
             return data;
         } catch (error) {
             _log('_fetchData içinde kritik hata.', 'error', error);
@@ -164,243 +242,117 @@ const WidgetCore = (() => {
         }
     }
 
+    /**
+     * Gelen veriye göre bir sonraki API isteği için bekleme süresini belirler.
+     * @param {object} data - API'den gelen veri
+     * @param {boolean} [isFetchError=false] - Veri çekilirken hata oluşup oluşmadığı
+     * @returns {number} Milisaniye cinsinden bekleme süresi
+     */
     function _determinePollInterval(data, isFetchError = false) {
         if (isFetchError) {
-            _log(`Hata nedeniyle sorgulama aralığı ${widgetConfig.errorPollInterval}ms olarak ayarlandı.`, 'warn');
             return widgetConfig.errorPollInterval;
         }
-        if (!data || !(data.item?.name || data.track_name) || (typeof data.is_playing === 'boolean' && !data.is_playing)) {
-             _log(`Çalan şarkı yok, sorgulama aralığı ${widgetConfig.notPlayingPollInterval}ms olarak ayarlandı.`, 'info');
+        if (!data || !data.is_playing) {
             return widgetConfig.notPlayingPollInterval;
         }
-        if (typeof data.is_playing !== 'boolean') {
-             _log(`is_playing durumu belirsiz, sorgulama aralığı ${widgetConfig.notPlayingPollInterval}ms olarak ayarlandı.`, 'warn');
-            return widgetConfig.notPlayingPollInterval;
-        }
-        _log(`Varsayılan sorgulama aralığı ${widgetConfig.defaultPollInterval}ms kullanılıyor.`, 'info');
         return widgetConfig.defaultPollInterval;
     }
 
+    /**
+     * API'den gelen yeni veriyi işler, şarkı değişikliği olup olmadığını kontrol eder
+     * ve ilgili callback'leri tetikler.
+     * @param {object} newData - API'den gelen yeni veri
+     */
     async function _processNewData(newData) {
-        _log('Yeni veri işleme süreci başladı.', 'debug', { hasData: !!newData, hasError: !!(newData && newData.error) });
+        if (!newData || newData.error) {
+            _log('Veri işlenirken hata tespit edildi veya veri boş.', 'warn', newData?.error);
+            widgetConfig.onError(newData || { error: 'Boş veya tanımsız veri alındı.' });
+            return;
+        }
 
-        if (newData && !newData.error) {
-            // Backend'den gelen 'track_url' veya 'item.id' alanını birincil kimlik olarak kullan
-            const newTrackIdentifier = newData.track_url || newData.item?.id || null;
+        const newTrackIdentifier = newData.item?.id || null;
 
-            _log('Yeni veri analizi:', 'debug', {
-                newTrackIdentifier,
-                currentTrackId,
-                isSameTrack: newTrackIdentifier === currentTrackId
-            });
+        if (newTrackIdentifier && newTrackIdentifier !== currentTrackId) {
+            const isInitialSong = (currentTrackId === null);
+            _log(`Yeni şarkı tespit edildi: ${newData.item.name}`, 'info');
+            
+            const oldData = { ...lastFetchedData };
+            const dataForCallback = isInitialSong ? { ...newData, is_initial_data: true } : newData;
 
-            if (newTrackIdentifier && newTrackIdentifier !== currentTrackId) {
-                const isInitialSong = (currentTrackId === null);
-                _log('Yeni şarkı tespit edildi. Callback tetikleniyor.', 'info', { 
-                    previousTrackId: currentTrackId, 
-                    newTrackId: newTrackIdentifier,
-                    trackName: newData.item?.name || newData.track_name,
-                    isInitial: isInitialSong
-                });
-                
-                const oldData = { ...lastFetchedData }; // Capture old state before updating
-                const dataForCallback = isInitialSong ? { ...newData, is_initial_data: true } : { ...newData };
-
-                lastFetchedData = newData; // Update global state *after* preparing callbacks
-                currentTrackId = newTrackIdentifier;
-                
-                if (typeof widgetConfig.onSongChange === 'function') {
-                    _log('onSongChange callback çağrılıyor...', 'debug', { isInitialDataFlag: dataForCallback.is_initial_data });
-                    try {
-                        await widgetConfig.onSongChange(dataForCallback, oldData);
-                        _log('onSongChange callback başarıyla tamamlandı.', 'debug');
-                    } catch (error) {
-                        _log('onSongChange callback hatası:', 'error', { error: error.toString(), stack: error.stack });
-                    }
-                }
-            } else if (newTrackIdentifier) {
-                _log('Aynı şarkı devam ediyor, veri güncelleniyor.', 'debug', { trackId: newTrackIdentifier });
-                
-                lastFetchedData = newData;
-                if (typeof widgetConfig.onDataUpdate === 'function') {
-                    _log('onDataUpdate callback çağrılıyor...', 'debug');
-                    try {
-                        await widgetConfig.onDataUpdate(newData);
-                        _log('onDataUpdate callback başarıyla tamamlandı.', 'debug');
-                    } catch (error) {
-                        _log('onDataUpdate callback hatası:', 'error', { error: error.toString(), stack: error.stack });
-                    }
-                }
-            } else {
-                 _log('Alınan veride geçerli bir şarkı kimliği bulunamadı.', 'warn', newData);
-            }
-        } else if (newData && newData.error) {
-            _log('Veri işlenirken hata tespit edildi.', 'warn', newData.error);
-            if (typeof widgetConfig.onError === 'function') {
-                widgetConfig.onError(newData);
-            }
+            currentTrackId = newTrackIdentifier;
+            lastFetchedData = newData;
+            
+            await widgetConfig.onSongChange(dataForCallback, oldData);
+        } else if (newTrackIdentifier) {
+            _log('Aynı şarkı devam ediyor, veri güncelleniyor.', 'debug');
+            lastFetchedData = newData;
+            await widgetConfig.onDataUpdate(newData);
         } else {
-             _log('İşlenecek geçerli bir veri yok veya veri boş.', 'warn');
-             if (typeof widgetConfig.onError === 'function') {
-                widgetConfig.onError({error: 'Boş veya tanımsız veri alındı.'});
-            }
+            _log('Alınan veride geçerli bir şarkı kimliği bulunamadı.', 'warn', newData);
         }
     }
 
+    /**
+     * Veri çekme döngüsünü (polling) başlatır ve yönetir.
+     */
     async function _pollForData() {
         if (!isWidgetCurrentlyActive || !isPollingActive) {
             _log('Polling koşulları sağlanmıyor, atlanıyor.', 'warn', { isWidgetCurrentlyActive, isPollingActive });
             return;
         }
     
-        _log('Yeni veri için sorgulama yapılıyor...', 'debug');
         const newData = await _fetchData();
-        
-        _log('Veri çekme tamamlandı, _processNewData çağrılıyor.', 'debug');
         await _processNewData(newData);
     
-        const fetchErrorOccurred = !!(newData && newData.error);
-        const interval = _determinePollInterval(newData, fetchErrorOccurred);
-        
+        const interval = _determinePollInterval(newData, !!newData?.error);
         _log(`Bir sonraki sorgulama ${interval}ms sonra yapılacak.`, 'debug');
         pollTimeoutId = setTimeout(_pollForData, interval);
     }
     
-    async function _initiateFirstFetchAndActivate() {
-        _log('İlk veri çekme ve aktivasyon süreci başladı.', 'info');
-        const initialData = await _fetchData();
+    // ===================================================================================
+    // BÖLÜM 4: İLERLEME ÇUBUĞU YÖNETİMİ
+    // ===================================================================================
 
-        if (initialData && !initialData.error) {
-            _log('İlk veri başarıyla çekildi.', 'info');
-            
-            // İlk veriyi doğrudan işle, bu işlem currentTrackId ve lastFetchedData'yı ayarlayacak.
-            await _processNewData(initialData);
-
-            // Widget'ı 'aktif' olarak işaretle ve onActivate callback'ini çalıştır.
-            await activateWidget(true); 
-        } else {
-            const errorMsg = initialData?.error || 'Bilinmeyen bir hata nedeniyle ilk veri çekilemedi.';
-            _log(`İlk veri çekme sırasında hata: ${errorMsg}`, 'error', initialData);
-            if (typeof widgetConfig.onError === 'function') {
-                widgetConfig.onError({ error: errorMsg, details: initialData });
-            }
-            _log('İlk veri çekilemediği için widget deaktif kalacak.', 'warn');
-        }
-    }
-
-    // 4. DIŞA AÇIK KONTROL FONKSİYONLARI
-    async function initWidgetBase(config) {
-        _log('WidgetCore.initWidgetBase çağrıldı.', 'info');
-        widgetConfig = { ...widgetConfig, ...config };
-
-        _log('Widget yapılandırma detayları:', 'debug', {
-            config: { ...widgetConfig, token: widgetConfig.token ? '***SET***' : 'MISSING' }
-        });
-
-        if (!widgetConfig.token || !widgetConfig.endpointTemplate || !widgetConfig.widgetElement) {
-            const errorMsg = "initWidgetBase için token, endpointTemplate ve widgetElement gereklidir.";
-            _log(errorMsg, 'error');
-            if(typeof widgetConfig.onError === 'function') widgetConfig.onError({error: errorMsg});
-            return;
-        }
-        
-        if (isPollingActive) {
-            _log("Polling zaten aktif. Durdurulup yeniden başlatılıyor.", 'warn');
-            stopPolling();
-        }
-
-        // Add event listener for the mock song change button
-        const changeMockSongBtn = document.getElementById('changeMockSongBtn');
-        if (changeMockSongBtn && widgetConfig.endpointTemplate && widgetConfig.endpointTemplate.includes('use_mock=true')) {
-            changeMockSongBtn.addEventListener('click', async () => { // Made async
-                currentMockSongIndex++; // Cycle to the next song (backend will handle modulo)
-                _log(`Mock song index changed to: ${currentMockSongIndex}. Widget active: ${isWidgetCurrentlyActive}`, 'info');
-                
-                if (!isWidgetCurrentlyActive) {
-                    _log('Widget is not active. Attempting to activate before refreshing mock song...', 'warn');
-                    try {
-                        await activateWidget(); // activateWidget should handle starting its own poll
-                        // _fetchData will pick up the new currentMockSongIndex automatically
-                        _log('Widget activated successfully by button click.', 'info');
-                    } catch (activationError) {
-                        _log('Failed to activate widget from button click.', 'error', activationError);
-                        // Potentially show error to user or stop here
-                        return; 
-                    }
-                } else {
-                    _log('Widget is active. Forcing data refresh for new mock song index.', 'info');
-                    
-                    stopPolling(true); // Stop existing poll, sets isPollingActive = false
-
-                    _fetchData().then(newData => {
-                        return _processNewData(newData); // This updates lastFetchedData
-                    }).catch(error => {
-                        _log('Error during forced refresh by button click', 'error', error);
-                        if (typeof widgetConfig.onError === 'function') {
-                            widgetConfig.onError({ error: 'Forced refresh failed', details: error });
-                        }
-                        // lastFetchedData might be updated by _fetchData with error info
-                        // or _processNewData might not have run. _determinePollInterval handles undefined data.
-                    }).finally(() => {
-                        if (isWidgetCurrentlyActive) {
-                            isPollingActive = true; // Reactivate polling flag
-                            const fetchErrorOccurred = !!(lastFetchedData && lastFetchedData.error);
-                            const interval = _determinePollInterval(lastFetchedData, fetchErrorOccurred);
-                            _log(`Forced refresh complete, next poll in ${interval}ms. Polling reactivated.`, 'info');
-                            pollTimeoutId = setTimeout(_pollForData, interval);
-                        } else {
-                            _log('Forced refresh complete, but widget is no longer active. Polling not restarted.', 'info');
-                            // isPollingActive should already be false from stopPolling()
-                        }
-                    });
-                }
-            });
-        }
-
-        _initiateFirstFetchAndActivate().catch(error => {
-            _log('İlk veri çekme işleminde beklenmeyen kritik hata:', 'error', error);
-        });
-    }
-
-    function stopPolling(calledInternally = false) {
-        if (pollTimeoutId) clearTimeout(pollTimeoutId);
-        isPollingActive = false;
-        _log(`Polling ${calledInternally ? 'dahili olarak' : 'manuel'} durduruldu.`, 'info');
-    }
-
-    // 5. İLERLEME ÇUBUĞU YÖNETİMİ
+    /**
+     * Şarkının ilerleme çubuğunu ve zaman göstergelerini günceller.
+     * @param {HTMLElement} progressBarElement - İlerleme çubuğu elementi
+     * @param {HTMLElement} currentTimeElement - Geçen süreyi gösteren element
+     * @param {HTMLElement} totalTimeElement - Toplam süreyi gösteren element
+     * @param {number} progressMs - Şarkının o anki ilerlemesi (ms)
+     * @param {number} durationMs - Şarkının toplam süresi (ms)
+     * @param {boolean} isPlaying - Şarkının çalıp çalmadığı
+     * @param {Function} [onComplete] - Şarkı bittiğinde çalışacak callback
+     */
     function updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, progressMs, durationMs, isPlaying, onComplete) {
-        if (progressBarIntervalId) {
-            clearInterval(progressBarIntervalId);
-            progressBarIntervalId = null;
-        }
+        if (progressBarIntervalId) clearInterval(progressBarIntervalId);
+
         if (!progressBarElement || !currentTimeElement || !totalTimeElement || isNaN(progressMs) || isNaN(durationMs) || durationMs <= 0) {
-            if(progressBarElement) progressBarElement.style.width = '0%';
-            if(currentTimeElement) updateTextContent(currentTimeElement, msToTimeFormat(0));
-            if(totalTimeElement) updateTextContent(totalTimeElement, msToTimeFormat(0));
+            if (progressBarElement) progressBarElement.style.width = '0%';
+            if (currentTimeElement) updateTextContent(currentTimeElement, '0:00');
+            if (totalTimeElement) updateTextContent(totalTimeElement, '0:00');
             return;
         }
+
         let currentProgress = Math.max(0, Math.min(progressMs, durationMs));
+        
         const updateDisplay = () => {
             const percentage = (currentProgress / durationMs) * 100;
             progressBarElement.style.width = `${percentage}%`;
             updateTextContent(currentTimeElement, msToTimeFormat(currentProgress));
         };
+
         updateTextContent(totalTimeElement, msToTimeFormat(durationMs));
         updateDisplay();
+
         if (isPlaying && currentProgress < durationMs) {
             const startTime = Date.now();
             progressBarIntervalId = setInterval(() => {
-                const elapsedSinceLastSync = Date.now() - startTime;
-                currentProgress = progressMs + elapsedSinceLastSync;
+                currentProgress = progressMs + (Date.now() - startTime);
                 if (currentProgress >= durationMs) {
                     currentProgress = durationMs;
                     updateDisplay();
                     clearInterval(progressBarIntervalId);
-                    progressBarIntervalId = null;
-                    if (typeof onComplete === 'function') {
-                        onComplete();
-                    }
+                    if (typeof onComplete === 'function') onComplete();
                 } else {
                     updateDisplay();
                 }
@@ -408,80 +360,123 @@ const WidgetCore = (() => {
         }
     }
     
-    // 6. MODÜL DIŞA AKTARIMI
-    async function activateWidget(isInitialActivation = false) {
+    // ===================================================================================
+    // BÖLÜM 5: WIDGET YAŞAM DÖNGÜSÜ YÖNETİMİ
+    // Widget'ın başlatılması, etkinleştirilmesi, devre dışı bırakılması ve
+    // sorgulama döngüsünün kontrolü.
+    // ===================================================================================
+
+    /**
+     * Sorgulama döngüsünü durdurur.
+     */
+    function stopPolling() {
+        if (pollTimeoutId) clearTimeout(pollTimeoutId);
+        isPollingActive = false;
+        _log('Polling durduruldu.', 'info');
+    }
+    
+    /**
+     * Widget'ı etkinleştirir, onActivate callback'ini çalıştırır ve veri sorgulama döngüsünü başlatır.
+     */
+    async function activateWidget() {
+        logger.info('Widget etkinleştiriliyor...');
         if (isWidgetCurrentlyActive) {
             _log('Widget zaten aktif, activateWidget çağrısı yoksayılıyor.', 'warn');
             return;
         }
-        _log(`Widget aktive ediliyor... (${isInitialActivation ? 'otomatik ilk' : 'manuel'})`, 'info');
+        _log('Widget aktive ediliyor...', 'info');
         isWidgetCurrentlyActive = true;
 
-        if (typeof widgetConfig.onActivate === 'function') {
-            _log('onActivate callback çağrılıyor...', 'debug');
-            try {
-                await widgetConfig.onActivate();
-                _log('onActivate callback tamamlandı.', 'debug');
-            } catch (error) {
-                _log('onActivate callback sırasında hata.', 'error', error);
-            }
-        }
+        logger.debug('onActivate callback çağrılıyor.');
+        await widgetConfig.onActivate();
         
         isPollingActive = true;
-
-        if (isInitialActivation) {
-            _log('İlk aktivasyon: Polling zamanlanıyor...', 'debug');
-            const interval = _determinePollInterval(lastFetchedData, (lastFetchedData && lastFetchedData.error));
-            pollTimeoutId = setTimeout(_pollForData, interval);
-        } else {
-            _log('Manuel aktivasyon: Polling hemen başlatılıyor...', 'debug');
-            currentTrackId = null; 
-            lastFetchedData = null;
-            if (pollTimeoutId) clearTimeout(pollTimeoutId);
-            _pollForData(); 
-        }
+        currentTrackId = null; 
+        lastFetchedData = null;
+        if (pollTimeoutId) clearTimeout(pollTimeoutId);
+        _pollForData(); 
+        logger.info('Widget başarıyla etkinleştirildi.');
     }
 
+    /**
+     * Widget'ı devre dışı bırakır, onDeactivate callback'ini çalıştırır ve sorgulama döngüsünü durdurur.
+     */
     async function deactivateWidget() {
+        logger.info('Widget devre dışı bırakılıyor...');
         if (!isWidgetCurrentlyActive) {
             _log('Widget zaten deaktif, deactivateWidget çağrısı yoksayılıyor.', 'warn');
             return;
         }
         _log('Widget deaktive ediliyor...', 'info');
 
-        if (typeof widgetConfig.onDeactivate === 'function') {
-             _log('onDeactivate callback çağrılıyor...', 'debug');
-            try {
-                await widgetConfig.onDeactivate();
-                _log('onDeactivate callback tamamlandı.', 'debug');
-            } catch (error) {
-                _log('onDeactivate callback sırasında hata.', 'error', error);
-            }
-        }
+        logger.debug('onDeactivate callback çağrılıyor.');
+        await widgetConfig.onDeactivate();
         
         isWidgetCurrentlyActive = false;
-        if (isPollingActive) {
-            stopPolling(true);
-        }
-        _log('Widget başarıyla deaktive edildi.', 'info');
+        stopPolling();
+        _log('Widget başarıyla devre dışı bırakıldı.', 'info');
     }
+
+    /**
+     * Widget'ı ilk yapılandırma ayarlarıyla başlatır ve ilk veriyi çeker.
+     * @param {object} config - Widget yapılandırma nesnesi
+     */
+    async function initWidgetBase(config) {
+        logger.info('WidgetCore.initWidgetBase çağrıldı.');
+        widgetConfig = { ...widgetConfig, ...config };
+
+        if (!widgetConfig.token || !widgetConfig.endpointTemplate || !widgetConfig.widgetElement) {
+            const errorMsg = "initWidgetBase için token, endpointTemplate ve widgetElement gereklidir.";
+            _log(errorMsg, 'error');
+            widgetConfig.onError({error: errorMsg});
+            return;
+        }
+
+        // Sahte şarkı değiştirme butonu için olay dinleyici (test amaçlı)
+        const changeMockSongBtn = document.getElementById('changeMockSongBtn');
+        if (changeMockSongBtn && widgetConfig.endpointTemplate.includes('use_mock=true')) {
+            changeMockSongBtn.addEventListener('click', async () => {
+                currentMockSongIndex++;
+                _log(`Mock song index değişti: ${currentMockSongIndex}.`, 'info');
+                if (!isWidgetCurrentlyActive) {
+                    await activateWidget();
+                } else {
+                    stopPolling();
+                    _pollForData(); // Veriyi anında yenile
+                }
+            });
+        }
+        
+        _log('İlk veri çekiliyor ve widget aktive ediliyor...', 'info');
+        await activateWidget();
+    }
+
+    // ===================================================================================
+    // BÖLÜM 6: GENEL (PUBLIC) ARAYÜZ
+    // Dış dünyaya açılan, widget'ı kontrol etmek için kullanılacak fonksiyonlar.
+    // ===================================================================================
 
     function getLastFetchedData() {
         return lastFetchedData;
     }
 
     return {
+        // Yaşam Döngüsü ve Başlatma
         initWidgetBase,
         activateWidget,
         deactivateWidget,
-        updateProgressBar,
-        showError,
-        hideError,
         stopPolling,
+        
+        // DOM ve Veri Yardımcıları
+        updateProgressBar,
         updateTextContent,
         updateImageSource,
+        showError,
+        hideError,
         msToTimeFormat,
         getLastFetchedData,
+        
+        // Loglama
         log: _log
     };
 })();

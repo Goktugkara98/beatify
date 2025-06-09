@@ -4,12 +4,76 @@
  * Manages dual-set (A/B) element animations for smooth transitions in the Spotify widget.
  * Integrates with WidgetCore for data updates and state management.
  */
+
+// =========================
+// LOGGER SINIFI (DETAYLI) - WidgetJS
+// =========================
+class Logger {
+    constructor(options = {}) {
+        this.levels = ['debug', 'info', 'warn', 'error'];
+        this.colors = {
+            debug: 'color: #9e9e9e;',
+            info: 'color: #1976d2;',
+            warn: 'color: #fbc02d;',
+            error: 'color: #d32f2f; font-weight:bold;'
+        };
+        this.activeLevels = options.activeLevels || this.levels;
+        this.memory = options.memory || false;
+        this.logs = [];
+        this.prefix = options.prefix || 'WidgetJS';
+        this.enabled = options.enabled !== undefined ? options.enabled : true;
+    }
+
+    setEnabled(val) { this.enabled = !!val; }
+    setActiveLevels(levels) { this.activeLevels = levels; }
+    clearMemory() { this.logs = []; }
+    getLogs() { return this.logs.slice(); }
+
+    _shouldLog(level) {
+        return this.enabled && this.activeLevels.includes(level);
+    }
+
+    _getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    log(message, level = 'info', data = null) {
+        if (!this._shouldLog(level)) return;
+        const timestamp = this._getTimestamp();
+        const formatted = `[${timestamp}] [${this.prefix}] [${level.toUpperCase()}] ${message}`;
+        if (this.memory) {
+            this.logs.push({ timestamp, level, message, data });
+        }
+        if (data !== null && data !== undefined) {
+            console.log(`%c${formatted}`, this.colors[level] || '', data);
+        } else {
+            console.log(`%c${formatted}`, this.colors[level] || '');
+        }
+    }
+    debug(msg, data) { this.log(msg, 'debug', data); }
+    info(msg, data) { this.log(msg, 'info', data); }
+    warn(msg, data) { this.log(msg, 'warn', data); }
+    error(msg, data) { this.log(msg, 'error', data); }
+}
+
+// WidgetJS için logger örneği
+const logger = new Logger({
+    activeLevels: ['debug', 'info', 'warn', 'error'],
+    memory: true,
+    prefix: 'WidgetJS',
+    enabled: true
+});
+
+// Logger'ı fonksiyonel olarak da kullanmak için kısa bir fonksiyon
+function logJS(msg, level = 'info', data = null) { logger.log(msg, level, data); }
+
+// =========================
 document.addEventListener('DOMContentLoaded', () => {
     'use strict'; // Strict mode
 
     // Section 1: Module Dependency Check
     if (typeof WidgetCore === 'undefined') {
-        console.error('Modern Widget: WidgetCore not found! Please ensure spotify_widget_core.js is loaded.');
+        logger.error('Modern Widget: WidgetCore not found! Please ensure spotify_widget_core.js is loaded.');
         document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">Widget failed to initialize: Core components missing.</div>');
         return;
     }
@@ -17,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Section 2: Main Widget Element
     const spotifyWidgetElement = document.getElementById('spotifyWidgetModern');
     if (!spotifyWidgetElement) {
-        console.error("Modern Widget: Main widget element (#spotifyWidgetModern) not found in DOM.");
+        logger.error("Modern Widget: Main widget element (#spotifyWidgetModern) not found in DOM.");
         return;
     }
     const generalErrorMessageElement = document.getElementById('errorMessage'); // For general, non-UI specific errors
@@ -27,15 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAnimating = false;
     
     // Backend'den gelen konfigürasyonu kontrol et
-    console.log('window.configData:', window.configData); // Tüm configData'yı logla
+    logger.debug('window.configData:', window.configData); // Tüm configData'yı logla
     
     // Eğer configData yoksa veya boşsa uyarı ver
     if (!window.configData) {
-        console.warn('window.configData tanımlı değil! Backend\'den konfigürasyon gelmiyor olabilir.');
+        logger.warn('window.configData tanımlı değil! Backend\'den konfigürasyon gelmiyor olabilir.');
     } else if (!window.configData.animations) {
-        console.warn('window.configData.animations tanımlı değil! Backend\'den animasyon konfigürasyonu gelmiyor.');
+        logger.warn('window.configData.animations tanımlı değil! Backend\'den animasyon konfigürasyonu gelmiyor.');
     } else {
-        console.log('Backend\'den gelen animasyon konfigürasyonu:', window.configData.animations);
+        logger.debug('Backend\'den gelen animasyon konfigürasyonu:', window.configData.animations);
     }
     
     // Varsayılan animasyon konfigürasyonu
@@ -112,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const config = animAttrMap[animationTypeKey];
         if (!config) {
-            WidgetCore.log(`ModernWidget: _applyAnimations - Invalid animationTypeKey: ${animationTypeKey}`, 'error');
+            logger.error(`ModernWidget: _applyAnimations - Invalid animationTypeKey: ${animationTypeKey}`);
             return 0;
         }
 
@@ -157,11 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (config.isIncoming) {
                     el.style.opacity = 1; // Ensure incoming elements are visible
-                    WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now active and visible.`, 'debug');
+                    logger.debug(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now active and visible.`);
                 } else { // Outgoing
                     el.style.opacity = 0; // Ensure outgoing elements are hidden
                     el.classList.add('passive');
-                    WidgetCore.log(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now passive and hidden.`, 'debug');
+                    logger.debug(`ModernWidget: Element ${el.id || el.className} (${animationTypeKey} ${currentSetKeyForLogging}) animation complete. Now passive and hidden.`);
                 }
 
                 if (typeof onCompletePerElement === 'function') {
@@ -174,6 +238,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         return longestOverallDuration;
+    }
+
+    // Helper function to reset the content of an element set to a blank state
+    function resetElementSet(setKey) {
+        const suffix = (setKey === 'a') ? '_a' : '_b';
+        logger.debug(`ModernWidget: Resetting content for element set '${setKey}'.`);
+
+        const albumArtElement = document.getElementById('albumArt' + suffix);
+        const albumArtBackgroundElement = document.getElementById('albumArtBackground' + suffix);
+        const trackNameElement = document.getElementById('trackName' + suffix);
+        const artistNameElement = document.getElementById('artistName' + suffix);
+        const progressBarElement = document.getElementById('progressBar' + suffix);
+        const currentTimeElement = document.getElementById('currentTime' + suffix);
+        const totalTimeElement = document.getElementById('totalTime' + suffix);
+
+        if (albumArtElement) albumArtElement.src = '';
+        if (albumArtBackgroundElement) albumArtBackgroundElement.src = '';
+        if (trackNameElement) WidgetCore.updateTextContent(trackNameElement, '');
+        if (artistNameElement) WidgetCore.updateTextContent(artistNameElement, '');
+        
+        // Reset progress bar and timers using the core function with zero values
+        if (progressBarElement && currentTimeElement && totalTimeElement) {
+            WidgetCore.updateProgressBar(progressBarElement, currentTimeElement, totalTimeElement, 0, 0, false);
+        }
     }
 
     // Helper function to update content of an element set
@@ -238,10 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Widget_Core'dan Gelen Çağrı (Ana Mantık)
     function handleSongChange(newData, oldData) {
-        WidgetCore.log('ModernWidget: handleSongChange triggered.', 'debug', { newDataIsInitial: newData?.is_initial_data, isAnimating });
+        logger.debug('ModernWidget: handleSongChange triggered.', { newDataIsInitial: newData?.is_initial_data, isAnimating });
         
         if (isAnimating && !(newData && newData.is_initial_data === true)) {
-            WidgetCore.log('ModernWidget: Animation in progress, new song change ignored.', 'warn');
+            logger.warn('ModernWidget: Animation in progress, new song change ignored.');
             return; 
         }
 
@@ -249,13 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const passiveSetKey = (currentState === 'a') ? 'b' : 'a';
         
         if (newData && newData.is_initial_data === true) {
-            WidgetCore.log('ModernWidget: Initial data load, playing intro.', 'info');
+            logger.info('ModernWidget: Initial data load, playing intro.');
             playIntroAnimation(activeSetKey, newData);
         } else if (newData) { 
-            WidgetCore.log('ModernWidget: New song data, playing transition.', 'info');
+            logger.info('ModernWidget: New song data, playing transition.');
             playTransition(activeSetKey, passiveSetKey, newData);
         } else { 
-            WidgetCore.log('ModernWidget: No new data (song stopped or error), playing outro.', 'info');
+            logger.info('ModernWidget: No new data (song stopped or error), playing outro.');
             playOutroAnimation(activeSetKey);
         }
     }
@@ -263,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function playIntroAnimation(setKey, data) {
         if (spotifyWidgetElement) {
             spotifyWidgetElement.classList.remove('widget-inactive');
-            WidgetCore.log('ModernWidget: widget-inactive class removed.', 'debug');
+            logger.debug('ModernWidget: widget-inactive class removed.');
         }
         isAnimating = true;
         updateElementSet(setKey, data);
@@ -274,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             isAnimating = false;
-            WidgetCore.log('ModernWidget: Intro animation sequence complete.', 'debug');
+            logger.debug('ModernWidget: Intro animation sequence complete.');
         }, longestIntro);
     }
 
@@ -287,10 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             isAnimating = false;
-            WidgetCore.log('ModernWidget: Outro animation sequence complete.', 'debug');
+            logger.debug('ModernWidget: Outro animation sequence complete.');
             if (spotifyWidgetElement) {
                 spotifyWidgetElement.classList.add('widget-inactive');
-                WidgetCore.log('ModernWidget: widget-inactive class added.', 'debug');
+                logger.debug('ModernWidget: widget-inactive class added.');
             }
         }, longestOutro);
     }
@@ -298,77 +386,84 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Animasyon Orkestrasyonu (Transition)
     // playTransition fonksiyonunu bulun ve aşağıdaki kodla değiştirin.
 
-function playTransition(activeKey, passiveKey, data) {
-    isAnimating = true;
-
-    // 1. Belirttiğiniz yeni z-index konfigürasyonunu tanımla
-    // HTML'deki data-type özniteliklerini anahtar olarak kullanıyoruz.
-    const zIndexConfig = {
-        a: { // 'a' seti (ekrandan çıkan) için z-index değerleri
-            'albumArtBackground': '1',
-            'albumArt': '2',
-            'trackName': '5',
-            'artistName': '6',
-            'progressBar': '8',
-            'currentTime': '10',
-            'totalTime': '12',
-            'spotifyLogo': '14'
-        },
-        b: { // 'b' seti (ekrana giren) için z-index değerleri
-            'albumArtBackground': '3',
-            'albumArt': '4',
-            'trackName': '6',
-            'artistName': '7',
-            'progressBar': '9',
-            'currentTime': '11',
-            'totalTime': '13',
-            'spotifyLogo': '15'
-        }
-    };
-
-    const activeElements = elements[activeKey];   // Mevcut, ekrandan çıkan elemanlar
-    const passiveElements = elements[passiveKey]; // Yeni, ekrana giren elemanlar
-
-    // Yeni veriyi pasif (görünmeyen) elemanlara yükle
-    updateElementSet(passiveKey, data);
-
-    // 2. Animasyon başlamadan önce z-index'leri uygula
-    activeElements.forEach(el => {
-        const elementType = el.dataset.type;
-        if (elementType && zIndexConfig[activeKey]?.[elementType]) {
-            el.style.zIndex = zIndexConfig[activeKey][elementType];
-        }
-    });
-
-    passiveElements.forEach(el => {
-        const elementType = el.dataset.type;
-        if (elementType && zIndexConfig[passiveKey]?.[elementType]) {
-            el.style.zIndex = zIndexConfig[passiveKey][elementType];
-        }
-    });
-
-    // 3. Animasyon sonrası z-index'leri temizlemek için callback fonksiyonunu tanımla
-    const onElementTransitionComplete = (element) => {
-        element.style.zIndex = ''; // z-index'i CSS'teki varsayılan değerine döndür
-    };
-
-    // 4. Animasyonları, tamamlandığında temizlik yapacak olan callback fonksiyonu ile birlikte başlat
-    const longestOutDuration = _applyAnimations(activeElements, 'transitionOut', activeKey, onElementTransitionComplete);
-    const longestInDuration = _applyAnimations(passiveElements, 'transitionIn', passiveKey, onElementTransitionComplete);
-
-    const longestOverallTransition = Math.max(longestOutDuration, longestInDuration);
-
-    // Global durumları ve animasyon kilidini en uzun animasyon bittikten sonra güncelle
-    setTimeout(() => {
-        currentState = passiveKey; // Aktif seti değiştir
-        isAnimating = false;
-        WidgetCore.log('ModernWidget: Transition sequence complete. New active set:', 'debug', currentState);
-    }, longestOverallTransition);
-}
+    function playTransition(activeKey, passiveKey, data) {
+        isAnimating = true;
+        logger.debug('ModernWidget: playTransition started.', { activeKey, passiveKey });
+    
+        // 1. Z-index'leri statik 'a' ve 'b' yerine "rol" bazlı tanımla.
+        // Bu, hangi setin girdiği veya çıktığından bağımsız olarak mantığın doğru çalışmasını sağlar.
+        const zIndexRoles = {
+            // EKRANDAN ÇIKAN (eski şarkı) set için z-index değerleri.
+            // Bu set her zaman altta kalmalıdır.
+            outgoing: {
+                'albumArtBackground': '1',
+                'albumArt': '2',
+                'trackName': '5',
+                'artistName': '5',
+                'progressBar': '7',
+                'currentTime': '7',
+                'totalTime': '7',
+                'spotifyLogo': '9'
+            },
+            // EKRANA GİREN (yeni şarkı) set için z-index değerleri.
+            // Bu set her zaman üstte olmalıdır.
+            incoming: {
+                'albumArtBackground': '3',
+                'albumArt': '4',
+                'trackName': '6',
+                'artistName': '6',
+                'progressBar': '8',
+                'currentTime': '8',
+                'totalTime': '8',
+                'spotifyLogo': '10'
+            }
+        };
+    
+        const activeElements = elements[activeKey];   // Mevcut, ekrandan ÇIKAN elemanlar
+        const passiveElements = elements[passiveKey]; // Yeni, ekrana GİREN elemanlar
+        resetElementSet(passiveKey);
+        // Yeni veriyi pasif (görünmeyen, ekrana GİRECEK olan) elemanlara yükle
+        updateElementSet(passiveKey, data);
+    
+        // 2. Animasyon başlamadan önce z-index'leri rollerine göre uygula.
+        // a. Ekranda çıkan (active) elemanlara "outgoing" z-index'lerini ata.
+        activeElements.forEach(el => {
+            const elementType = el.dataset.type;
+            if (elementType && zIndexRoles.outgoing[elementType]) {
+                el.style.zIndex = zIndexRoles.outgoing[elementType];
+            }
+        });
+    
+        // b. Ekrana giren (passive) elemanlara "incoming" z-index'lerini ata.
+        passiveElements.forEach(el => {
+            const elementType = el.dataset.type;
+            if (elementType && zIndexRoles.incoming[elementType]) {
+                el.style.zIndex = zIndexRoles.incoming[elementType];
+            }
+        });
+    
+        // 3. Animasyon sonrası z-index'leri temizlemek için callback fonksiyonunu tanımla
+        const onElementTransitionComplete = (element) => {
+            element.style.zIndex = ''; // z-index'i CSS'teki varsayılan değerine döndür
+        };
+    
+        // 4. Animasyonları, tamamlandığında temizlik yapacak olan callback fonksiyonu ile birlikte başlat
+        const longestOutDuration = _applyAnimations(activeElements, 'transitionOut', activeKey, onElementTransitionComplete);
+        const longestInDuration = _applyAnimations(passiveElements, 'transitionIn', passiveKey, onElementTransitionComplete);
+    
+        const longestOverallTransition = Math.max(longestOutDuration, longestInDuration);
+    
+        // Global durumları ve animasyon kilidini en uzun animasyon bittikten sonra güncelle
+        setTimeout(() => {
+            currentState = passiveKey; // Aktif seti değiştir
+            isAnimating = false;
+            logger.debug('ModernWidget: Transition sequence complete. New active set:', currentState);
+        }, longestOverallTransition);
+    }
 
     // CORE EVENT HANDLERS (for events other than song change)
     function handleCoreDataUpdate(event) {
-        WidgetCore.log('ModernWidget: CoreDataUpdate received.', 'debug', event.detail.newData);
+        logger.debug('ModernWidget: CoreDataUpdate received.', event.detail.newData);
         // This could be used for minor updates that don't require full A/B transition,
         // e.g., just updating progress bar on the currently active set if not animating.
         if (!isAnimating && elements[currentState]) {
@@ -380,7 +475,7 @@ function playTransition(activeKey, passiveKey, data) {
 
     function handleCoreError(event) { 
         const errorData = event.detail.errorData;
-        WidgetCore.log('ModernWidget: CoreError received.', 'error', errorData);
+        logger.error('ModernWidget: CoreError received.', errorData);
         if (generalErrorMessageElement) {
             WidgetCore.showError(generalErrorMessageElement, errorData.message || errorData.error || 'Bilinmeyen bir hata oluştu.');
         }
@@ -397,19 +492,19 @@ function playTransition(activeKey, passiveKey, data) {
     async function initWidget() {
         try {
             // Backend'den gelen konfigürasyonu kontrol et
-            console.log('initWidget: window.configData kontrol ediliyor...');
+            logger.debug('initWidget: window.configData kontrol ediliyor...');
             
             if (window.configData) {
-                console.log('initWidget: window.configData mevcut:', window.configData);
+                logger.debug('initWidget: window.configData mevcut:', window.configData);
                 
                 if (window.configData.animations) {
-                    console.log('initWidget: Backend\'den animasyon konfigürasyonu alındı:', window.configData.animations);
+                    logger.debug('initWidget: Backend\'den animasyon konfigürasyonu alındı:', window.configData.animations);
                     // Backend'den gelen konfigürasyonu kullanıyoruz, zaten animationConfig değişkeninde mevcut
                 } else {
-                    console.warn('initWidget: Backend\'den animasyon konfigürasyonu gelmedi, varsayılanlar kullanılacak');
+                    logger.warn('initWidget: Backend\'den animasyon konfigürasyonu gelmedi, varsayılanlar kullanılacak');
                 }
             } else {
-                console.warn('initWidget: Backend\'den hiç konfigürasyon gelmedi, tüm ayarlar varsayılan değerlerle çalışacak');
+                logger.warn('initWidget: Backend\'den hiç konfigürasyon gelmedi, tüm ayarlar varsayılan değerlerle çalışacak');
             }
 
             const token = spotifyWidgetElement.dataset.token;
@@ -417,7 +512,7 @@ function playTransition(activeKey, passiveKey, data) {
 
             if (!token || !endpointTemplate) {
                 const errorMsg = "Yapılandırma eksik: 'data-token' veya 'data-endpoint-template' bulunamadı.";
-                console.error("Modern Widget: " + errorMsg);
+                logger.error("Modern Widget: " + errorMsg);
                 if (generalErrorMessageElement) WidgetCore.showError(generalErrorMessageElement, errorMsg);
                 else document.body.insertAdjacentHTML('afterbegin', `<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">${errorMsg}</div>`);
                 return;
@@ -445,13 +540,13 @@ function playTransition(activeKey, passiveKey, data) {
             WidgetCore.initWidgetBase(coreConfig);
             
             // Initial display of set A with intro animation
-            if (elements.a.length > 0) {
-                playIntroAnimation('a', {});
-            }
+            //if (elements.a.length > 0) {
+            //    playIntroAnimation('a', {});
+            //}
             
-            WidgetCore.log('ModernWidget: Initialization complete.', 'info');
+            logger.info('ModernWidget: Initialization complete.');
         } catch (error) {
-            console.error('ModernWidget: Initialization failed:', error);
+            logger.error('ModernWidget: Initialization failed:', error);
             if (generalErrorMessageElement) {
                 generalErrorMessageElement.textContent = 'Widget başlatılırken bir hata oluştu.';
                 generalErrorMessageElement.style.display = 'block';
