@@ -6,12 +6,12 @@
 
 /* Örnek Animasyon Keyframe'leri */
 @keyframes slide-in-right {
-    from { transform: translateX(100%); opacity: 0; } /* Slide in from the right */
+    from { transform: translateX(100%); opacity: 1; } /* Slide in from the right */
     to { transform: translateX(0); opacity: 1; }
 }
 @keyframes slide-out-left {
     from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-100%); opacity: 0; } /* Slide out to the left */
+    to { transform: translateX(-100%); opacity: 1; } /* Slide out to the left */
 }
 @keyframes fade-in {
     from { opacity: 0; }
