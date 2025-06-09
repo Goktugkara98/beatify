@@ -1,0 +1,357 @@
+{
+    "themeName": "Modern",
+    "animations": {
+        "albumArtBackground_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 2000,
+                "delay": 0
+            },
+            "transitionIn": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "none",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "none",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "albumArtBackground_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionIn": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "none",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "none",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "albumArt_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 200
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "albumArt_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 200
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "trackName_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "trackName_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "artistName_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "artistName_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "progressBar_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "progressBar_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "currentTime_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "currentTime_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "totalTime_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "fade-out",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "totalTime_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "fade-in": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "fade-out",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "spotifyLogo_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "spotifyLogo_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        }
+    }
+}
