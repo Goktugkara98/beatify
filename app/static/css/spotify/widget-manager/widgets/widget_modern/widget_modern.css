@@ -1,321 +1,48 @@
 /**
- * widget_modern.css
+ * widget_modern.css (REVİZE EDİLMİŞ - AYRIŞTIRILMIŞ KURALLAR)
  *
- * Modern Spotify widget'ı için özel stil tanımlamaları.
- * spotify_widget_core.css dosyasındaki ortak stilleri genişletir veya üzerine yazar.
+ * AMAÇ: Bu CSS, okunabilirliği ve yönetim kolaylığını artırmak amacıyla, aynı özellikleri
+ * paylaşsalar bile her bir HTML elemanı için stil kurallarını ayrı bloklar halinde
+ * tanımlar. Tüm ana elemanlar, animasyon sırasında oluşabilecek layout shift'i
+ * (yerleşim kayması) engellemek için mutlak (`position: absolute`) olarak konumlandırılmıştır.
  *
- * İÇİNDEKİLER:
- * 1. WIDGET CONTAINER (.modern-widget)
- *      1.1. Layout, Sizing, Basic Appearance, Font, Color
- *========================================================
- * 2. BACKGROUND AND OVERLAYS (YENİ EKLENDİ/GÜNCELLENDİ)
- *      2.1. Background Album Art (.widget-album-art-background)
- *      2.2. General Gradient Overlay (.widget-gradient-overlay)
- *========================================================
- * 3. ALBUM ART SECTION (ÜST KISIM)
- *      3.1. Cover Container (.modern-cover-container)
- *      3.2. Main Album Art Image (.widget-album-art-main)
- *========================================================
- * 4. CONTENT AREA SECTION (.modern-content-area)
- *      4.1. Positioning, Padding, Flex Layout
- *========================================================
- * 5. TRACK INFORMATION SECTION (.widget-track-info)
- *      5.1. Track Name (.widget-track-name)
- *      5.2. Artist Name (.widget-artist-name)
- *========================================================
- * 6. PLAYER CONTROLS SECTION (.widget-player-controls)
- *      6.1. General Layout
- *      6.2. Progress Bar Area (.widget-progress-section)
- *          6.2.1. Progress Bar Container (.widget-progress-bar-container)
- *          6.2.2. Progress Bar Fill (.widget-progress-bar)
- *      6.3. Time Display (.widget-time-display)
- *========================================================
- * 7. SPOTIFY LOGO SECTION (.widget-spotify-logo)
- *      7.1. Logo Container (.spotify-blurred-box)
- *      7.2. Logo SVG Icon (CSS ile boyutlandırma)
- *      7.3. Logo Text (.spotify-text)
- *========================================================
- * 9. UTILITY AND STATE CLASSES
- *      9.1. Disabled State (.widget-disabled)
- *      9.2. Error Message Styling (.core-error-message, .visible)
- *      9.3. Overall Widget Inactive State
- *      9.4. Passive State for A/B Elements
+ * UYGULANAN KURALLAR:
+ * 1. Ayrıştırılmış Bloklar: Her CSS seçicisi kendi bloğuna sahiptir. Gruplandırma
+ * (örn: .class1, .class2 {}) kullanılmamıştır.
+ * 2. Ana Kapsayıcı (.modern-widget): `position: relative` olarak ayarlandı, tüm mutlak
+ * konumlu elemanlar için referans noktası görevi görür. `overflow: hidden` ile
+ * animasyonların dışarı taşması engellendi.
+ * 3. Ana Bloklar ve Animasyon Elemanları: `.modern-cover-container`,
+ * `.modern-content-container` gibi tüm ana yerleşim blokları ve içindeki animasyona
+ * dahil olacak tüm alt elemanlar `position: absolute` kullanır.
+ * 4. Boyutlandırma: Konum (`top`, `left`, `bottom`, `right`) ve boyut (`width`, `height`)
+ * değerleri, esneklik ve ölçeklenebilirlik için ağırlıklı olarak yüzdesel (%)
+ * birimlerle tanımlanmıştır.
+ * 5. Hibrit Yerleşim: Birbirleriyle ilişkili küçük gruplar (şarkı/sanatçı adı, zaman
+ * göstergeleri vb.) kendi mutlak konumlu konteynerları içinde `display: flex`
+ * kullanılarak hizalanmıştır.
+ */
 
-/* 1. WIDGET CONTAINER (.modern-widget) */
-/* 1.1. Layout, Sizing, Basic Appearance, Font, Color */
-.modern-widget {
+/* ==========================================================================
+   1. WIDGET GENEL KAPSAYICI
+   Tüm widget için referans noktası (koordinat sistemi).
+   ========================================================================== */
+   .modern-widget {
     width: 600px;
-    height: 600px;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    aspect-ratio: 1 / 1;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     position: relative;
-    background-color: #121212; /* Ana arka plan rengi (resim yüklenemezse) */
-    box-sizing: border-box;
     color: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transform: translateZ(0);
 }
 
-/* 2. BACKGROUND AND OVERLAYS */
-/* 2.1. Background Album Art */
-.modern-widget .widget-album-art-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(10px) brightness(0.5);
-    transform: scale(1.1);
-    z-index: 1; /* En altta */
-}
-
-/* 2.2. General Gradient Overlay */
-.modern-widget .widget-gradient-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom,
-        rgba(0, 0, 0, 0) 0%,      /* Widget'ın en üstü: Tamamen saydam */
-        rgba(0, 0, 0, 0) 60%,     /* Kapak görselinin sonu: Hala tamamen saydam */
-        rgba(0, 0, 0, 0.05) 62%, /* İçerik alanı başlangıcı: Çok hafif opaklık (%5) */
-        rgba(0, 0, 0, 0.7) 85%,   /* İçerik alanının ortalarına doğru: Daha belirgin opaklık (%70) */
-        rgb(0, 0, 0) 100%     /* Widget'ın en altı: Tamamen opak siyah */
-    );
-    z-index: 2; /* Arka plan resminin üzerinde */
-    pointer-events: none; /* Tıklama olaylarını engeller */
-}
-
-/* 3. ALBUM ART SECTION (ÜST KISIM) */
-/* 3.1. Cover Container */
-.modern-widget .modern-cover-container {
-    position: relative;
-    width: 100%;
-    height: 70%; /* Widget yüksekliğinin %60'ı */
-    overflow: hidden;
-    z-index: 4; /* Content area'nın üzerinde */
-    -webkit-mask-image: linear-gradient(to bottom, 
-                            black 0%, 
-                            black 60%, /* Üst %60 opak kalır, alt %40 saydamlaşır */
-                            transparent 100% /* Alt %40 saydamlaşır */
-                        );
-    mask-image: linear-gradient(to bottom, 
-                            black 0%, 
-                            black 60%, /* Üst %60 opak kalır, alt %40 saydamlaşır */
-                            transparent 100% /* Alt %40 saydamlaşır */
-                        );
-}
-
-/* 3.2. Main Album Art Image */
-.modern-widget .widget-album-art-main {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top; /* Align image to the top */
-}
-
-/* 4. CONTENT AREA SECTION (.modern-content-area) */
-/* 4.1. Positioning, Padding, Flex Layout */
-.modern-widget .modern-content-area {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40%; /* Widget yüksekliğinin %40'ı */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 30px;
-    box-sizing: border-box;
-    z-index: 3; /* Genel gradyanın üzerinde */
-    /* Background gradient removed. Underlying general gradient will show. */
-    /* Mask for content fade-in has been removed. */
-}
-/* Bu kural, konteynerin çökmesini engeller ve onu doğru konumlandırır. */
-.modern-widget .modern-player-controls-container {
-    position: relative; /* İçindeki absolute elemanlar için referans noktası */
-    width: 100%;
-    /* Konteynerin içeriği kadar minimum yüksekliğe sahip olmasını garantileriz. */
-    min-height: 60px; /* Yaklaşık bir değer, progress bar ve zaman göstergesini rahatça sığdırır */
-}
-
-/* 5. TRACK INFORMATION SECTION (.widget-track-info) */
-/* 5. TRACK INFORMATION SECTION (.widget-track-info) */
-.modern-widget .widget-track-info {
-    position: relative; 
-    overflow: visible; /* Allow absolutely positioned children to be animated outside temporarily if needed, though slide should be contained */
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* Space between track name and artist name containers */
-}
-
-.modern-widget .track-name-container,
-.modern-widget .artist-name-container {
-    position: relative; /* Crucial for absolute positioning of children */
-    overflow: hidden;   /* Masks the sliding text within its own container */
-    /* Approximate height for one line of text, adjust as needed */
-    /* Consider line-heights: track-name 1.2, artist-name 1.3 */
-}
-
-.modern-widget .track-name-container {
-    min-height: 56px; /* Approx 46px * 1.2 line-height */
-}
-
-.modern-widget .artist-name-container {
-    min-height: 42px; /* Approx 32px * 1.3 line-height */
-}
-
-/* 5.1. Track Name */
-.modern-widget .widget-track-name {
-    font-size: 46px;
-    font-weight: 700;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    letter-spacing: -0.5px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%; /* Fill the container */
-    box-sizing: border-box;
-}
-
-/* 5.2. Artist Name */
-.modern-widget .widget-artist-name {
-    font-size: 32px;
-    font-weight: 500;
-    margin: 0;
-    opacity: 0.8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%; /* Fill the container */
-    box-sizing: border-box;
-}
-
-/* 6. PLAYER CONTROLS SECTION (.widget-player-controls) */
-/* Bu kural, animasyona giren A ve B setlerini konteyner içinde üst üste bindirir. */
-.modern-widget .widget-player-controls {
-    position: absolute; /* Elementleri üst üste bindirmek için */
-    bottom: 0;          /* Konteynerin altına hizala */
-    left: 0;            /* Konteynerin soluna hizala */
-    width: 100%;        /* Konteynerin tam genişliğini kapla */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-sizing: border-box; /* Padding/border genişliği etkilemesin */
-}
-
-/* 6.2. Progress Bar Area */
-.modern-widget .widget-progress-section {
-    width: 100%;
-}
-
-/* 6.2.1. Progress Bar Container */
-.modern-widget .widget-progress-bar-container {
-    height: 8px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-/* 6.2.2. Progress Bar Fill */
-.modern-widget .widget-progress-bar {
-    background: linear-gradient(90deg, #1DB954 0%, #1ED760 100%);
-    height: 100%;
-    border-radius: 3px;
-}
-
-/* 6.3. Time Display */
-.modern-widget .widget-time-display {
-    display: flex;
-    justify-content: space-between;
-    font-size: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 8px;
-    font-weight: 500;
-}
-
-/* 7. SPOTIFY LOGO SECTION (.widget-spotify-logo) */
-/* 7.1. Logo Container */
-.modern-widget .widget-spotify-logo {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    z-index: 10; /* Diğer her şeyin üzerinde */
-    transform-origin: center center;
-}
-
-.modern-widget .spotify-blurred-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: rgba(30, 30, 30, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 22px;
-    padding: 8px 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* 7.2. Logo SVG Icon */
-.modern-widget .widget-spotify-logo svg {
-    display: block;
-    color: #1DB954;
-    width: 22px;
-    height: 22px;
-}
-
-/* 7.3. Logo Text */
-.modern-widget .spotify-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: #ffffff;
-    letter-spacing: 0.5px;
-}
-
-
-/* 9. UTILITY AND STATE CLASSES */
-/* 9.2. Error Message Styling */
-.modern-widget .core-error-message {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100%);
-    width: auto;
-    min-width: 200px;
-    max-width: 90%;
-    text-align: center;
-    background-color: rgba(220, 53, 69, 0.9);
-    color: white;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 6px;
-    z-index: 20;
-    box-sizing: border-box;
-    opacity: 0;
-}
-
-.modern-widget .core-error-message.visible {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-}
+/* ==========================================================================
+   2. KATMANLAR (ARKA PLAN, KAPAK GÖRSELİ, EFEKTLER)
+   Tüm katmanlar üst üste binecek şekilde mutlak konumlandırılmıştır.
+   ========================================================================== */
 
 .modern-widget .modern-background-container {
     position: absolute;
@@ -326,7 +53,18 @@
     z-index: 1;
 }
 
-.modern-widget .modern-effects-container {
+.modern-widget .widget-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px) brightness(0.6);
+    transform: scale(1.1);
+}
+
+.modern-widget .modern-cover-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -335,3 +73,216 @@
     z-index: 2;
 }
 
+.modern-widget .widget-cover-art {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%);
+}
+
+.modern-widget .modern-effects-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.modern-widget .widget-gradient-overlay {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient( to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,1) 100% );
+}
+
+
+/* ==========================================================================
+   3. ANA İÇERİK BÖLÜMÜ
+   Şarkı bilgileri ve oynatıcı kontrolleri gibi tüm ana UI elemanlarını içerir.
+   ========================================================================== */
+.modern-widget .modern-content-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+/* Şarkı Adı ve Sanatçı Adı Bloğu */
+.modern-widget .modern-track-info-container {
+    position: absolute;
+    bottom: 22%;
+    left: 5%;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 55px;
+}
+
+.modern-widget .modern-track-name-container {
+    width: 100%;
+    min-height: 1.2em;
+    margin-bottom: 4px; /* Add some space between track name and artist name */
+}
+
+.modern-widget .modern-artist-name-container {
+    width: 100%;
+    min-height: 1.2em;
+}
+
+.modern-widget .widget-track-name {
+    position: absolute;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    font-size: clamp(32px, 8vw, 56px);
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.modern-widget .widget-artist-name {
+    position: absolute;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 500;
+    opacity: 0.8;
+    line-height: 1.2;
+}
+
+/* Oynatıcı Kontrolleri (İlerleme Çubuğu ve Zaman) */
+.modern-widget .modern-player-controls-container {
+    position: absolute;
+    bottom: 8%;
+    left: 5%;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.modern-widget .modern-progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 7px;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+}
+
+.modern-widget .widget-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.modern-widget .modern-time-display-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: clamp(14px, 2.5vw, 16px);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.modern-widget .widget-time-current {
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 1;
+}
+
+.modern-widget .widget-time-total {
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 1;
+}
+
+
+/* ==========================================================================
+   4. DİĞER UI ELEMANLARI (LOGO VB.)
+   ========================================================================== */
+.modern-widget .modern-badge-container {
+    position: absolute;
+    top: 4%;
+    left: 4%;
+    z-index: 10;
+}
+
+.modern-widget .widget-provider-logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.modern-widget .widget-provider-logo-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 22px;
+    padding: 6px 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-widget .spotify-logo {
+    height: 24px;
+    width: auto;
+    display: block;
+}
+
+
+/* ==========================================================================
+   5. DURUM VE YARDIMCI SINIFLAR
+   ========================================================================== */
+.modern-widget .widget-error-message {
+    position: absolute;
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    max-width: 90%;
+    text-align: center;
+    background-color: rgba(220, 53, 69, 0.9);
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    z-index: 20;
+}
+
+.modern-widget.widget-inactive {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.modern-widget .passive {
+    position: absolute !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

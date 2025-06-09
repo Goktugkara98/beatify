@@ -1,165 +1,49 @@
 /**
- * spotify_widget_core.css
+ * core.css
  *
- * Tüm Spotify widget'ları için ortak temel stil kuralları.
+ * Tüm widget'lar için ortak temel sayfa stil kuralları.
+ * Bu dosya, widget'ın sayfada nasıl görüneceğini ve temel sıfırlamaları kontrol eder.
  *
  * İÇİNDEKİLER:
  * 1. TEMEL SAYFA VE GÖVDE STİLLERİ
- *      1.1. Sıfırlama ve Temel Ayarlar
- *      1.2. Gövde Düzeni (Widget Ortalaması)
- * 2. WIDGET KONTEYNER TEMEL STİLLERİ
- *      2.1. Boyutlandırma ve Konumlandırma
- *      2.2. Görsel Temeller (Kenarlık, Gölge vb.)
- * 4. ORTAK UI ELEMANLARI
- *      4.1. Progress Bar
- *          4.1.1. .core-progress-container
- *          4.1.2. .core-progress-bar
- *      4.2. Zaman Gösterimi
- *          4.2.1. .core-time-display
- *      4.3. Hata Mesajı
- *          4.3.1. .core-error-message
- * 5. YARDIMCI SINIFLAR
- *      5.1. Görünürlük
- *          5.1.1. .visible
- *          5.1.2. .hidden (Tailwind ile uyum için)
+ * 1.1. Genel Sıfırlama ve Kutu Model Ayarı
+ * 1.2. Gövde Düzeni (Widget'ı Sayfada Ortalamak İçin)
+ * 2. YARDIMCI SINIFLAR
+ * 2.1. Gizli Element (.hidden)
  */
 
 /* 1. TEMEL SAYFA VE GÖVDE STİLLERİ */
-/* 1.1. Sıfırlama ve Temel Ayarlar */
-html, body {
+/* 1.1. Genel Sıfırlama ve Kutu Model Ayarı */
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Kaydırma çubuklarını engelle */
-    background: transparent; /* Sayfa arka planı şeffaf veya tanımsız */
+    overflow: hidden; /* Sayfada kaydırma çubuklarını engeller */
+    background: transparent; /* Arka planı şeffaf yapar */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     box-sizing: border-box;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: inherit;
 }
 
-/* 1.2. Gövde Düzeni (Widget Ortalaması) */
+/* 1.2. Gövde Düzeni (Widget'ı Sayfada Ortalamak İçin) */
 body {
     display: flex;
-    align-items: center; /* Dikey ortalama */
-    justify-content: center; /* Yatay ortalama */
+    align-items: center; /* Dikeyde ortala */
+    justify-content: center; /* Yatayda ortala */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 2. WIDGET KONTEYNER TEMEL STİLLERİ */
-/* Bu sınıf, her widget'ın ana HTML elementine uygulanmalıdır. */
-/* Widget'a özel boyutlandırma widget'ın kendi CSS'inde yapılmalıdır. */
-/* 2.1. Boyutlandırma ve Konumlandırma (Örnek - Genellikle widget özelinde olur) */
-.widget-container {
-    position: relative; /* İçerideki absolut konumlandırmalar için */
-    /* width: 100%; */ /* Genellikle widget özelinde belirlenir */
-    /* max-width: 350px; */ /* Örnek bir maksimum genişlik */
-    /* height: auto; */ /* Genellikle widget özelinde belirlenir */
-    /* max-height: 150px; */ /* Örnek bir maksimum yükseklik */
-    overflow: hidden; /* İçerik taşmasını engelle */
-}
-
-/* 2.2. Görsel Temeller (Örnek) */
-.widget-container {
-    /* border-radius: 12px; */ /* Widget özelinde olabilir */
-    /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); */ /* Widget özelinde olabilir */
-}
-
-
-/* 4. ORTAK UI ELEMANLARI */
-/* 4.1. Progress Bar */
-/* 4.1.1. .core-progress-container */
-.core-progress-container {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.2); /* Açık tema için örnek, widget'a göre değişebilir */
-    border-radius: 4px;
-    overflow: hidden;
-    height: 4px; /* Veya widget özelinde tanımlanır */
-}
-
-/* 4.1.2. .core-progress-bar */
-.core-progress-bar {
-    height: 100%;
-    background-color: #1DB954; /* Spotify yeşili, widget'a göre değişebilir */
-    border-radius: 4px;
-    width: 0%; /* JS ile güncellenecek */
-}
-
-/* 4.2. Zaman Gösterimi */
-/* 4.2.1. .core-time-display */
-.core-time-display {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px; /* Widget'a göre değişebilir */
-    color: rgba(255, 255, 255, 0.7); /* Açık tema için örnek, widget'a göre değişebilir */
-    margin-top: 4px;
-}
-
-/* 4.3. Hata Mesajı */
-/* 4.3.1. .core-error-message */
-.core-error-message {
-    /* display: none; Başlangıçta gizli, JS ile 'visible' class'ı eklenir */
-    opacity: 0;
-    position: absolute; /* Konteynerine göre konumlanır */
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    background-color: rgba(220, 38, 38, 0.9); /* Kırmızı tonu */
-    color: white;
-    font-size: 12px;
-    text-align: center;
-    border-radius: 6px;
-    z-index: 100; /* Diğer elementlerin üzerinde olması için */
-    pointer-events: none; /* Üzerine tıklanmasını engelle */
-}
-
-/* 5. YARDIMCI SINIFLAR */
-/* 5.1. Görünürlük */
-/* 5.1.1. .visible */
-.core-error-message.visible {
-    /* display: block !important; */
-    opacity: 1 !important;
-    pointer-events: auto;
-}
-
-/* 5.1.2. .hidden (Tailwind ile uyum için) */
+/* 2. YARDIMCI SINIFLAR */
+/* 2.1. Gizli Element (.hidden) - Tailwind CSS ile uyumluluk için */
 .hidden {
     display: none !important;
 }
-
-/* 5.2. Pasif Elementler */
-/* 5.2.1. .passive */
-.passive {
-    position: absolute !important; /* Akıştan çıkar ve üst üste binebilir */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important; /* Tıklanamaz yapar */
-    /* display: none; KULLANILMAMALI, animasyonları bozar! */
-}
-
-/* 9.3. Overall Widget Inactive State */
-.modern-widget.widget-inactive {
-    opacity: 0;
-    visibility: hidden;
-    /* Optional: Add a slight transition for the container itself if needed, though JS animations handle specifics */
-    /* transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; */
-    /* pointer-events: none; /* Prevent interaction when fully inactive */
-}
-
-/* 9.4. Passive State for A/B Elements */
-/* This class is toggled by JS to hide the non-active set during transitions */
-.modern-widget .passive {
-    opacity: 0 !important; /* Ensure it overrides inline styles from animations if any conflict */
-    visibility: hidden !important;
-    pointer-events: none !important; /* Prevent interaction with the hidden set */
-    /* position: absolute !important; /* Optional: take out of flow to prevent layout shifts, but might complicate animations */
-    /* transition: opacity 0.2s ease-out, visibility 0.2s step-end; /* Smooth fade for passive elements if desired */
-}
-
-

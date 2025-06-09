@@ -169,7 +169,7 @@ const WidgetCore = (() => {
             _log(`Hata nedeniyle sorgulama aralığı ${widgetConfig.errorPollInterval}ms olarak ayarlandı.`, 'warn');
             return widgetConfig.errorPollInterval;
         }
-        if (!data || !data.track_name || (typeof data.is_playing === 'boolean' && !data.is_playing)) {
+        if (!data || !(data.item?.name || data.track_name) || (typeof data.is_playing === 'boolean' && !data.is_playing)) {
              _log(`Çalan şarkı yok, sorgulama aralığı ${widgetConfig.notPlayingPollInterval}ms olarak ayarlandı.`, 'info');
             return widgetConfig.notPlayingPollInterval;
         }

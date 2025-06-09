@@ -3,126 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Widget - Modern</title>
+    <title>Müzik Widget - Modern</title>
 
-    <!-- Ortak CSS Dosyası -->
+    <!-- Not: Bu HTML değişikliğinden sonra CSS dosyalarınızdaki sınıf adlarını da güncellemeniz gerekecektir. -->
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
-
-    <!-- Widget'a Özel CSS Dosyası -->
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern.css">
-
-    <!-- Widget Animasyonları CSS Dosyası -->
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern_animations.css">
-
 </head>
 <body>
-    <!-- Ana Widget Konteyneri -->
-    <div id="spotifyWidgetModern" class="widget-container modern-widget widget-inactive"
+    <!-- Ana Widget sarmalayıcısı. 'modern-widget' tema stilini, 'widget-inactive' ise başlangıç durumunu belirtir. -->
+    <div id="spotifyWidgetModern" class="modern-widget widget-inactive"
          data-token="j5Bp8lwM6iad"
          data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
 
-        <!-- Arka Plan Albüm Sanatı (Bulanık) - Standard widget ile tutarlılık için eklendi -->
+        <!-- Arka plan görselini veya rengini içeren layout container'ı. -->
         <div class="modern-background-container">
-            <img id="albumArtBackground_a" class="widget-album-art-background" data-set="a" data-type="albumArtBackground"
-                 src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı A">
-
-            <img id="albumArtBackground_b" class="widget-album-art-background passive" data-set="b" data-type="albumArtBackground"
-                 src="" alt="Arka Plan Albüm Sanatı B"
->
+            <!-- 'widget-background-image' sınıfı, bir resim veya sadece bir renk katmanı olabileceği için daha genel bir isimdir. -->
+            <img id="albumArtBackground_a" class="widget-background-image" data-set="a" data-type="albumArtBackground"
+                 src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Görseli A">
+            <img id="albumArtBackground_b" class="widget-background-image passive" data-set="b" data-type="albumArtBackground"
+                 src="" alt="Arka Plan Görseli B">
         </div>
 
-        <!-- Gradyan Overlay (Genel) - Standard widget ile tutarlılık için eklendi -->
-         <div class="modern-effects-container">
+        <!-- Gradyan gibi görsel efektler için layout container'ı. -->
+        <div class="modern-effects-container">
             <div class="widget-gradient-overlay"></div>
-         </div>
-
-        <!-- Albüm Kapağı (Üst Kısım) -->
-        <div class="modern-cover-container">
-            <img id="albumArt_a" class="widget-album-art-main" data-set="a" data-type="albumArt" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı A">
-            <img id="albumArt_b" class="widget-album-art-main passive" data-set="b" data-type="albumArt" src="" alt="Albüm Kapağı B">
         </div>
 
-        <!-- İçerik Alanı -->
-        <div id="widgetContent" class="modern-content-area">
-            <!-- Şarkı Bilgileri -->
-            <div class="widget-track-info">
-                <div class="track-name-container">
+        <!-- Ana kapak görseli için layout container'ı. -->
+        <div class="modern-cover-container">
+            <!-- 'widget-cover-art', albüm kapağı gibi spesifik bir ifadeden daha esnektir. -->
+            <img id="albumArt_a" class="widget-cover-art" data-set="a" data-type="albumArt" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Kapak Görseli A">
+            <img id="albumArt_b" class="widget-cover-art passive" data-set="b" data-type="albumArt" src="" alt="Kapak Görseli B">
+        </div>
+
+        <!-- Şarkı bilgileri, ilerleme çubuğu gibi ana içeriği barındıran layout container'ı. -->
+        <div id="widgetContent" class="modern-content-container">
+            
+            <!-- Şarkı ve sanatçı bilgileri için layout container'ı. -->
+            <div class="modern-track-info-container">
+                <div class="modern-track-name-container">
                     <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
                     <h3 id="trackName_b" class="widget-track-name passive" data-set="b" data-type="trackName" title=""></h3>
                 </div>
-                <div class="artist-name-container">
+                <div class="modern-artist-name-container">
                     <p id="artistName_a" class="widget-artist-name" data-set="a" data-type="artistName"></p>
                     <p id="artistName_b" class="widget-artist-name passive" data-set="b" data-type="artistName"></p>
                 </div>
             </div>
 
-            <!-- Progress Bar Alanı -->
+            <!-- Medya oynatıcı kontrolleri için genel layout container'ı. -->
             <div class="modern-player-controls-container">
-                <div class="widget-player-controls" data-set="a" data-type="playerControls">
-                <div class="widget-progress-section">
-                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
-                        <div id="progressBar_a" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
+                <div class="modern-progress-bar-container">
+                    <div id="progressBar_a" class="widget-progress-bar" style="width: 0%;" data-set="a" data-type="progressBar"></div>
+                    <div id="progressBar_b" class="widget-progress-bar passive" style="width: 0%;" data-set="b" data-type="progressBar"></div>
+                </div>
+                <div class="modern-time-display-container">
+                    <div class="modern-time-current-container">
+                        <span id="currentTime_a" class="widget-time-current" data-set="a" data-type="currentTime">0:00</span>
+                        <span id="currentTime_b" class="widget-time-current passive" data-set="b" data-type="currentTime">0:00</span>
                     </div>
-                    <div class="core-time-display widget-time-display">
-                        <span id="currentTime_a">0:00</span>
-                        <span id="totalTime_a">0:00</span>
+                    <div class="modern-time-total-container">
+                        <span id="totalTime_a" class="widget-time-total" data-set="a" data-type="totalTime">0:00</span>
+                        <span id="totalTime_b" class="widget-time-total passive" data-set="b" data-type="totalTime">0:00</span>
                     </div>
                 </div>
             </div>
-            <div class="widget-player-controls" data-set="b" data-type="playerControls">
-                <div class="widget-progress-section">
-                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
-                        <div id="progressBar_b" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
+
+            <!-- Servis sağlayıcı logosu için layout container'ı. (Örn: Spotify, YouTube Music) -->
+            <div class="modern-badge-container">
+                <!-- Buradaki 'widget-provider-logo-spotify' sınıfı, hangi platformun aktif olduğunu belirtmek için kullanılabilir. -->
+                <div class="widget-provider-logo widget-provider-logo-spotify" data-set="a" data-type="spotifyLogo">
+                    <div class="widget-provider-logo-box">
+                        <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="spotify-logo">
                     </div>
-                    <div class="core-time-display widget-time-display">
-                        <span id="currentTime_b">0:00</span>
-                        <span id="totalTime_b">0:00</span>
+                </div>
+                <div class="widget-provider-logo widget-provider-logo-spotify passive" data-set="b" data-type="spotifyLogo">
+                    <div class="widget-provider-logo-box">
+                        <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="spotify-logo">
                     </div>
                 </div>
             </div>
-            </div> <!-- .widget-player-controls-container sonu -->
         </div>
 
-        <!-- Spotify Logosu -->
-        <div class="widget-spotify-logo-container">
-            <div class="widget-spotify-logo" data-set="a" data-type="spotifyLogo">
-            <div class="spotify-blurred-box">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-spotify" viewBox="0 0 16 16"> <!-- Boyut güncellendi -->
-                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
-                </svg>
-                <span class="spotify-text">Spotify</span>
-            </div>
-        </div>
-        <div class="widget-spotify-logo passive" data-set="b" data-type="spotifyLogo">
-            <div class="spotify-blurred-box">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-spotify" viewBox="0 0 16 16"> <!-- Boyut güncellendi -->
-                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
-                </svg>
-                <span class="spotify-text">Spotify</span>
-            </div>
-        </div>
-        </div> <!-- .widget-spotify-logo-container sonu -->
-
-        <!-- Hata Mesajı Alanı -->
-        <div id="errorMessage" class="core-error-message">
+        <!-- Hata mesajları için element. 'core-' yerine 'widget-' standardına uyarlandı. -->
+        <div id="errorMessage" class="widget-error-message">
             <!-- Mesaj JS ile doldurulacak -->
         </div>
     </div>
 
-    <!-- Mock Kontrol Butonu (Widget Dışında) -->
+    <!-- Test/Kontrol Butonları -->
     <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: hidden;">
         <button id="changeMockSongBtn" style="padding: 8px 12px; font-size: 12px; background-color: #1DB954; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Change Mock Song</button>
     </div>
     
     <script>
-        // Backend'den gelen config değişkenini window.configData'ya ata
         window.configData = JSON.parse('{{ config|tojson|safe }}');
         console.log('Backend config yüklendi:', window.configData);
     </script>
-    <!-- Ortak JavaScript Dosyası -->
     <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>
-
-    <!-- Widget'a Özel JavaScript Dosyası -->
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/widget_modern.js"></script>
 </body>
 </html>

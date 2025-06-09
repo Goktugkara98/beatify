@@ -178,7 +178,7 @@
             }
         },
         
-        "playerControls_a": {
+        "progressBar_a": {
             "intro": {
                 "animation": "fade-in",
                 "duration": 1000,
@@ -200,7 +200,51 @@
                 "delay": 0
             }
         },
-        "playerControls_b": {
+        "progressBar_b": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "currentTime_a": {
+            "intro": {
+                "animation": "fade-in",
+                "duration": 1000,
+                "delay": 400
+            },
+            "transitionIn": {
+                "animation": "slide-in-right",
+                "duration": 1000,
+                "delay": 0
+            },
+            "transitionOut": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            },
+            "outro": {
+                "animation": "slide-out-left",
+                "duration": 1000,
+                "delay": 0
+            }
+        },
+        "currentTime_b": {
             "intro": {
                 "animation": "fade-in",
                 "duration": 1000,
