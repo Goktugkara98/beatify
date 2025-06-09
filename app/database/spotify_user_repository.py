@@ -1,74 +1,95 @@
-# spotify_user_repository.py
 # =============================================================================
-# Spotify Kullanıcı Repository Modülü
+# Spotify Kullanıcı Veritabanı Deposu Modülü (Spotify User Repository Module)
 # =============================================================================
-# Bu modül, `spotify_users` tablosu ile ilgili genel Spotify kullanıcı
-# veritabanı işlemlerini yönetir (widget token ve tasarım hariç).
+# Bu modül, kullanıcıların Spotify verileriyle ilgili tüm veritabanı
+# işlemlerini yöneten `SpotifyUserRepository` sınıfını içerir. Kullanıcıların
+# Spotify API anahtarlarını, token'larını ve bağlantı durumlarını yönetir.
 #
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  SPOTIFY KULLANICI REPOSITORY SINIFI (SPOTIFY USER REPOSITORY CLASS)
-#      2.1. SpotifyUserRepository
-#           2.1.1.  __init__
-#           2.1.2.  _ensure_connection
-#           2.1.3.  _close_if_owned
-#           2.1.4.  spotify_get_user_data
-#           2.1.5.  spotify_insert_or_update_client_info
-#           2.1.6.  spotify_update_user_connection_info
-#           2.1.7.  spotify_delete_linked_account_data
-#           2.1.8.  spotify_update_refresh_token_data
+# 2.0  SINIF TANIMI: SpotifyUserRepository
+#      2.1. Başlatma ve Bağlantı Yönetimi (Initialization & Connection)
+#           - __init__()
+#           - _ensure_connection()
+#           - _close_if_owned()
+#      2.2. Kullanıcı Verisi Sorgulama (Read Operations)
+#           - get_spotify_user_data(username)
+#      2.3. Kullanıcı Verisi Yönetimi (Write Operations)
+#           - store_client_info(username, client_id, client_secret)
+#           - update_user_connection(username, spotify_user_id, refresh_token)
+#           - update_refresh_token(username, new_refresh_token)
+#           - delete_linked_account(username)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+import logging
 from mysql.connector import Error as MySQLError
 from typing import Optional, Dict, Any
 from datetime import datetime
 from app.database.db_connection import DatabaseConnection
-# BeatifyUserRepository'ye, is_spotify_connected durumunu güncellemek için ihtiyaç duyulacak.
 from app.database.beatify_user_repository import BeatifyUserRepository
 
+# Logger kurulumu
+logger = logging.getLogger(__name__)
+
 # =============================================================================
-# 2.0 SPOTIFY KULLANICI REPOSITORY SINIFI (SPOTIFY USER REPOSITORY CLASS)
+# 2.0 SINIF TANIMI: SpotifyUserRepository
 # =============================================================================
 class SpotifyUserRepository:
     """
-    Spotify kullanıcı verileri (`spotify_users`) ile ilgili veritabanı işlemlerini yönetir
-    (widget token ve tasarım hariç).
+    Kullanıcıların Spotify verilerinin veritabanı işlemlerini yönetir.
+    Bu sınıf, Spotify API bilgileri ve token'larının yönetilmesinden sorumludur.
     """
+
     # -------------------------------------------------------------------------
-    # 2.1.1. __init__ : Başlatıcı metot.
+    # 2.1. Başlatma ve Bağlantı Yönetimi (Initialization & Connection)
     # -------------------------------------------------------------------------
+
     def __init__(self, db_connection: Optional[DatabaseConnection] = None):
+        """
+        SpotifyUserRepository sınıfını başlatır.
+
+        Args:
+            db_connection: Mevcut bir veritabanı bağlantısı.
+                           Eğer sağlanmazsa, yeni bir bağlantı oluşturulur ve yönetilir.
+        """
         if db_connection:
             self.db: DatabaseConnection = db_connection
             self.own_connection: bool = False
         else:
             self.db: DatabaseConnection = DatabaseConnection()
             self.own_connection: bool = True
+        logger.debug("SpotifyUserRepository başlatıldı.")
 
-    # -------------------------------------------------------------------------
-    # 2.1.2. _ensure_connection : Bağlantıyı kontrol eder.
-    # -------------------------------------------------------------------------
     def _ensure_connection(self):
+        """Veritabanı bağlantısı kapalıysa yeniden kurar."""
         self.db._ensure_connection()
 
-    # -------------------------------------------------------------------------
-    # 2.1.3. _close_if_owned : Sahip olunan bağlantıyı kapatır.
-    # -------------------------------------------------------------------------
     def _close_if_owned(self):
+        """Sınıfın kendisine ait olan veritabanı bağlantısını kapatır."""
         if self.own_connection:
             self.db.close()
+            logger.debug("Sahip olunan veritabanı bağlantısı kapatıldı.")
 
     # -------------------------------------------------------------------------
-    # 2.1.4. spotify_get_user_data : Bağlı Spotify hesap bilgilerini getirir.
+    # 2.2. Kullanıcı Verisi Sorgulama (Read Operations)
     # -------------------------------------------------------------------------
-    def spotify_get_user_data(self, username: str) -> Optional[Dict[str, Any]]:
+
+    def get_spotify_user_data(self, username: str) -> Optional[Dict[str, Any]]:
+        """
+        Verilen kullanıcı adına ait Spotify verilerini veritabanından çeker.
+
+        Args:
+            username (str): Verileri alınacak kullanıcının adı.
+
+        Returns:
+            Kullanıcının Spotify verilerini içeren bir sözlük veya kullanıcı bulunamazsa None.
+        """
         self._ensure_connection()
         try:
-            # Widget token ve design hariç alanları seçiyoruz.
             query = """
                 SELECT username, spotify_user_id, client_id, client_secret,
                        refresh_token, created_at, updated_at
@@ -79,28 +100,40 @@ class SpotifyUserRepository:
             spotify_data = self.db.cursor.fetchone()
 
             if not spotify_data:
+                logger.warning(f"Kullanıcı '{username}' için Spotify verisi bulunamadı.")
                 return None
-            
+
+            logger.info(f"Kullanıcı '{username}' için Spotify verisi başarıyla alındı.")
             if isinstance(spotify_data.get('created_at'), datetime):
                 spotify_data['created_at'] = spotify_data['created_at'].strftime('%Y-%m-%d %H:%M:%S')
             if isinstance(spotify_data.get('updated_at'), datetime):
                 spotify_data['updated_at'] = spotify_data['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
 
             return spotify_data
-        except MySQLError:
+        except MySQLError as e:
+            logger.error(f"Spotify kullanıcı verisi alınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()
 
     # -------------------------------------------------------------------------
-    # 2.1.5. spotify_insert_or_update_client_info : Client ID ve Secret bilgilerini ekler/günceller.
+    # 2.3. Kullanıcı Verisi Yönetimi (Write Operations)
     # -------------------------------------------------------------------------
-    def spotify_insert_or_update_client_info(self, username: str, client_id: str, client_secret: str) -> bool:
+
+    def store_client_info(self, username: str, client_id: str, client_secret: str) -> bool:
+        """
+        Bir kullanıcı için Spotify client_id ve client_secret bilgilerini kaydeder veya günceller.
+
+        Args:
+            username (str): Bilgileri güncellenecek kullanıcı.
+            client_id (str): Spotify uygulama Client ID'si.
+            client_secret (str): Spotify uygulama Client Secret'ı.
+
+        Returns:
+            İşlem başarılı olursa True, aksi takdirde False döner.
+        """
         self._ensure_connection()
         try:
-            # Bu metot, spotify_users tablosunda bir kayıt yoksa oluşturur, varsa günceller.
-            # widget_token, design gibi alanlar bu işlemden etkilenmez, varsayılan değerlerini korur
-            # veya mevcut değerlerini korur.
             query = """
                 INSERT INTO spotify_users (username, client_id, client_secret)
                 VALUES (%s, %s, %s)
@@ -108,98 +141,115 @@ class SpotifyUserRepository:
             """
             self.db.cursor.execute(query, (username, client_id, client_secret))
             self.db.connection.commit()
-            return True # Etkilenen satır sayısını kontrol etmek daha iyi olabilir (rowcount).
+            logger.info(f"Kullanıcı '{username}' için Spotify Client bilgileri kaydedildi/güncellendi.")
+            return True
         except MySQLError as e:
+            logger.error(f"Client bilgileri kaydedilirken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            return False
         finally:
             self._close_if_owned()
 
-    # -------------------------------------------------------------------------
-    # 2.1.6. spotify_update_user_connection_info : Kullanıcının Spotify bağlantı bilgilerini günceller.
-    # -------------------------------------------------------------------------
-    def spotify_update_user_connection_info(self, username: str, spotify_user_id: str, refresh_token: str) -> bool:
+    def update_user_connection(self, username: str, spotify_user_id: str, refresh_token: str) -> bool:
+        """
+        Kullanıcının Spotify hesap bağlantısını kurar ve `beatify_users` tablosundaki durumu günceller.
+
+        Args:
+            username (str): Bilgileri güncellenecek kullanıcı.
+            spotify_user_id (str): Kullanıcının Spotify ID'si.
+            refresh_token (str): Spotify tarafından sağlanan yenileme token'ı.
+
+        Returns:
+            İşlem başarılı olursa True, aksi takdirde False döner.
+        """
         self._ensure_connection()
         try:
-            # Adım 1: spotify_users tablosuna ekleme veya güncelleme
-            # spotify_user_id ve refresh_token güncellenir/eklenir.
-            # client_id, client_secret, widget_token, design gibi alanlar etkilenmez.
+            # `spotify_users` tablosunu güncelle
             spotify_query = """
                 INSERT INTO spotify_users (username, spotify_user_id, refresh_token)
                 VALUES (%s, %s, %s)
-                ON DUPLICATE KEY UPDATE spotify_user_id = VALUES(spotify_user_id), 
+                ON DUPLICATE KEY UPDATE spotify_user_id = VALUES(spotify_user_id),
                                         refresh_token = VALUES(refresh_token)
             """
             self.db.cursor.execute(spotify_query, (username, spotify_user_id, refresh_token))
 
-            # Adım 2: beatify_users tablosunda bağlantı durumunu güncelle
-            # ÖNEMLİ: Aynı db_connection'ı kullanarak transaction bütünlüğünü koruyoruz.
+            # `beatify_users` tablosundaki bağlantı durumunu güncelle
             user_repo = BeatifyUserRepository(db_connection=self.db)
             user_repo.beatify_update_spotify_connection_status(username, True)
-            # user_repo kendi bağlantısını kapatmayacak çünkü dışarıdan verildi.
 
             self.db.connection.commit()
+            logger.info(f"Kullanıcı '{username}' için Spotify bağlantısı kuruldu/güncellendi.")
             return True
         except MySQLError as e:
+            logger.error(f"Kullanıcı bağlantısı güncellenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            return False
         finally:
-            self._close_if_owned() # Sadece bu repo kendi bağlantısını oluşturduysa kapatır.
-
-    # -------------------------------------------------------------------------
-    # 2.1.7. spotify_delete_linked_account_data : Bağlı Spotify hesap bilgilerini siler/sıfırlar.
-    # -------------------------------------------------------------------------
-    def spotify_delete_linked_account_data(self, username: str) -> bool:
-        self._ensure_connection()
-        try:
-            # Adım 1: spotify_users tablosundaki ilgili alanları NULL yap
-            # Sadece spotify_user_id ve refresh_token sıfırlanır.
-            # client_id, client_secret, widget_token, design gibi alanlar korunur.
-            # Eğer widget_token da sıfırlanmak isteniyorsa, o zaman SpotifyWidgetRepository'den
-            # bir metot çağrılmalı veya bu sorguya widget_token = NULL eklenmeli.
-            # Şimdilik sadece temel bağlantı bilgilerini sıfırlıyoruz.
-            spotify_query = """
-                UPDATE spotify_users
-                SET spotify_user_id = NULL, refresh_token = NULL 
-                WHERE username = %s 
-            """
-            # widget_token = NULL, short_token = NULL da eklenebilir eğer isteniyorsa.
-            # Bu durumda SpotifyWidgetRepository'deki delete metodu da düşünülmeli.
-            # Şimdilik sadece bu repoyu ilgilendiren kısımlar.
-            self.db.cursor.execute(spotify_query, (username,))
-
-            # Adım 2: beatify_users tablosunda bağlantı durumunu güncelle
-            user_repo = BeatifyUserRepository(db_connection=self.db)
-            user_repo.beatify_update_spotify_connection_status(username, False)
-
-            self.db.connection.commit()
-            return True # Etkilenen satır kontrolü eklenebilir.
-        except MySQLError as e:
-            if self.db.connection and self.db.connection.is_connected():
-                self.db.connection.rollback()
-            raise
-        finally:
+            # `_close_if_owned` user_repo'nun işi bittikten sonra çağrılmalı
             self._close_if_owned()
 
-    # -------------------------------------------------------------------------
-    # 2.1.8. spotify_update_refresh_token_data : Spotify refresh token'ını günceller.
-    # -------------------------------------------------------------------------
-    def spotify_update_refresh_token_data(self, username: str, new_refresh_token: str) -> bool:
+    def update_refresh_token(self, username: str, new_refresh_token: str) -> bool:
+        """
+        Mevcut bir kullanıcının Spotify yenileme token'ını günceller.
+
+        Args:
+            username (str): Token'ı güncellenecek kullanıcı.
+            new_refresh_token (str): Yeni yenileme token'ı.
+
+        Returns:
+            İşlem başarılı olursa ve en az bir satır etkilenirse True döner.
+        """
         self._ensure_connection()
         try:
             query = "UPDATE spotify_users SET refresh_token = %s WHERE username = %s"
             self.db.cursor.execute(query, (new_refresh_token, username))
             self.db.connection.commit()
-            return self.db.cursor.rowcount > 0
+            if self.db.cursor.rowcount > 0:
+                logger.info(f"Kullanıcı '{username}' için refresh token güncellendi.")
+                return True
+            logger.warning(f"Kullanıcı '{username}' için refresh token güncellenirken etkilenecek satır bulunamadı.")
+            return False
         except MySQLError as e:
+            logger.error(f"Refresh token güncellenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            return False
         finally:
             self._close_if_owned()
 
-# =============================================================================
-# Spotify Kullanıcı Repository Modülü Sonu
-# =============================================================================
+    def delete_linked_account(self, username: str) -> bool:
+        """
+        Kullanıcının Spotify hesap bağlantısını ve ilgili verilerini kaldırır.
+
+        Args:
+            username (str): Bağlantısı kaldırılacak kullanıcı.
+
+        Returns:
+            İşlem başarılı olursa True, aksi takdirde False döner.
+        """
+        self._ensure_connection()
+        try:
+            # `spotify_users` tablosundaki hassas verileri temizle
+            spotify_query = """
+                UPDATE spotify_users
+                SET spotify_user_id = NULL, refresh_token = NULL
+                WHERE username = %s
+            """
+            self.db.cursor.execute(spotify_query, (username,))
+
+            # `beatify_users` tablosundaki bağlantı durumunu güncelle
+            user_repo = BeatifyUserRepository(db_connection=self.db)
+            user_repo.beatify_update_spotify_connection_status(username, False)
+
+            self.db.connection.commit()
+            logger.info(f"Kullanıcı '{username}' için Spotify hesap bağlantısı kaldırıldı.")
+            return True
+        except MySQLError as e:
+            logger.error(f"Spotify bağlantısı kaldırılırken hata (Kullanıcı: {username}): {e}", exc_info=True)
+            if self.db.connection and self.db.connection.is_connected():
+                self.db.connection.rollback()
+            return False
+        finally:
+            self._close_if_owned()

@@ -22,150 +22,45 @@
          data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
 
         <!-- Arka Plan Albüm Sanatı (Bulanık) - Standard widget ile tutarlılık için eklendi -->
-        <div class="background-container">
+        <div class="modern-background-container">
             <img id="albumArtBackground_a" class="widget-album-art-background" data-set="a" data-type="albumArtBackground"
-                 src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı A"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="0"
-                 data-transition-in-animation="fade-in"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="none"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="none"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
+                 src="https://placehold.co/600x600/121212/e5e7eb?text=Beatify+BG" alt="Arka Plan Albüm Sanatı A">
 
             <img id="albumArtBackground_b" class="widget-album-art-background passive" data-set="b" data-type="albumArtBackground"
                  src="" alt="Arka Plan Albüm Sanatı B"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="0"
-                 data-transition-in-animation="fade-in"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="none"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="none"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
+>
         </div>
 
         <!-- Gradyan Overlay (Genel) - Standard widget ile tutarlılık için eklendi -->
-        <div class="widget-gradient-overlay"></div>
+         <div class="modern-effects-container">
+            <div class="widget-gradient-overlay"></div>
+         </div>
 
         <!-- Albüm Kapağı (Üst Kısım) -->
-        <div class="cover-container">
-            <img id="albumArt_a" class="widget-album-art-main" data-set="a" data-type="albumArt" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı A"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="200"
-                 data-transition-in-animation="slide-in-right"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="slide-out-left"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="slide-out-left"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
-            <img id="albumArt_b" class="widget-album-art-main passive" data-set="b" data-type="albumArt" src="" alt="Albüm Kapağı B"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="200"
-                 data-transition-in-animation="slide-in-right"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="slide-out-left"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="slide-out-left"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
+        <div class="modern-cover-container">
+            <img id="albumArt_a" class="widget-album-art-main" data-set="a" data-type="albumArt" src="https://placehold.co/600x360/1f2937/e5e7eb?text=Beatify" alt="Albüm Kapağı A">
+            <img id="albumArt_b" class="widget-album-art-main passive" data-set="b" data-type="albumArt" src="" alt="Albüm Kapağı B">
         </div>
 
         <!-- İçerik Alanı -->
-        <div id="widgetContent" class="widget-content-area">
+        <div id="widgetContent" class="modern-content-area">
             <!-- Şarkı Bilgileri -->
             <div class="widget-track-info">
                 <div class="track-name-container">
-                    <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor..."
-                        data-intro-animation="fade-in"
-                        data-intro-duration="1000"
-                        data-intro-delay="400"
-                        data-transition-in-animation="slide-in-right"
-                        data-transition-in-duration="1000"
-                        data-transition-in-delay="0"
-                        data-transition-out-animation="slide-out-left"
-                        data-transition-out-duration="1000"
-                        data-transition-out-delay="0"
-                        data-outro-animation="slide-out-left"
-                        data-outro-duration="1000"
-                        data-outro-delay="0">Yükleniyor...</h3>
-                    <h3 id="trackName_b" class="widget-track-name passive" data-set="b" data-type="trackName" title=""
-                        data-intro-animation="fade-in
-                        data-intro-duration="1000"
-                        data-intro-delay="400"
-                        data-transition-in-animation="slide-in-right"
-                        data-transition-in-duration="1000"
-                        data-transition-in-delay="0"
-                        data-transition-out-animation="slide-out-left"
-                        data-transition-out-duration="1000"
-                        data-transition-out-delay="0"
-                        data-outro-animation="slide-out-left"
-                        data-outro-duration="1000"
-                        data-outro-delay="0"></h3>
+                    <h3 id="trackName_a" class="widget-track-name" data-set="a" data-type="trackName" title="Şarkı Adı Yükleniyor...">Yükleniyor...</h3>
+                    <h3 id="trackName_b" class="widget-track-name passive" data-set="b" data-type="trackName" title=""></h3>
                 </div>
                 <div class="artist-name-container">
-                    <p id="artistName_a" class="widget-artist-name" data-set="a" data-type="artistName" title="Sanatçı Adı Yükleniyor..."
-                       data-intro-animation="fade-in
-                       data-intro-duration="1000"
-                       data-intro-delay="400"
-                       data-transition-in-animation="slide-in-right"
-                       data-transition-in-duration="1000"
-                       data-transition-in-delay="0"
-                       data-transition-out-animation="slide-out-left"
-                       data-transition-out-duration="1000"
-                       data-transition-out-delay="0"
-                       data-outro-animation="slide-out-left"
-                       data-outro-duration="1000"
-                       data-outro-delay="0">...</p>
-                    <p id="artistName_b" class="widget-artist-name passive" data-set="b" data-type="artistName" title=""
-                       data-intro-animation="fade-in"
-                       data-intro-duration="1000"
-                       data-intro-delay="400"
-                       data-transition-in-animation="slide-in-right"
-                       data-transition-in-duration="1000"
-                       data-transition-in-delay="0"
-                       data-transition-out-animation="slide-out-left"
-                       data-transition-out-duration="1000"
-                       data-transition-out-delay="0"
-                       data-outro-animation="slide-out-left"
-                       data-outro-duration="1000"
-                       data-outro-delay="0"></p>
+                    <p id="artistName_a" class="widget-artist-name" data-set="a" data-type="artistName"></p>
+                    <p id="artistName_b" class="widget-artist-name passive" data-set="b" data-type="artistName"></p>
                 </div>
             </div>
 
             <!-- Progress Bar Alanı -->
-            <div class="widget-player-controls-container">
-                <div class="widget-player-controls" data-set="a" data-type="playerControls"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="400"
-                 data-transition-in-animation="slide-in-right"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="slide-out-left"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="slide-out-left"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
+            <div class="modern-player-controls-container">
+                <div class="widget-player-controls" data-set="a" data-type="playerControls">
                 <div class="widget-progress-section">
-                    <div id="progressBarContainer_a" class="core-progress-container widget-progress-bar-container">
+                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
                         <div id="progressBar_a" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
                     </div>
                     <div class="core-time-display widget-time-display">
@@ -174,21 +69,9 @@
                     </div>
                 </div>
             </div>
-            <div class="widget-player-controls" data-set="b" data-type="playerControls"
-                 data-intro-animation="fade-in"
-                 data-intro-duration="1000"
-                 data-intro-delay="400"
-                 data-transition-in-animation="slide-in-right"
-                 data-transition-in-duration="1000"
-                 data-transition-in-delay="0"
-                 data-transition-out-animation="slide-out-left"
-                 data-transition-out-duration="1000"
-                 data-transition-out-delay="0"
-                 data-outro-animation="slide-out-left"
-                 data-outro-duration="1000"
-                 data-outro-delay="0">
+            <div class="widget-player-controls" data-set="b" data-type="playerControls">
                 <div class="widget-progress-section">
-                    <div id="progressBarContainer_b" class="core-progress-container widget-progress-bar-container">
+                    <div id="progressBarContainer" class="core-progress-container widget-progress-bar-container">
                         <div id="progressBar_b" class="core-progress-bar widget-progress-bar" style="width: 0%;"></div>
                     </div>
                     <div class="core-time-display widget-time-display">
@@ -202,19 +85,7 @@
 
         <!-- Spotify Logosu -->
         <div class="widget-spotify-logo-container">
-            <div class="widget-spotify-logo" data-set="a" data-type="spotifyLogo"
-             data-intro-animation="fade-in"
-             data-intro-duration="1000"
-             data-intro-delay="400"
-             data-transition-in-animation="slide-in-right"
-             data-transition-in-duration="1000"
-             data-transition-in-delay="0"
-             data-transition-out-animation="slide-out-left"
-             data-transition-out-duration="1000"
-             data-transition-out-delay="0"
-             data-outro-animation="slide-out-left"
-             data-outro-duration="1000"
-             data-outro-delay="0">
+            <div class="widget-spotify-logo" data-set="a" data-type="spotifyLogo">
             <div class="spotify-blurred-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-spotify" viewBox="0 0 16 16"> <!-- Boyut güncellendi -->
                     <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
@@ -222,19 +93,7 @@
                 <span class="spotify-text">Spotify</span>
             </div>
         </div>
-        <div class="widget-spotify-logo passive" data-set="b" data-type="spotifyLogo"
-             data-intro-animation="fade-in"
-             data-intro-duration="1000"
-             data-intro-delay="400"
-             data-transition-in-animation="slide-in-right"
-             data-transition-in-duration="1000"
-             data-transition-in-delay="0"
-             data-transition-out-animation="slide-out-left"
-             data-transition-out-duration="1000"
-             data-transition-out-delay="0"
-             data-outro-animation="slide-out-left"
-             data-outro-duration="1000"
-             data-outro-delay="0">
+        <div class="widget-spotify-logo passive" data-set="b" data-type="spotifyLogo">
             <div class="spotify-blurred-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-spotify" viewBox="0 0 16 16"> <!-- Boyut güncellendi -->
                     <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
@@ -254,7 +113,12 @@
     <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: hidden;">
         <button id="changeMockSongBtn" style="padding: 8px 12px; font-size: 12px; background-color: #1DB954; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Change Mock Song</button>
     </div>
-
+    
+    <script>
+        // Backend'den gelen config değişkenini window.configData'ya ata
+        window.configData = JSON.parse('{{ config|tojson|safe }}');
+        console.log('Backend config yüklendi:', window.configData);
+    </script>
     <!-- Ortak JavaScript Dosyası -->
     <script src="/static/js/spotify/widget-manager/widgets/spotify_widget_core.js"></script>
 

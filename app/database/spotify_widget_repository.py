@@ -1,212 +1,222 @@
-# spotify_widget_repository.py
 # =============================================================================
-# Spotify Widget Repository Modülü
+# Spotify Widget Veritabanı Deposu Modülü (Spotify Widget Repository Module)
 # =============================================================================
-# Bu modül, `spotify_users` tablosu ile ilgili Spotify widget token
-# ve tasarım veritabanı işlemlerini yönetir.
+# Bu modül, Spotify widget'ları ile ilgili tüm veritabanı işlemlerini
+# yöneten `SpotifyWidgetRepository` sınıfını içerir. Widget yapılandırmalarını
+# saklamak, sorgulamak ve güncellemek için kullanılır.
 #
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  SPOTIFY WIDGET REPOSITORY SINIFI (SPOTIFY WIDGET REPOSITORY CLASS)
-#      2.1. SpotifyWidgetRepository
-#           2.1.1.  __init__
-#           2.1.2.  _ensure_connection
-#           2.1.3.  _close_if_owned
-#           2.1.4.  spotify_store_widget_token_data
-#           2.1.5.  spotify_get_widget_token_data
-#           2.1.6.  spotify_get_widget_token_by_short_token
-#           2.1.7.  spotify_get_username_by_widget_token_data
-#           2.1.8.  spotify_update_widget_design
-#           2.1.9.  spotify_clear_widget_data (Ek öneri)
+# 2.0  SINIF TANIMI: SpotifyWidgetRepository
+#      2.1. Başlatma ve Bağlantı Yönetimi (Initialization & Connection)
+#           - __init__()
+#           - _ensure_connection()
+#           - _close_if_owned()
+#      2.2. Widget Konfigürasyon Sorguları (Read Operations)
+#           - get_widget_token_by_username(self, username: str)
+#           - get_widget_config_by_token(self, widget_token: str)
+#           - get_username_by_widget_token(self, token: str)
+#           - get_data_by_widget_token(self, token: str)
+#      2.3. Widget Konfigürasyon Yönetimi (Write Operations)
+#           - store_widget_config(self, config_data: Dict[str, Any])
+#           - update_widget_design_for_user(self, username: str, design: str)
+#           - clear_widget_data_for_user()
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
-from mysql.connector import Error as MySQLError
+import logging
+import json
 from typing import Optional, Dict, Any
+from mysql.connector import Error as MySQLError
 from app.database.db_connection import DatabaseConnection
 
+# Logger kurulumu
+logger = logging.getLogger(__name__)
+
 # =============================================================================
-# 2.0 SPOTIFY WIDGET REPOSITORY SINIFI (SPOTIFY WIDGET REPOSITORY CLASS)
+# 2.0 SINIF TANIMI: SpotifyWidgetRepository
 # =============================================================================
 class SpotifyWidgetRepository:
     """
-    Spotify widget token ve tasarım (`spotify_users` tablosu) ile ilgili
-    veritabanı işlemlerini yönetir.
+    Spotify widget yapılandırmalarının veritabanı işlemlerini yönetir.
+    Bu sınıf, widget oluşturma, sorgulama ve güncelleme işlemlerinden sorumludur.
     """
+
     # -------------------------------------------------------------------------
-    # 2.1.1. __init__ : Başlatıcı metot.
+    # 2.1. Başlatma ve Bağlantı Yönetimi (Initialization & Connection)
     # -------------------------------------------------------------------------
+
     def __init__(self, db_connection: Optional[DatabaseConnection] = None):
-        if db_connection:
-            self.db: DatabaseConnection = db_connection
-            self.own_connection: bool = False
-        else:
-            self.db: DatabaseConnection = DatabaseConnection()
-            self.own_connection: bool = True
-
-    # -------------------------------------------------------------------------
-    # 2.1.2. _ensure_connection : Bağlantıyı kontrol eder.
-    # -------------------------------------------------------------------------
-    def _ensure_connection(self):
-        self.db._ensure_connection()
-
-    # -------------------------------------------------------------------------
-    # 2.1.3. _close_if_owned : Sahip olunan bağlantıyı kapatır.
-    # -------------------------------------------------------------------------
-    def _close_if_owned(self):
-        if self.own_connection:
-            self.db.close()
-
-    # -------------------------------------------------------------------------
-    # 2.1.4. spotify_store_widget_token : Spotify widget token'ını saklar/günceller.
-    # -------------------------------------------------------------------------
-    def spotify_store_widget_token(self, token_data: Dict[str, Any]) -> bool:
         """
-        Widget token ve ilgili bilgileri veritabanına kaydeder veya günceller.
-        Veriyi sözlük olarak alır.
+        SpotifyWidgetRepository sınıfını başlatır.
 
         Args:
-            token_data (Dict[str, Any]): Kaydedilecek widget bilgilerini içeren sözlük.
-                Beklenen anahtarlar: "username", "widget_token", "widget_name", 
-                                    "widget_type", "config_data", "spotify_user_id".
-
-        Returns:
-            bool: İşlem başarılıysa True, değilse False.
-        
-        Raises:
-            MySQLError: Veritabanı hatası durumunda.
+            db_connection: Mevcut bir veritabanı bağlantısı.
+                           Eğer sağlanmazsa, yeni bir bağlantı oluşturulur ve yönetilir.
         """
-        self._ensure_connection()
-        try:
-            # beatify_username birincil anahtar veya benzersiz anahtar olmalı
-            query = """
-            INSERT INTO spotify_widget_configs 
-            (beatify_username, widget_token, widget_name, widget_type, config_data, spotify_user_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-            widget_token = VALUES(widget_token),
-            widget_name = VALUES(widget_name),
-            widget_type = VALUES(widget_type),
-            config_data = VALUES(config_data),
-            spotify_user_id = VALUES(spotify_user_id)
-            """
-            params = (
-                token_data["beatify_username"],
-                token_data["widget_token"],
-                token_data["widget_name"],
-                token_data["widget_type"],
-                token_data["config_data"],
-                token_data["spotify_user_id"]
-            )
-            
-            self.db.cursor.execute(query, params)
-            self.db.connection.commit()
-            return self.db.cursor.rowcount > 0  # Etkilenen satır varsa başarılı sayılır
-                                                # INSERT için rowcount 1, UPDATE için 1 veya 2 olabilir (MySQL'de)
-                                                # Değişiklik yoksa 0 olabilir.
-        except MySQLError as e: # Kullandığınız DB kütüphanesinin hata sınıfını kullanın
-            if self.db.connection and self.db.connection.is_connected():
-                self.db.connection.rollback()
-            print(f"Database error: {e}") # Loglama için
-            raise # Hatayı yukarıya tekrar fırlat
-        finally:
-            self._close_if_owned()
+        if db_connection:
+            self.db: DatabaseConnection = db_connection
+            self._own_connection: bool = False
+        else:
+            self.db: DatabaseConnection = DatabaseConnection()
+            self._own_connection: bool = True
+        logger.debug("SpotifyWidgetRepository başlatıldı.")
+
+    def _ensure_connection(self):
+        """Veritabanı bağlantısı kapalıysa yeniden kurar."""
+        self.db._ensure_connection()
+
+    def _close_if_owned(self):
+        """Sınıfın kendisine ait olan veritabanı bağlantısını kapatır."""
+        if self._own_connection:
+            self.db.close()
+            logger.debug("Sahip olunan veritabanı bağlantısı kapatıldı.")
 
     # -------------------------------------------------------------------------
-    # 2.1.5. spotify_get_widget_token : Spotify widget token'ını getirir.
+    # 2.2. Widget Konfigürasyon Sorguları (Read Operations)
     # -------------------------------------------------------------------------
-    def spotify_get_widget_token(self, username: str) -> Optional[str]:
+
+    def get_widget_token_by_username(self, username: str) -> Optional[str]:
+        """Kullanıcı adına göre widget token'ını getirir."""
         self._ensure_connection()
         try:
             query = "SELECT widget_token FROM spotify_widget_configs WHERE beatify_username = %s"
             self.db.cursor.execute(query, (username,))
             result = self.db.cursor.fetchone()
-            return result['widget_token'] if result and result['widget_token'] else None
-        except MySQLError:
+            if result:
+                logger.info(f"Kullanıcı '{username}' için widget token bulundu.")
+                return result.get('widget_token')
+            logger.info(f"Kullanıcı '{username}' için widget token bulunamadı.")
+            return None
+        except MySQLError as e:
+            logger.error(f"Widget token alınırken hata oluştu (Kullanıcı: {username}): {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()
-            
-    # -------------------------------------------------------------------------
-    # 2.1.6. beatify_get_username_by_widget_token : Kısa token ile tam widget token'ını getirir.
-    # -------------------------------------------------------------------------
-    def beatify_get_username_by_widget_token(self, widget_token: str) -> Optional[str]:
+
+    def get_widget_config_by_token(self, widget_token: str) -> Optional[Dict[str, Any]]:
+        """Widget token'ına göre tüm widget yapılandırma verilerini getirir."""
         self._ensure_connection()
         try:
-            query = "SELECT beatify_username FROM spotify_widget_configs WHERE widget_token = %s"
+            query = "SELECT config_data FROM spotify_widget_configs WHERE widget_token = %s"
             self.db.cursor.execute(query, (widget_token,))
             result = self.db.cursor.fetchone()
-            print(result)
-            return result['beatify_username'] if result and result['beatify_username'] else None
-        except MySQLError:
+        
+            if result:
+                logger.info(f"Token '{widget_token[:8]}...' için widget yapılandırması bulundu.")
+                # JSON string'ini Python sözlüğüne dönüştür
+                if isinstance(result.get('config_data'), str):
+                    return json.loads(result['config_data'])
+                return result.get('config_data')
+            else:
+                logger.warning(f"Token '{widget_token[:8]}...' için widget yapılandırması bulunamadı.")
+                return None
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON dönüşüm hatası (Token: {widget_token[:8]}...): {e}", exc_info=True)
+            return None
+        except MySQLError as e:
+            logger.error(f"Widget yapılandırması alınırken hata (Token: {widget_token[:8]}...): {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()
 
-    # -------------------------------------------------------------------------
-    # 2.1.7. spotify_get_username_by_widget_token_data : Widget token'ına sahip kullanıcının adını getirir.
-    # Bu metot, widget_token'ın benzersiz olduğunu varsayar. Eğer değilse, birden fazla sonuç dönebilir.
-    # Tablo tanımında widget_token UNIQUE değil, bu yüzden dikkatli olunmalı.
-    # Genellikle bu tür bir arama short_token üzerinden yapılır ki o da UNIQUE olmalı (veya indexli).
-    # -------------------------------------------------------------------------
-    def spotify_get_username_by_widget_token_data(self, token: str) -> Optional[str]:
+    def get_username_by_widget_token(self, token: str) -> Optional[str]:
+        """Widget token'ını kullanarak token sahibinin kullanıcı adını bulur."""
         self._ensure_connection()
         try:
-            # widget_token TEXT olduğu için tam eşleşme yavaş olabilir.
-            # Eğer bu sık kullanılacaksa, widget_token'ın bir hash'i veya kısa bir versiyonu
-            # üzerinden arama yapmak daha performanslı olabilir.
             query = "SELECT beatify_username FROM spotify_widget_configs WHERE widget_token = %s"
             self.db.cursor.execute(query, (token,))
-            result = self.db.cursor.fetchone() # İlk eşleşeni alır
-            return result['beatify_username'] if result else None
-        except MySQLError:
+            result = self.db.cursor.fetchone()
+            if result:
+                return result.get('beatify_username')
+            return None
+        except MySQLError as e:
+            logger.error(f"Token'dan kullanıcı adı alınırken hata (Token: {token[:8]}...): {e}", exc_info=True)
+            return None
+        finally:
+            self._close_if_owned()
+    
+    def get_data_by_widget_token(self, token: str) -> Optional[Dict[str, Any]]:
+        """Widget token'ını kullanarak token sahibinin tüm verilerini bulur."""
+        self._ensure_connection()
+        try:
+            query = "SELECT * FROM spotify_widget_configs WHERE widget_token = %s"
+            self.db.cursor.execute(query, (token,))
+            result = self.db.cursor.fetchone()
+            if result:
+                return result
+            return None
+        except MySQLError as e:
+            logger.error(f"Token'dan veri alınırken hata (Token: {token[:8]}...): {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()
 
     # -------------------------------------------------------------------------
-    # 2.1.8. spotify_update_widget_design : Kullanıcının Spotify widget tasarım tercihini günceller.
+    # 2.3. Widget Konfigürasyon Yönetimi (Write Operations)
     # -------------------------------------------------------------------------
-    def spotify_update_widget_design(self, username: str, design: str) -> bool:
+    
+    def store_widget_config(self, config_data: Dict[str, Any]) -> bool:
+        """Yeni bir widget yapılandırması kaydeder veya mevcut olanı günceller."""
+        self._ensure_connection()
+        username = config_data.get("beatify_username", "Bilinmeyen")
+        try:
+            query = """
+            INSERT INTO spotify_widget_configs 
+            (beatify_username, widget_token, widget_name, widget_type, config_data, spotify_user_id)
+            VALUES (%(beatify_username)s, %(widget_token)s, %(widget_name)s, %(widget_type)s, %(config_data)s, %(spotify_user_id)s)
+            ON DUPLICATE KEY UPDATE
+                widget_token = VALUES(widget_token),
+                widget_name = VALUES(widget_name),
+                widget_type = VALUES(widget_type),
+                config_data = VALUES(config_data);
+            """
+            self.db.cursor.execute(query, config_data)
+            self.db.connection.commit()
+            logger.info(f"Kullanıcı '{username}' için widget yapılandırması başarıyla kaydedildi/güncellendi.")
+            return self.db.cursor.rowcount > 0
+        except MySQLError as e:
+            logger.error(f"Widget yapılandırması kaydedilirken hata (Kullanıcı: {username}): {e}", exc_info=True)
+            if self.db.connection and self.db.connection.is_connected():
+                self.db.connection.rollback()
+            return False
+        finally:
+            self._close_if_owned()
+
+    def update_widget_design_for_user(self, username: str, design: str) -> bool:
+        """Kullanıcının widget tasarım ayarını 'spotify_users' tablosunda günceller."""
         self._ensure_connection()
         try:
             query = "UPDATE spotify_users SET design = %s WHERE username = %s"
             self.db.cursor.execute(query, (design, username))
             self.db.connection.commit()
+            logger.info(f"Kullanıcı '{username}' için widget tasarımı '{design}' olarak güncellendi.")
             return self.db.cursor.rowcount > 0
         except MySQLError as e:
+            logger.error(f"Widget tasarımı güncellenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            return False
         finally:
             self._close_if_owned()
 
-    # -------------------------------------------------------------------------
-    # 2.1.9. spotify_clear_widget_data (Ek Öneri) : Kullanıcının widget verilerini temizler.
-    # -------------------------------------------------------------------------
-    def spotify_clear_widget_data(self, username: str) -> bool:
-        """Kullanıcının widget_token, short_token ve design bilgilerini sıfırlar."""
+    def clear_widget_data_for_user(self, username: str) -> bool:
+        """Kullanıcının 'spotify_users' tablosundaki widget ayarlarını temizler."""
         self._ensure_connection()
         try:
-            query = """
-                UPDATE spotify_users 
-                SET widget_token = NULL, short_token = NULL, design = 'standard' 
-                WHERE username = %s
-            """
-            # design'ı varsayılan bir değere ('standard' gibi) ayarlamak mantıklı olabilir.
+            query = "UPDATE spotify_users SET widget_token = NULL, short_token = NULL, design = 'standard' WHERE username = %s"
             self.db.cursor.execute(query, (username,))
             self.db.connection.commit()
+            logger.info(f"Kullanıcı '{username}' için widget verileri temizlendi.")
             return self.db.cursor.rowcount > 0
         except MySQLError as e:
+            logger.error(f"Widget verileri temizlenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
-            raise
+            return False
         finally:
             self._close_if_owned()
 
-# =============================================================================
-# Spotify Widget Repository Modülü Sonu
-# =============================================================================

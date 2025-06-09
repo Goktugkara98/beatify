@@ -1,41 +1,42 @@
 # =============================================================================
-# Kimlik Doğrulama Rotaları Modülü (Authentication Routes Module)
+# Kimlik Doğrulama Rota Modülü (Authentication Routes Module)
 # =============================================================================
-# Bu modül, kullanıcı kaydı, giriş, çıkış ve parola sıfırlama (gelecekte)
-# gibi temel kimlik doğrulama işlemlerini yöneten Flask rotalarını tanımlar.
-# Kullanıcıların uygulama ile etkileşimde bulunabilmesi için gerekli
-# temel güvenlik ve oturum yönetimi işlevlerini sağlar.
+# Bu modül, kullanıcı kimlik doğrulama işlemlerini (kayıt, giriş, çıkış,
+# parola sıfırlama) yöneten tüm rotaları içerir. Rotalar, kullanıcı
+# arayüzünü render etmek, form verilerini işlemek ve auth_service ile
+# etkileşim kurmak için kullanılır.
 #
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
-# 1.0 İÇE AKTARMALAR (IMPORTS)
-#     : Gerekli Flask bileşenleri ve uygulama servislerinin içe aktarılması.
-# 2.0 ROTA BAŞLATMA FONKSİYONU (ROUTE INITIALIZATION FUNCTION)
-#     2.1. init_auth_routes(app)
-#          : Tüm kimlik doğrulama rotalarını belirtilen Flask uygulamasına kaydeder.
-#          Servis örneklerini (bu durumda doğrudan auth_service modülü) kullanır
-#          ve rota fonksiyonlarını tanımlar.
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#      : Gerekli Flask bileşenleri ve servis katmanı.
 #
-#     İÇ ROTALAR (init_auth_routes içinde tanımlanır):
-#     -------------------------------------------------------------------------
-#     3.0 KİMLİK DOĞRULAMA ROTALARI (AUTHENTICATION ROUTES)
-#         3.1. register()
-#              : Kullanıcı kayıt sayfasını gösterir ve kayıt işlemini gerçekleştirir.
-#                Rota: /register (GET, POST)
-#         3.2. login()
-#              : Kullanıcı giriş sayfasını gösterir ve giriş işlemini gerçekleştirir.
-#                Rota: /login (GET, POST)
-#         3.3. logout()
-#              : Kullanıcının oturumunu sonlandırır ve çıkış işlemini gerçekleştirir.
-#                Rota: /logout (GET)
-#         3.4. reset_password()
-#              : Parola sıfırlama sayfasını gösterir (gelecekteki implementasyon).
-#                Rota: /reset_password (GET, POST)
+# 2.0  YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
+#      : Rota içindeki karmaşık mantığı basitleştiren fonksiyonlar.
+#      2.1. _handle_register_post(form_data)
+#      2.2. _handle_login_post(form_data)
+#
+# 3.0  ROTA BAŞLATMA (ROUTE INITIALIZATION)
+#      3.1. init_auth_routes(app)
+#           : Tüm kimlik doğrulama rotalarını Flask uygulamasına kaydeder.
+#
+# 4.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
+#      4.1. Kayıt (Register)
+#           4.1.1. register() -> @app.route('/register', methods=['GET', 'POST'])
+#      4.2. Giriş (Login)
+#           4.2.1. login() -> @app.route('/login', methods=['GET', 'POST'])
+#      4.3. Çıkış (Logout)
+#           4.3.1. logout() -> @app.route('/logout', methods=['GET'])
+#      4.4. Parola Sıfırlama (Password Reset)
+#           4.4.1. reset_password() -> @app.route('/reset_password', methods=['GET', 'POST'])
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+import logging
+from typing import Any, Optional, Dict
+from werkzeug.wrappers import Response as WerkzeugResponse
 from flask import (
     render_template,
     request,
@@ -43,18 +44,93 @@ from flask import (
     url_for,
     flash,
     session,
-    Flask,  # Flask tipi için
-    Response # Yanıt tipi için
+    Flask,
+    Response
 )
-from app.services import auth_service # Kimlik doğrulama iş mantığını içerir
-from typing import Any, Optional # Tip ipuçları için
+
+# Servisler ve Yardımcılar
+from app.services import auth_service
+
+# Logger kurulumu
+logger = logging.getLogger(__name__)
+
 
 # =============================================================================
-# 2.0 ROTA BAŞLATMA FONKSİYONU (ROUTE INITIALIZATION FUNCTION)
+# 2.0 YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
 # =============================================================================
-# -----------------------------------------------------------------------------
-# 2.1. init_auth_routes(app) : Tüm kimlik doğrulama rotalarını kaydeder.
-# -----------------------------------------------------------------------------
+
+def _handle_register_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
+    """
+    Kullanıcı kayıt (register) POST isteğini işler.
+    Form verilerini doğrular ve auth_service aracılığıyla kayıt işlemini yapar.
+    """
+    username = form_data.get('username')
+    email = form_data.get('email')
+    password = form_data.get('password')
+
+    if not all([username, email, password]):
+        flash('Lütfen tüm alanları doldurun.', 'danger')
+        return render_template('auth/register.html', title="Kayıt Ol")
+
+    if len(password) < 8:
+        flash('Parola en az 8 karakter uzunluğunda olmalıdır.', 'danger')
+        return render_template('auth/register.html', title="Kayıt Ol")
+
+    try:
+        logger.info(f"Yeni kullanıcı kaydı deneniyor: Kullanıcı Adı='{username}', Email='{email}'")
+        auth_service.beatify_register(username, email, password)
+        flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
+        logger.info(f"Kullanıcı '{username}' başarıyla kaydedildi.")
+        return redirect(url_for('auth_bp.login'))
+    except ValueError as ve:
+        logger.warning(f"Kayıt hatası (ValueError): Kullanıcı='{username}', Hata: {ve}")
+        flash(str(ve), 'danger')
+        return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
+    except Exception as e:
+        logger.error(f"Kayıt sırasında beklenmedik hata: Kullanıcı='{username}', Hata: {e}", exc_info=True)
+        flash('Kayıt sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'danger')
+        return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
+
+
+def _handle_login_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
+    """
+    Kullanıcı giriş (login) POST isteğini işler.
+    Kullanıcıyı doğrular ve oturum açar.
+    """
+    username = form_data.get('username')
+    password = form_data.get('password')
+    remember_me = form_data.get('remember') == 'on'
+
+    if not all([username, password]):
+        flash('Lütfen kullanıcı adı ve parola girin.', 'danger')
+        return render_template('auth/login.html', title="Giriş Yap")
+
+    try:
+        logger.info(f"Kullanıcı giriş denemesi: Kullanıcı Adı='{username}'")
+        response = auth_service.beatify_log_in(username, password, remember_me)
+        flash('Başarıyla giriş yaptınız.', 'success')
+        logger.info(f"Kullanıcı '{username}' başarıyla giriş yaptı.")
+        
+        # Servis bir response döndürürse (örn. set_cookie) onu kullan
+        if response:
+            return response
+        
+        return redirect(url_for('main_bp.homepage'))
+
+    except ValueError as ve:
+        logger.warning(f"Giriş hatası (ValueError): Kullanıcı='{username}', Hata: {ve}")
+        flash(str(ve), 'danger')
+        return render_template('auth/login.html', title="Giriş Yap", username=username)
+    except Exception as e:
+        logger.error(f"Giriş sırasında beklenmedik hata: Kullanıcı='{username}', Hata: {e}", exc_info=True)
+        flash('Giriş sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'danger')
+        return render_template('auth/login.html', title="Giriş Yap", username=username)
+
+
+# =============================================================================
+# 3.0 ROTA BAŞLATMA (ROUTE INITIALIZATION)
+# =============================================================================
+
 def init_auth_routes(app: Flask) -> None:
     """
     Temel kimlik doğrulama (kayıt, giriş, çıkış) rotalarını
@@ -63,184 +139,102 @@ def init_auth_routes(app: Flask) -> None:
     Args:
         app (Flask): Rotaların kaydedileceği Flask uygulama nesnesi.
     """
-    # print("Kimlik doğrulama rotaları başlatılıyor...") # Geliştirme için log
-
+    
     # =========================================================================
-    # 3.0 KİMLİK DOĞRULAMA ROTALARI (AUTHENTICATION ROUTES)
+    # 4.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
     # =========================================================================
 
     # -------------------------------------------------------------------------
-    # 3.1. register() : Kullanıcı kayıt sayfasını gösterir ve işlemi yapar.
-    #      Rota: /register (GET, POST)
+    # 4.1. Kayıt (Register)
     # -------------------------------------------------------------------------
+
     @app.route('/register', methods=['GET', 'POST'])
-    def register() -> Any: # render_template veya redirect Response döndürür
+    def register() -> Any:
         """
-        Kullanıcı kayıt sayfasını görüntüler (GET) veya yeni bir kullanıcı
-        kaydı oluşturur (POST).
+        Kullanıcı kayıt sayfasını yönetir.
+        - GET: Kayıt formunu gösterir.
+        - POST: Yeni bir kullanıcı kaydı oluşturur.
         Eğer kullanıcı zaten oturum açmışsa, profil sayfasına yönlendirilir.
-        Form verileri doğrulanır ve `auth_service` kullanılarak kayıt işlemi yapılır.
         """
-        # print("API çağrısı: /register") # Geliştirme için log
         if auth_service.session_is_user_logged_in():
-            # print("Kullanıcı zaten giriş yapmış, profil sayfasına yönlendiriliyor.") # Geliştirme için log
-            return redirect(url_for('user_bp.profile_page')) # Uygun profil sayfası endpoint'i
+            return redirect(url_for('main_bp.profile'))
 
         if request.method == 'POST':
-            username: Optional[str] = request.form.get('username')
-            email: Optional[str] = request.form.get('email')
-            password: Optional[str] = request.form.get('password')
-            # print(f"Kayıt isteği (POST): KullanıcıAdı='{username}', Email='{email}'") # Geliştirme için log
-
-            # Temel form doğrulama
-            if not all([username, email, password]):
-                flash('Lütfen tüm alanları doldurun.', 'danger')
-                # print("Kayıt hatası: Tüm alanlar doldurulmadı.") # Geliştirme için log
-                return render_template('auth/register.html', title="Kayıt Ol")
-
-            # Parola uzunluk kontrolü (auth_service içinde daha detaylı kontrol olabilir)
-            if len(password) < 8:
-                flash('Parola en az 8 karakter uzunluğunda olmalıdır.', 'danger')
-                # print("Kayıt hatası: Parola çok kısa.") # Geliştirme için log
-                return render_template('auth/register.html', title="Kayıt Ol")
-
-            try:
-                auth_service.beatify_register(username, email, password)
-                flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
-                # print(f"Kullanıcı '{username}' başarıyla kaydedildi.") # Geliştirme için log
-                return redirect(url_for('login')) # login_page veya uygun giriş sayfası
-            except ValueError as ve: # Servis tarafından fırlatılan beklenen hatalar (örn: kullanıcı adı mevcut)
-                flash(str(ve), 'danger')
-                # print(f"Kayıt sırasında beklenen hata ({username}): {str(ve)}") # Geliştirme için log
-                return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
-            except Exception as e: # Beklenmedik diğer hatalar
-                flash(f'Kayıt sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'danger')
-                # print(f"Kayıt sırasında beklenmedik hata ({username}): {str(e)}") # Geliştirme için log
-                # import traceback
-                # print(traceback.format_exc()) # Detaylı hata için
-                return render_template('auth/register.html', title="Kayıt Ol", username=username, email=email)
-
-        # GET isteği - kayıt formunu göster
+            return _handle_register_post(request.form)
+        
+        # GET isteği
         return render_template('auth/register.html', title="Kayıt Ol")
 
     # -------------------------------------------------------------------------
-    # 3.2. login() : Kullanıcı giriş sayfasını gösterir ve işlemi yapar.
-    #      Rota: /login (GET, POST)
+    # 4.2. Giriş (Login)
     # -------------------------------------------------------------------------
+
     @app.route('/login', methods=['GET', 'POST'])
-    def login() -> Any: # render_template, redirect veya Response döndürür
+    def login() -> Any:
         """
-        Kullanıcı giriş sayfasını görüntüler (GET) veya kullanıcıyı doğrular
-        ve oturum açar (POST).
+        Kullanıcı giriş sayfasını yönetir.
+        - GET: Giriş formunu gösterir.
+        - POST: Kullanıcıyı doğrular ve oturum açar.
         Eğer kullanıcı zaten oturum açmışsa, profil sayfasına yönlendirilir.
-        'Beni Hatırla' seçeneği desteklenir.
         """
-        # print("API çağrısı: /login") # Geliştirme için log
         if auth_service.session_is_user_logged_in():
-            # print("Kullanıcı zaten giriş yapmış, profil sayfasına yönlendiriliyor.") # Geliştirme için log
-            return redirect(url_for('profile')) # Uygun profil sayfası
+            return redirect(url_for('main_bp.profile'))
 
         if request.method == 'POST':
-            username: Optional[str] = request.form.get('username')
-            password: Optional[str] = request.form.get('password')
-            remember_me: bool = request.form.get('remember') == 'on'
-            # print(f"Giriş isteği (POST): KullanıcıAdı='{username}', BeniHatırla={remember_me}") # Geliştirme için log
+            return _handle_login_post(request.form)
 
-            if not all([username, password]):
-                flash('Lütfen kullanıcı adı ve parola girin.', 'danger')
-                # print("Giriş hatası: Kullanıcı adı veya parola eksik.") # Geliştirme için log
-                return render_template('auth/login.html', title="Giriş Yap")
-
-            try:
-                # auth_service.beatify_log_in, başarılı olursa None veya Response (beni hatırla çerezi için) döndürür.
-                response: Optional[Response] = auth_service.beatify_log_in(username, password, remember_me)
-                flash('Başarıyla giriş yaptınız.', 'success')
-                # print(f"Kullanıcı '{username}' başarıyla giriş yaptı.") # Geliştirme için log
-
-                # Eğer auth_service bir Response nesnesi döndürdüyse (örn: set-cookie için),
-                # bu Response nesnesini döndürerek tarayıcıya gönder.
-                if response:
-                    # print("Giriş sonrası özel yanıt (örn: çerez) döndürülüyor.") # Geliştirme için log
-                    return response
-                
-                # Varsayılan yönlendirme (ana sayfa veya profil)
-                # print("Giriş sonrası ana sayfaya yönlendiriliyor.") # Geliştirme için log
-                return redirect(url_for('homepage')) # homepage veya uygun ana sayfa
-
-            except ValueError as ve: # Servis tarafından fırlatılan beklenen hatalar (örn: yanlış parola)
-                flash(str(ve), 'danger')
-                # print(f"Giriş sırasında beklenen hata ({username}): {str(ve)}") # Geliştirme için log
-                return render_template('auth/login.html', title="Giriş Yap", username=username)
-            except Exception as e: # Beklenmedik diğer hatalar
-                flash(f'Giriş sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'danger')
-                # print(f"Giriş sırasında beklenmedik hata ({username}): {str(e)}") # Geliştirme için log
-                return render_template('auth/login.html', title="Giriş Yap", username=username)
-
-        # GET isteği - giriş formunu göster
+        # GET isteği
         return render_template('auth/login.html', title="Giriş Yap")
 
     # -------------------------------------------------------------------------
-    # 3.3. logout() : Kullanıcının oturumunu sonlandırır.
-    #      Rota: /logout (GET)s
+    # 4.3. Çıkış (Logout)
     # -------------------------------------------------------------------------
-    @app.route('/logout', methods=['GET']) # Genellikle POST olmalı ama basitlik için GET bırakılmış olabilir.
-    def logout() -> Any: # redirect Response döndürür
+
+    @app.route('/logout', methods=['GET'])
+    def logout() -> Any:
         """
         Kullanıcının mevcut oturumunu sonlandırır (çıkış yapar).
-        Oturumdaki kullanıcı bilgilerini ve ilgili tokenları temizler.
-        Kullanıcıyı ana sayfaya yönlendirir.
+        Oturumdaki kullanıcı bilgilerini temizler ve ana sayfaya yönlendirir.
         """
-        # print("API çağrısı: /logout") # Geliştirme için log
         username: Optional[str] = auth_service.session_is_user_logged_in()
 
         if not username:
-            # print("Çıkış isteği: Kullanıcı zaten giriş yapmamış.") # Geliştirme için log
-            # Zaten çıkış yapmışsa veya oturum yoksa ana sayfaya yönlendir
-            return redirect(url_for('homepage'))
+            return redirect(url_for('main_bp.homepage'))
 
         try:
-            # print(f"Kullanıcı '{username}' çıkış yapıyor...") # Geliştirme için log
-            auth_service.beatify_log_out(username) # Bu metot session.clear() ve db'deki token'ı deaktive etmeli.
+            logger.info(f"Kullanıcı çıkış yapıyor: Kullanıcı='{username}'")
+            auth_service.beatify_log_out(username)
             flash('Başarıyla çıkış yaptınız.', 'success')
-            # print(f"Kullanıcı '{username}' başarıyla çıkış yaptı.") # Geliştirme için log
+            logger.info(f"Kullanıcı '{username}' başarıyla çıkış yaptı.")
         except Exception as e:
-            # print(f"Çıkış sırasında hata ({username}): {str(e)}. Session yine de temizleniyor.") # Geliştirme için log
-            # Serviste bir hata olsa bile session'ı temizlemeye çalış
+            logger.error(f"Çıkış sırasında hata oluştu, oturum zorla temizleniyor. Hata: {e}", exc_info=True)
             session.clear()
             flash('Başarıyla çıkış yaptınız (hata oluştu, oturum temizlendi).', 'info')
         
-        return redirect(url_for('homepage'))
+        return redirect(url_for('main_bp.homepage'))
 
     # -------------------------------------------------------------------------
-    # 3.4. reset_password() : Parola sıfırlama sayfasını gösterir (gelecekte).
-    #      Rota: /reset_password (GET, POST)
+    # 4.4. Parola Sıfırlama (Password Reset)
     # -------------------------------------------------------------------------
+
     @app.route('/reset_password', methods=['GET', 'POST'])
-    def reset_password() -> str:
+    def reset_password() -> Any:
         """
-        Parola sıfırlama işlemleri için bir endpoint (şu anda sadece bir şablon render eder).
-        Gelecekte, e-posta ile token gönderme, token doğrulama ve yeni parola
-        belirleme gibi işlevler eklenecektir.
+        Parola sıfırlama sayfasını yönetir.
+        - GET: Parola sıfırlama formunu gösterir.
+        - POST: Sıfırlama talebini işler (şu an için sadece bilgilendirme).
         """
-        # print("API çağrısı: /reset_password (gelecekteki implementasyon)") # Geliştirme için log
-        # TODO: Parola sıfırlama mantığını implemente et.
-        # 1. E-posta al (POST)
-        # 2. E-postaya özel bir token gönder
-        # 3. Token ile yeni bir sayfa aç (GET /reset_password/<token>)
-        # 4. Yeni parolayı al ve güncelle (POST /reset_password/<token>)
         if request.method == 'POST':
             email: Optional[str] = request.form.get('email')
             if email:
+                logger.info(f"Parola sıfırlama talebi alındı: Email='{email}'")
                 flash(f"Eğer '{email}' adresi sistemimizde kayıtlıysa, parola sıfırlama talimatları gönderilecektir.", "info")
-                # print(f"Parola sıfırlama isteği alındı: Email='{email}'") # Geliştirme için log
-                # auth_service.send_password_reset_email(email)
-                return redirect(url_for('auth_bp.login_page'))
+                return redirect(url_for('auth_bp.login'))
             else:
                 flash("Lütfen e-posta adresinizi girin.", "danger")
         
         return render_template('auth/reset_password.html', title="Parola Sıfırla")
 
-    # print("Kimlik doğrulama rotaları başarıyla yüklendi.") # Geliştirme için log
 # =============================================================================
-# Kimlik Doğrulama Rotaları Modülü Sonu
+# Kimlik Doğrulama Rota Modülü Sonu
 # =============================================================================

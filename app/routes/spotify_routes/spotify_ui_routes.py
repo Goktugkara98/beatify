@@ -1,74 +1,56 @@
 # =============================================================================
-# Spotify Kullanıcı Arayüzü Rotaları Modülü (Spotify UI Routes Module)
+# Spotify Kullanıcı Arayüzü Rota Modülü (Spotify UI Routes Module)
 # =============================================================================
-# Bu modül, Spotify entegrasyonu ile ilgili kullanıcı arayüzü (UI)
-# sayfalarını sunan Flask rotalarını tanımlar. Şu anda sadece bir
-# dashboard yönlendirmesi içermektedir.
+# Bu modül, Spotify entegrasyonuyla ilgili kullanıcı arayüzü sayfalarını
+# sunan rotaları içerir. Örneğin, bir Spotify kontrol paneli (dashboard)
+# sayfası burada yer alabilir.
 #
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
-# 1.0 İÇE AKTARMALAR (IMPORTS)
-#     : Gerekli Flask bileşenlerinin içe aktarılması.
-# 2.0 KULLANICI ARAYÜZÜ ROTALARI BAŞLATMA FONKSİYONU (UI ROUTES INITIALIZATION FUNCTION)
-#     2.1. init_spotify_ui_routes(app)
-#          : Tüm Spotify kullanıcı arayüzü rotalarını belirtilen Flask uygulamasına kaydeder.
-#
-#     İÇ ROTALAR (init_spotify_ui_routes içinde tanımlanır):
-#     -------------------------------------------------------------------------
-#     3.0 SPOTIFY DASHBOARD YÖNLENDİRMESİ (SPOTIFY DASHBOARD REDIRECT)
-#         3.1. spotify_dashboard()
-#              : Kullanıcıyı profil sayfasına yönlendirir.
-#                Rota: /spotify/dashboard (GET)
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+# 2.0  BLUEPRINT BAŞLATMA (BLUEPRINT INITIALIZATION)
+# 3.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
+#      3.1. spotify_dashboard() -> @spotify_ui_bp.route('/dashboard', methods=['GET'])
+# 4.0  ROTA KAYDI (ROUTE REGISTRATION)
+#      4.1. init_spotify_ui_routes(app)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
-from flask import redirect, url_for, Flask # Flask tipi eklendi
-from typing import Any # Tip ipuçları için
+import logging
+from typing import Any
+from flask import Blueprint, redirect, url_for, Flask
+
+# Servisler
+from app.services.auth_service import login_required
+
+# Logger kurulumu
+logger = logging.getLogger(__name__)
 
 # =============================================================================
-# 2.0 KULLANICI ARAYÜZÜ ROTALARI BAŞLATMA FONKSİYONU (UI ROUTES INITIALIZATION FUNCTION)
+# 2.0 BLUEPRINT BAŞLATMA (BLUEPRINT INITIALIZATION)
 # =============================================================================
-# -----------------------------------------------------------------------------
-# 2.1. init_spotify_ui_routes(app) : Spotify UI rotalarını kaydeder.
-# -----------------------------------------------------------------------------
+spotify_ui_bp = Blueprint('spotify_ui_bp', __name__, template_folder='../templates')
+
+# =============================================================================
+# 3.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
+# =============================================================================
+
+@spotify_ui_bp.route('/dashboard', methods=['GET'])
+@login_required
+def spotify_dashboard() -> Any:
+    """
+    Spotify ile ilgili bir dashboard sayfası için bir endpoint.
+    Mevcut implementasyonda, bu rota doğrudan profil sayfasına yönlendirir.
+    """
+    logger.info("Spotify dashboard sayfasına erişildi, profile yönlendiriliyor.")
+    # İleride bu rota, render_template ile bir HTML sayfası döndürebilir.
+    return redirect(url_for('main_bp.profile'))
+
+# =============================================================================
+# 4.0 ROTA KAYDI (ROUTE REGISTRATION)
+# =============================================================================
 def init_spotify_ui_routes(app: Flask) -> None:
-    """
-    Spotify ile ilgili kullanıcı arayüzü (UI) rotalarını
-    belirtilen Flask uygulamasına kaydeder.
-
-    Args:
-        app (Flask): Rotaların kaydedileceği Flask uygulama nesnesi.
-    """
-    # print("Spotify Kullanıcı Arayüzü rotaları başlatılıyor...") # Geliştirme için log
-
-    # =========================================================================
-    # 3.0 SPOTIFY DASHBOARD YÖNLENDİRMESİ (SPOTIFY DASHBOARD REDIRECT)
-    # =========================================================================
-    # -------------------------------------------------------------------------
-    # 3.1. spotify_dashboard() : Kullanıcıyı profil sayfasına yönlendirir.
-    #      Rota: /spotify/dashboard (GET)
-    # -------------------------------------------------------------------------
-    @app.route('/spotify/dashboard', methods=['GET'])
-    def spotify_dashboard() -> Any: # redirect() Any döndürebilir
-        """
-        Spotify ile ilgili bir dashboard sayfası için bir endpoint.
-        Mevcut implementasyonda, bu rota doğrudan kullanıcının
-        profil sayfasına yönlendirme yapar.
-
-        Gelecekte, bu rota gerçek bir Spotify dashboard sayfasını
-        render etmek için genişletilebilir.
-
-        Returns:
-            Any: Profil sayfasına bir HTTP yönlendirmesi.
-        """
-        # print("API çağrısı: /spotify/dashboard, profil sayfasına yönlendiriliyor.") # Geliştirme için log
-        # 'profile' endpoint'inin uygulamanızda tanımlı olduğunu varsayıyoruz.
-        # Eğer farklı bir blueprint altında ise, örn: 'user_bp.profile_page'
-        return redirect(url_for('user_bp.profile_page')) # Uygun profil sayfası endpoint'ine yönlendir
-
-    # print("Spotify Kullanıcı Arayüzü rotaları başarıyla yüklendi.") # Geliştirme için log
-# =============================================================================
-# Spotify Kullanıcı Arayüzü Rotaları Modülü Sonu
-# =============================================================================
+    """Spotify UI blueprint'ini Flask uygulamasına kaydeder."""
+    app.register_blueprint(spotify_ui_bp, url_prefix='/spotify')

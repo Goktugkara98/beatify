@@ -13,10 +13,10 @@
  *      2.2. General Gradient Overlay (.widget-gradient-overlay)
  *========================================================
  * 3. ALBUM ART SECTION (ÜST KISIM)
- *      3.1. Cover Container (.cover-container)
+ *      3.1. Cover Container (.modern-cover-container)
  *      3.2. Main Album Art Image (.widget-album-art-main)
  *========================================================
- * 4. CONTENT AREA SECTION (.widget-content-area)
+ * 4. CONTENT AREA SECTION (.modern-content-area)
  *      4.1. Positioning, Padding, Flex Layout
  *========================================================
  * 5. TRACK INFORMATION SECTION (.widget-track-info)
@@ -90,7 +90,7 @@
 
 /* 3. ALBUM ART SECTION (ÜST KISIM) */
 /* 3.1. Cover Container */
-.modern-widget .cover-container {
+.modern-widget .modern-cover-container {
     position: relative;
     width: 100%;
     height: 70%; /* Widget yüksekliğinin %60'ı */
@@ -119,9 +119,9 @@
     object-position: top; /* Align image to the top */
 }
 
-/* 4. CONTENT AREA SECTION (.widget-content-area) */
+/* 4. CONTENT AREA SECTION (.modern-content-area) */
 /* 4.1. Positioning, Padding, Flex Layout */
-.modern-widget .widget-content-area {
+.modern-widget .modern-content-area {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -137,7 +137,7 @@
     /* Mask for content fade-in has been removed. */
 }
 /* Bu kural, konteynerin çökmesini engeller ve onu doğru konumlandırır. */
-.modern-widget .widget-player-controls-container {
+.modern-widget .modern-player-controls-container {
     position: relative; /* İçindeki absolute elemanlar için referans noktası */
     width: 100%;
     /* Konteynerin içeriği kadar minimum yüksekliğe sahip olmasını garantileriz. */
@@ -317,21 +317,21 @@
     opacity: 1;
 }
 
-/* 9.3. Overall Widget Inactive State */
-.modern-widget.widget-inactive {
-    opacity: 0;
-    visibility: hidden;
-    /* Optional: Add a slight transition for the container itself if needed, though JS animations handle specifics */
-    /* transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; */
-    /* pointer-events: none; /* Prevent interaction when fully inactive */
+.modern-widget .modern-background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
-/* 9.4. Passive State for A/B Elements */
-/* This class is toggled by JS to hide the non-active set during transitions */
-.modern-widget .passive {
-    opacity: 0 !important; /* Ensure it overrides inline styles from animations if any conflict */
-    visibility: hidden !important;
-    pointer-events: none !important; /* Prevent interaction with the hidden set */
-    /* position: absolute !important; /* Optional: take out of flow to prevent layout shifts, but might complicate animations */
-    /* transition: opacity 0.2s ease-out, visibility 0.2s step-end; /* Smooth fade for passive elements if desired */
+.modern-widget .modern-effects-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
 }
+

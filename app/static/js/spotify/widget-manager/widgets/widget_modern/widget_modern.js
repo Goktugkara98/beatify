@@ -25,6 +25,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Durum (State) Yönetimi
     let currentState = 'a'; // Başlangıçta 'a' seti aktif
     let isAnimating = false;
+    
+    // Backend'den gelen konfigürasyonu kontrol et
+    console.log('window.configData:', window.configData); // Tüm configData'yı logla
+    
+    // Eğer configData yoksa veya boşsa uyarı ver
+    if (!window.configData) {
+        console.warn('window.configData tanımlı değil! Backend\'den konfigürasyon gelmiyor olabilir.');
+    } else if (!window.configData.animations) {
+        console.warn('window.configData.animations tanımlı değil! Backend\'den animasyon konfigürasyonu gelmiyor.');
+    } else {
+        console.log('Backend\'den gelen animasyon konfigürasyonu:', window.configData.animations);
+    }
+    
+    // Varsayılan animasyon konfigürasyonu
+    const defaultAnimationConfig = {
+        albumArt: {
+            intro: { animation: 'fade-in', duration: 1000, delay: 200 },
+            transitionIn: { animation: 'slide-in-right', duration: 1000, delay: 0 },
+            transitionOut: { animation: 'slide-out-left', duration: 1000, delay: 0 },
+            outro: { animation: 'slide-out-left', duration: 1000, delay: 0 }
+        },
+        trackInfo: {
+            intro: { animation: 'fade-in', duration: 1000, delay: 400 },
+            transitionIn: { animation: 'slide-in-right', duration: 1000, delay: 100 },
+            transitionOut: { animation: 'slide-out-left', duration: 1000, delay: 0 },
+            outro: { animation: 'slide-out-left', duration: 1000, delay: 0 }
+        },
+        playerControls: {
+            intro: { animation: 'fade-in', duration: 1000, delay: 400 },
+            transitionIn: { animation: 'slide-in-right', duration: 1000, delay: 0 },
+            transitionOut: { animation: 'slide-out-left', duration: 1000, delay: 0 },
+            outro: { animation: 'slide-out-left', duration: 1000, delay: 0 }
+        },
+        spotifyLogo: {
+            intro: { animation: 'fade-in', duration: 1000, delay: 500 },
+            transitionIn: { animation: 'slide-in-right', duration: 1000, delay: 0 },
+            transitionOut: { animation: 'slide-out-left', duration: 1000, delay: 0 },
+            outro: { animation: 'slide-out-left', duration: 1000, delay: 0 }
+        }
+    };
+    
+    // Backend'den gelen konfigürasyonu kullan, yoksa varsayılanı kullan
+    const animationConfig = window.configData?.animations || defaultAnimationConfig;
+    
+    // Map element types to their animation configs
+    const elementTypeToConfig = {
+        'albumArt': 'albumArt',
+        'albumArtBackground': 'albumArtBackground',
+        'trackName': 'trackName',
+        'artistName': 'artistName',
+        'playerControls': 'playerControls',
+        'spotifyLogo': 'spotifyLogo'
+    };
 
     // Tüm animasyonlu elementleri setlerine göre grupla
     const elements = {
@@ -32,15 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
         b: document.querySelectorAll('[data-set="b"]')
     };
 
-    // Helper function to apply animations based on data attributes
+    // Helper function to apply animations based on backend config
     function _applyAnimations(elementsToAnimate, animationTypeKey, currentSetKeyForLogging = '', onCompletePerElement = null) {
         let longestOverallDuration = 0;
 
         const animAttrMap = {
-            intro: { name: 'introAnimation', duration: 'introDuration', delay: 'introDelay', isIncoming: true },
-            transitionIn: { name: 'transitionInAnimation', duration: 'transitionInDuration', delay: 'transitionInDelay', isIncoming: true },
-            transitionOut: { name: 'transitionOutAnimation', duration: 'transitionOutDuration', delay: 'transitionOutDelay', isIncoming: false },
-            outro: { name: 'outroAnimation', duration: 'outroDuration', delay: 'outroDelay', isIncoming: false }
+            intro: { isIncoming: true },
+            transitionIn: { isIncoming: true },
+            transitionOut: { isIncoming: false },
+            outro: { isIncoming: false }
         };
 
         const config = animAttrMap[animationTypeKey];
@@ -50,9 +103,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         elementsToAnimate.forEach(el => {
-            const animName = el.dataset[config.name];
-            const duration = parseInt(el.dataset[config.duration], 10) || 0;
-            const delay = parseInt(el.dataset[config.delay], 10) || 0;
+            const elementType = el.dataset.type;
+            const setKey = el.dataset.set; // 'a' veya 'b'
+            const configKey = `${elementTypeToConfig[elementType] || 'trackInfo'}_${setKey}`;
+            
+            // Önce doğrudan element_set formatında ara (örn: albumArt_a)
+            let animConfig;
+            if (animationConfig[configKey] && animationConfig[configKey][animationTypeKey]) {
+                animConfig = animationConfig[configKey][animationTypeKey];
+            } 
+            // Yoksa varsayılan yapıya geri dön
+            else if (defaultAnimationConfig[elementTypeToConfig[elementType]] && 
+                     defaultAnimationConfig[elementTypeToConfig[elementType]][animationTypeKey]) {
+                animConfig = defaultAnimationConfig[elementTypeToConfig[elementType]][animationTypeKey];
+            } 
+            // Hiçbiri yoksa boş animasyon kullan
+            else {
+                animConfig = { animation: 'none', duration: 0, delay: 0 };
+            }
+            
+            const animName = animConfig.animation;
+            const duration = animConfig.duration || 0;
+            const delay = animConfig.delay || 0;
             const elementTotalDuration = delay + duration;
 
             if (config.isIncoming) {
@@ -281,35 +353,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. BAŞLATMA (INITIALIZATION)
     async function initWidget() {
-        const token = spotifyWidgetElement.dataset.token;
-        const endpointTemplate = spotifyWidgetElement.dataset.endpointTemplate;
-
-        if (!token || !endpointTemplate) {
-            const errorMsg = "Yapılandırma eksik: 'data-token' veya 'data-endpoint-template' bulunamadı.";
-            console.error("Modern Widget: " + errorMsg);
-            if (generalErrorMessageElement) WidgetCore.showError(generalErrorMessageElement, errorMsg);
-            else document.body.insertAdjacentHTML('afterbegin', `<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">${errorMsg}</div>`);
-            return;
-        }
-
-        // Ensure initial state of 'b' elements is passive
-        elements.b.forEach(el => el.classList.add('passive'));
-
-        const coreConfig = {
-            widgetElement: spotifyWidgetElement,
-            token: token,
-            endpointTemplate: endpointTemplate,
-            onSongChange: handleSongChange,
-            onDataUpdate: (newData) => {
-                spotifyWidgetElement.dispatchEvent(new CustomEvent('coreDataUpdate', { detail: { newData } }));
-            },
-            onError: (errorData) => {
-                spotifyWidgetElement.dispatchEvent(new CustomEvent('coreError', { detail: { errorData } }));
+        try {
+            // Backend'den gelen konfigürasyonu kontrol et
+            console.log('initWidget: window.configData kontrol ediliyor...');
+            
+            if (window.configData) {
+                console.log('initWidget: window.configData mevcut:', window.configData);
+                
+                if (window.configData.animations) {
+                    console.log('initWidget: Backend\'den animasyon konfigürasyonu alındı:', window.configData.animations);
+                    // Backend'den gelen konfigürasyonu kullanıyoruz, zaten animationConfig değişkeninde mevcut
+                } else {
+                    console.warn('initWidget: Backend\'den animasyon konfigürasyonu gelmedi, varsayılanlar kullanılacak');
+                }
+            } else {
+                console.warn('initWidget: Backend\'den hiç konfigürasyon gelmedi, tüm ayarlar varsayılan değerlerle çalışacak');
             }
-        };
-        
-        WidgetCore.initWidgetBase(coreConfig);
-        // Initial data fetch is triggered by initWidgetBase, which then calls onSongChange.
+
+            const token = spotifyWidgetElement.dataset.token;
+            const endpointTemplate = spotifyWidgetElement.dataset.endpointTemplate;
+
+            if (!token || !endpointTemplate) {
+                const errorMsg = "Yapılandırma eksik: 'data-token' veya 'data-endpoint-template' bulunamadı.";
+                console.error("Modern Widget: " + errorMsg);
+                if (generalErrorMessageElement) WidgetCore.showError(generalErrorMessageElement, errorMsg);
+                else document.body.insertAdjacentHTML('afterbegin', `<div style="color:red;padding:10px;text-align:center;background:#fff;border:1px solid red;">${errorMsg}</div>`);
+                return;
+            }
+
+            // Ensure initial state of 'b' elements is passive
+            elements.b.forEach(el => {
+                el.classList.add('passive');
+                el.style.opacity = 0;
+            });
+
+            const coreConfig = {
+                widgetElement: spotifyWidgetElement,
+                token: token,
+                endpointTemplate: endpointTemplate,
+                onSongChange: handleSongChange,
+                onDataUpdate: (newData) => {
+                    spotifyWidgetElement.dispatchEvent(new CustomEvent('coreDataUpdate', { detail: { newData } }));
+                },
+                onError: (errorData) => {
+                    spotifyWidgetElement.dispatchEvent(new CustomEvent('coreError', { detail: { errorData } }));
+                }
+            };
+            
+            WidgetCore.initWidgetBase(coreConfig);
+            
+            // Initial display of set A with intro animation
+            if (elements.a.length > 0) {
+                playIntroAnimation('a', {});
+            }
+            
+            WidgetCore.log('ModernWidget: Initialization complete.', 'info');
+        } catch (error) {
+            console.error('ModernWidget: Initialization failed:', error);
+            if (generalErrorMessageElement) {
+                generalErrorMessageElement.textContent = 'Widget başlatılırken bir hata oluştu.';
+                generalErrorMessageElement.style.display = 'block';
+            }
+        }
     }
 
     initWidget();

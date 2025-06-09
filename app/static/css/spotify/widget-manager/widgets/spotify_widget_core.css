@@ -142,3 +142,24 @@ body {
     pointer-events: none !important; /* Tıklanamaz yapar */
     /* display: none; KULLANILMAMALI, animasyonları bozar! */
 }
+
+/* 9.3. Overall Widget Inactive State */
+.modern-widget.widget-inactive {
+    opacity: 0;
+    visibility: hidden;
+    /* Optional: Add a slight transition for the container itself if needed, though JS animations handle specifics */
+    /* transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; */
+    /* pointer-events: none; /* Prevent interaction when fully inactive */
+}
+
+/* 9.4. Passive State for A/B Elements */
+/* This class is toggled by JS to hide the non-active set during transitions */
+.modern-widget .passive {
+    opacity: 0 !important; /* Ensure it overrides inline styles from animations if any conflict */
+    visibility: hidden !important;
+    pointer-events: none !important; /* Prevent interaction with the hidden set */
+    /* position: absolute !important; /* Optional: take out of flow to prevent layout shifts, but might complicate animations */
+    /* transition: opacity 0.2s ease-out, visibility 0.2s step-end; /* Smooth fade for passive elements if desired */
+}
+
+
