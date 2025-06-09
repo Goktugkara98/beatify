@@ -1,0 +1,255 @@
+/**
+ * widget_standard.css
+ *
+ * AMAÇ: Klasik, dikdörtgen bir müzik widget'ı için stiller.
+ * YAPI:
+ * - Ana kapsayıcı (.standard-widget): Flexbox kullanarak yatay bir düzen oluşturur.
+ * - Sol Taraf (.standard-cover-container): Albüm kapağını içerir.
+ * - Sağ Taraf (.standard-content-container): Şarkı bilgileri ve kontrolleri dikey olarak düzenler.
+ * - Mutlak Konumlandırma: Şarkı adı, sanatçı gibi animasyonlu elemanlar, geçişler sırasında
+ * kaymayı önlemek için kendi konteynerları içinde mutlak olarak konumlandırılmıştır.
+ */
+
+/* ==========================================================================
+   1. WIDGET GENEL KAPSAYICI
+   ========================================================================== */
+   .standard-widget {
+    width: 600px;
+    height: 200px;
+    background-color: #181818;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transform: translateZ(0);
+    display: flex;
+    padding: 15px;
+    box-sizing: border-box;
+    gap: 15px;
+}
+
+/* ==========================================================================
+   2. YERLEŞİM KONTEYNERLARI (KAPAK, İÇERİK)
+   ========================================================================== */
+
+.standard-widget .standard-cover-container {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    position: relative; /* Çocuk elemanların mutlak konumlanması için */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.standard-widget .widget-cover-art {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.standard-widget .standard-content-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ==========================================================================
+   3. İÇERİK ELEMANLARI
+   ========================================================================== */
+
+/* Şarkı ve Sanatçı Bilgileri */
+.standard-widget .standard-track-info-container {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+.standard-widget .standard-track-name-container,
+.standard-widget .standard-artist-name-container {
+    position: relative;
+    width: 100%;
+    height: 28px; /* Animasyon için sabit yükseklik */
+}
+
+.standard-widget .widget-track-name {
+    position: absolute;
+    width: 100%;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.standard-widget .widget-artist-name {
+    position: absolute;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* Oynatıcı Kontrolleri */
+.standard-widget .standard-player-controls-container {
+    position: relative;
+    width: 100%;
+}
+
+.standard-widget .standard-progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 5px;
+    margin-bottom: 8px;
+}
+.standard-widget .widget-progress-bar-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #404040;
+    border-radius: 2.5px;
+}
+.standard-widget .widget-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    height: 100%;
+    border-radius: 2.5px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+.standard-widget .widget-progress-bar:hover {
+    background-color: #1db954; /* Spotify Green */
+}
+
+
+.standard-widget .standard-time-display-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 12px;
+    color: #b3b3b3;
+    font-weight: 400;
+    position: relative;
+    height: 14px; /* Sabit yükseklik */
+}
+
+/* Zaman elemanları mutlak konumlandırıldı */
+.standard-widget .standard-time-current-container,
+.standard-widget .standard-time-total-container {
+    position: absolute;
+    top: 0;
+    width: 50px; /* Çakışmayı önlemek için genişlik */
+}
+.standard-widget .standard-time-current-container { left: 0; }
+.standard-widget .standard-time-total-container { right: 0; text-align: right; }
+
+.standard-widget .widget-time-current,
+.standard-widget .widget-time-total {
+    position: absolute;
+}
+
+
+/* Logo */
+.standard-widget .standard-badge-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+}
+
+.standard-widget .widget-provider-logo {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.standard-widget .spotify-logo {
+    height: 24px;
+    width: auto;
+    display: block;
+    opacity: 0.7;
+}
+
+
+/* ==========================================================================
+   4. DURUM VE YARDIMCI SINIFLAR
+   ========================================================================== */
+.standard-widget .widget-error-message {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    max-width: 90%;
+    text-align: center;
+    background-color: rgba(220, 53, 69, 0.9);
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 20;
+}
+
+.standard-widget.widget-inactive {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.standard-widget .passive {
+    position: absolute !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* ==========================================================================
+   5. ANİMASYONLAR
+   ========================================================================== */
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slide-up-in {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(15px); }
+}
+
+@keyframes slide-cover-in {
+     from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-cover-out {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+}
