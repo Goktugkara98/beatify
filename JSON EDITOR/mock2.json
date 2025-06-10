@@ -91,7 +91,7 @@
         },
         "trackName_a": {
             "intro": {
-                "animation": "fade-in",
+                "animation": "zoom-in",
                 "duration": 1000,
                 "delay": 400
             },
@@ -113,7 +113,7 @@
         },
         "trackName_b": {
             "intro": {
-                "animation": "fade-in",
+                "animation": "zoom-in",
                 "duration": 1000,
                 "delay": 400
             },
@@ -135,7 +135,7 @@
         },
         "artistName_a": {
             "intro": {
-                "animation": "fade-in",
+                "animation": "flip-in",
                 "duration": 1000,
                 "delay": 400
             },
@@ -157,7 +157,7 @@
         },
         "artistName_b": {
             "intro": {
-                "animation": "fade-in",
+                "animation": "flip-in",
                 "duration": 1000,
                 "delay": 400
             },

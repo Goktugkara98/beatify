@@ -1,29 +1,218 @@
 /**
  * widget_modern_animations.css
+ * Gelişmiş ve modern CSS animasyon efektleri seti.
+ *
+ * Pasif elementlerin temel stilleri spotify_widget_core.css dosyasında tanımlanmıştır.
+ * Bu dosya sadece @keyframes animasyonlarını içerir.
  */
 
-/* Pasif elementlerin stilleri spotify_widget_core.css dosyasında tanımlanmıştır */
+/* ==========================================================================
+   Özel Efektler ve Vurgu Animasyonları
+   ========================================================================== */
 
-/* Örnek Animasyon Keyframe'leri */
-@keyframes slide-in-right {
-    from { transform: translateX(100%); opacity: 1; } /* Slide in from the right */
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes slide-out-left {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-100%); opacity: 1; } /* Slide out to the left */
-}
-@keyframes fade-in {
+/* Bir elemente dikkat çekmek için titreşim efekti */
+@keyframes shake-horizontal {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    20%, 40%, 60%, 80% { transform: translateX(10px); }
+  }
+  
+  /* Bir elementin nabız gibi atmasını sağlar */
+  @keyframes pulse {
+    from { transform: scale3d(1, 1, 1); }
+    50% { transform: scale3d(1.05, 1.05, 1.05); }
+    to { transform: scale3d(1, 1, 1); }
+  }
+  
+  /* Bir elementin zıplayarak dikkat çekmesini sağlar */
+  @keyframes bounce {
+    from, 20%, 53%, 80%, to {
+      animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+      transform: translate3d(0,0,0);
+    }
+    40%, 43% {
+      animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+      transform: translate3d(0, -30px, 0);
+    }
+    70% {
+      animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+      transform: translate3d(0, -15px, 0);
+    }
+    90% {
+      transform: translate3d(0,-4px,0);
+    }
+  }
+  
+  /* "Tada!" efekti */
+  @keyframes tada {
+    from { transform: scale3d(1, 1, 1); }
+    10%, 20% { transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg); }
+    30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+    40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+    to { transform: scale3d(1, 1, 1); }
+  }
+  
+  /* ==========================================================================
+     Giriş (In) Animasyonları
+     ========================================================================== */
+  
+  /* --- Fade In --- */
+  @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-@keyframes fade-out {
+  }
+  @keyframes fade-in-down {
+    from { opacity: 0; transform: translate3d(0, -50%, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translate3d(0, 50%, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes fade-in-left {
+    from { opacity: 0; transform: translate3d(-50%, 0, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes fade-in-right {
+    from { opacity: 0; transform: translate3d(50%, 0, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  
+  /* --- Slide In --- */
+  @keyframes slide-in-down {
+    from { transform: translate3d(0, -100%, 0); visibility: visible; }
+    to { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes slide-in-up {
+    from { transform: translate3d(0, 100%, 0); visibility: visible; }
+    to { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translate3d(-100%, 0, 0); visibility: visible; }
+    to { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes slide-in-right {
+    from { transform: translate3d(100%, 0, 0); visibility: visible; }
+    to { transform: translate3d(0, 0, 0); }
+  }
+  
+  /* --- Zoom In --- */
+  @keyframes zoom-in {
+    from { opacity: 0; transform: scale3d(.3, .3, .3); }
+    50% { opacity: 1; }
+  }
+  @keyframes zoom-in-down {
+    from { opacity: 0; transform: scale3d(.1, .1, .1) translate3d(0, -1000px, 0); animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190); }
+    60% { opacity: 1; transform: scale3d(.475, .475, .475) translate3d(0, 60px, 0); animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1); }
+  }
+  
+  /* --- Bounce In --- */
+  @keyframes bounce-in {
+      from, 20%, 40%, 60%, 80%, to { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
+      0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+      20% { transform: scale3d(1.1, 1.1, 1.1); }
+      40% { transform: scale3d(0.9, 0.9, 0.9); }
+      60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+      80% { transform: scale3d(0.97, 0.97, 0.97); }
+      to { opacity: 1; transform: scale3d(1, 1, 1); }
+  }
+  
+  /* --- Flip In --- */
+  @keyframes flip-in-x {
+    from { transform: perspective(400px) rotate3d(1, 0, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+    40% { transform: perspective(400px) rotate3d(1, 0, 0, -20deg); animation-timing-function: ease-in; }
+    60% { transform: perspective(400px) rotate3d(1, 0, 0, 10deg); opacity: 1; }
+    80% { transform: perspective(400px) rotate3d(1, 0, 0, -5deg); }
+    to { transform: perspective(400px); }
+  }
+  @keyframes flip-in-y {
+    from { transform: perspective(400px) rotate3d(0, 1, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+    40% { transform: perspective(400px) rotate3d(0, 1, 0, -20deg); animation-timing-function: ease-in; }
+    60% { transform: perspective(400px) rotate3d(0, 1, 0, 10deg); opacity: 1; }
+    80% { transform: perspective(400px) rotate3d(0, 1, 0, -5deg); }
+    to { transform: perspective(400px); }
+  }
+  
+  /* ==========================================================================
+     Çıkış (Out) Animasyonları
+     ========================================================================== */
+  
+  /* --- Fade Out --- */
+  @keyframes fade-out {
     from { opacity: 1; }
     to { opacity: 0; }
-}
-
-@keyframes none {
-  /* Bu animasyon kasıtlı olarak hiçbir şey yapmaz */
-  from { /* değişiklik yok */ }
-  to { /* değişiklik yok */ }
-}
+  }
+  @keyframes fade-out-down {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translate3d(0, 50%, 0); }
+  }
+  @keyframes fade-out-up {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translate3d(0, -50%, 0); }
+  }
+  @keyframes fade-out-left {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translate3d(-50%, 0, 0); }
+  }
+  @keyframes fade-out-right {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translate3d(50%, 0, 0); }
+  }
+  
+  /* --- Slide Out --- */
+  @keyframes slide-out-down {
+    from { transform: translate3d(0, 0, 0); }
+    to { visibility: hidden; transform: translate3d(0, 100%, 0); }
+  }
+  @keyframes slide-out-up {
+    from { transform: translate3d(0, 0, 0); }
+    to { visibility: hidden; transform: translate3d(0, -100%, 0); }
+  }
+  @keyframes slide-out-left {
+    from { transform: translate3d(0, 0, 0); }
+    to { visibility: hidden; transform: translate3d(-100%, 0, 0); }
+  }
+  @keyframes slide-out-right {
+    from { transform: translate3d(0, 0, 0); }
+    to { visibility: hidden; transform: translate3d(100%, 0, 0); }
+  }
+  
+  /* --- Zoom Out --- */
+  @keyframes zoom-out {
+    from { opacity: 1; }
+    50% { opacity: 0; transform: scale3d(.3, .3, .3); }
+    to { opacity: 0; }
+  }
+  @keyframes zoom-out-up {
+    40% { opacity: 1; transform: scale3d(.475, .475, .475) translate3d(0, -60px, 0); animation-timing-function: cubic-bezier(0.550, 0.055, 0.675, 0.190); }
+    to { opacity: 0; transform: scale3d(.1, .1, .1) translate3d(0, 2000px, 0); animation-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1); }
+  }
+  
+  /* --- Bounce Out --- */
+  @keyframes bounce-out {
+      20% { transform: scale3d(0.9, 0.9, 0.9); }
+      50%, 55% { opacity: 1; transform: scale3d(1.1, 1.1, 1.1); }
+      to { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  }
+  
+  /* --- Flip Out --- */
+  @keyframes flip-out-x {
+    from { transform: perspective(400px); }
+    30% { transform: perspective(400px) rotate3d(1, 0, 0, -20deg); opacity: 1; }
+    to { transform: perspective(400px) rotate3d(1, 0, 0, 90deg); opacity: 0; }
+  }
+  @keyframes flip-out-y {
+    from { transform: perspective(400px); }
+    30% { transform: perspective(400px) rotate3d(0, 1, 0, -15deg); opacity: 1; }
+    to { transform: perspective(400px) rotate3d(0, 1, 0, 90deg); opacity: 0; }
+  }
+  
+  /* ==========================================================================
+     Nötr Animasyon
+     ========================================================================== */
+  
+  /* Bu animasyon kasıtlı olarak hiçbir şey yapmaz. */
+  @keyframes none {
+    from { /* değişiklik yok */ }
+    to { /* değişiklik yok */ }
+  }
