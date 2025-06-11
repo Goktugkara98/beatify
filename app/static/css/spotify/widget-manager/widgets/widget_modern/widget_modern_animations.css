@@ -6,31 +6,39 @@
  * Bu dosya sadece @keyframes animasyonlarını içerir.
  */
 
-  /* ==========================================================================
-     Giriş (In) Animasyonları
-     ========================================================================== */
-  
-  /* --- Fade In --- */
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  /* ==========================================================================
-     Çıkış (Out) Animasyonları
-     ========================================================================== */
-  
-  /* --- Fade Out --- */
-  @keyframes fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
+/* ==========================================================================
+   GİRİŞ (IN) ANİMASYONLARI
+   ========================================================================== */
 
-/*
- * SAĞDAN GİRİŞ ANİMASYONU
- * Element, sağ tarafta ekranın dışından başlar,
- * sola doğru kayarak ve aynı anda fade-in olarak sahneye girer.
- */
+/* Fade In */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Slide In */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes slide-in-from-right {
   from {
     opacity: 0;
@@ -42,11 +50,61 @@
   }
 }
 
-/**
- * SOLA ÇIKIŞ ANİMASYONU
- * Element, mevcut pozisyonundan başlar,
- * sola doğru kayarak ve aynı anda fade-out olarak sahneden çıkar.
- */
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   ÇIKIŞ (OUT) ANİMASYONLARI
+   ========================================================================== */
+
+/* Fade Out */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Slide Out */
+@keyframes slide-out-to-bottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slide-out-to-top {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slide-out-to-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
 @keyframes slide-out-to-left {
   from {
     opacity: 1;

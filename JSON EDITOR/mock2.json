@@ -30,12 +30,12 @@
             "delay": 0
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "none",
             "duration": 1000,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -52,12 +52,12 @@
             "delay": 0
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "none",
             "duration": 1000,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -69,17 +69,17 @@
             "delay": 200
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 0
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -91,17 +91,17 @@
             "delay": 200
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 0
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -123,7 +123,7 @@
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -145,7 +145,7 @@
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -157,17 +157,17 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "slide-in-from-left",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "slide-out-to-right",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -179,17 +179,17 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "slide-in-from-left",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "slide-out-to-right",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -201,17 +201,17 @@
             "delay": 600
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -223,17 +223,17 @@
             "delay": 600
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -245,17 +245,17 @@
             "delay": 800
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -267,17 +267,17 @@
             "delay": 800
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -289,17 +289,17 @@
             "delay": 800
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -311,17 +311,17 @@
             "delay": 800
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -333,17 +333,17 @@
             "delay": 1000
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
@@ -355,17 +355,17 @@
             "delay": 1000
         },
         "transitionIn": {
-            "animation": "fade-in",
+            "animation": "slide-in-from-top",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 500,
             "delay": 0
         },
         "outro": {
-            "animation": "fade-out",
+            "animation": "slide-out-to-bottom",
             "duration": 1000,
             "delay": 0
         }
