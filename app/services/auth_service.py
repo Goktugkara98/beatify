@@ -246,7 +246,7 @@ def login_required(f: Any) -> Any:
         
         flash('Bu sayfayı görüntülemek için giriş yapmanız gerekmektedir.', 'warning')
         logger.info(f"Giriş gerektiren sayfa ({f.__name__}) için kullanıcı giriş sayfasına yönlendiriliyor.")
-        return redirect(url_for('auth_bp.login_page'))
+        return redirect(url_for('login'))
     return decorated_function
 
 # =============================================================================

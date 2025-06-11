@@ -8,7 +8,10 @@
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
+#      : Gerekli kütüphaneler ve modüller.
+#
 # 2.0  SINIF TANIMI: BeatifyTokenRepository
+#      : Token veritabanı işlemlerini yürüten ana sınıf.
 #      2.1. Başlatma ve Bağlantı Yönetimi (Initialization & Connection)
 #           - __init__()
 #           - _ensure_connection()
@@ -48,6 +51,8 @@ class BeatifyTokenRepository:
     def __init__(self, db_connection: Optional[DatabaseConnection] = None):
         """
         BeatifyTokenRepository sınıfını başlatır.
+        Eğer bir veritabanı bağlantısı sağlanmazsa, kendi bağlantısını oluşturur
+        ve yönetir.
         """
         if db_connection:
             self.db: DatabaseConnection = db_connection
@@ -58,11 +63,14 @@ class BeatifyTokenRepository:
         logger.debug("BeatifyTokenRepository başlatıldı.")
 
     def _ensure_connection(self):
-        """Veritabanı bağlantısı kapalıysa yeniden kurar."""
+        """Veritabanı bağlantısının açık olduğundan emin olur."""
         self.db._ensure_connection()
 
     def _close_if_owned(self):
-        """Sınıfın kendisine ait olan veritabanı bağlantısını kapatır."""
+        """
+        Eğer veritabanı bağlantısı bu sınıf tarafından oluşturulmuşsa,
+        işlem sonunda bağlantıyı kapatır.
+        """
         if self.own_connection:
             self.db.close()
             logger.debug("Sahip olunan veritabanı bağlantısı kapatıldı.")
@@ -72,7 +80,10 @@ class BeatifyTokenRepository:
     # -------------------------------------------------------------------------
 
     def validate_auth_token(self, token: str) -> Optional[str]:
-        """Bir token'ın geçerliliğini kontrol eder ve kullanıcı adını döndürür."""
+        """
+        Bir kimlik doğrulama token'ının geçerli, süresinin dolmamış ve aktif
+        olduğunu kontrol eder. Geçerliyse, ilgili kullanıcı adını döndürür.
+        """
         self._ensure_connection()
         try:
             query = """
@@ -81,13 +92,15 @@ class BeatifyTokenRepository:
             """
             self.db.cursor.execute(query, (token,))
             result = self.db.cursor.fetchone()
+
             if result:
-                logger.debug(f"Token doğrulandı. Kullanıcı: {result.get('username')}")
+                logger.debug(f"Token başarıyla doğrulandı. Kullanıcı: {result.get('username')}")
                 return result.get('username')
-            logger.warning(f"Geçersiz veya süresi dolmuş token denemesi: {token[:10]}...")
+
+            logger.warning(f"Geçersiz veya süresi dolmuş token ile doğrulama denemesi: {token[:10]}...")
             return None
         except MySQLError as e:
-            logger.error(f"Token doğrulanırken hata: {e}", exc_info=True)
+            logger.error(f"Token doğrulanırken veritabanı hatası: {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()
@@ -97,14 +110,14 @@ class BeatifyTokenRepository:
     # -------------------------------------------------------------------------
 
     def store_auth_token(self, username: str, token: str, expires_at: datetime) -> bool:
-        """Verilen kullanıcı için yeni bir kimlik doğrulama token'ı ekler."""
+        """Verilen kullanıcı için yeni bir kimlik doğrulama token'ını veritabanına kaydeder."""
         self._ensure_connection()
         try:
             query = "INSERT INTO beatify_auth_tokens (username, token, expires_at) VALUES (%s, %s, %s)"
             expires_at_str = expires_at.strftime('%Y-%m-%d %H:%M:%S')
             self.db.cursor.execute(query, (username, token, expires_at_str))
             self.db.connection.commit()
-            logger.info(f"Kullanıcı '{username}' için yeni auth token saklandı.")
+            logger.info(f"Kullanıcı '{username}' için yeni auth token başarıyla saklandı.")
             return True
         except MySQLError as e:
             logger.error(f"Auth token saklanırken hata (Kullanıcı: {username}): {e}", exc_info=True)
@@ -115,16 +128,21 @@ class BeatifyTokenRepository:
             self._close_if_owned()
 
     def deactivate_auth_token(self, username: str, token: str) -> bool:
-        """Kullanıcıya ait belirli bir token'ı geçersiz kılar (çıkış yapma)."""
+        """
+        Kullanıcıya ait belirli bir token'ı geçersiz kılar (çıkış yapma).
+        Token'ın `expired_at` alanını mevcut zamanla günceller.
+        """
         self._ensure_connection()
         try:
             query = "UPDATE beatify_auth_tokens SET expired_at = NOW() WHERE token = %s AND username = %s AND expired_at IS NULL"
             self.db.cursor.execute(query, (token, username))
             self.db.connection.commit()
+
             if self.db.cursor.rowcount > 0:
                 logger.info(f"Kullanıcı '{username}' için token başarıyla geçersiz kılındı.")
                 return True
-            logger.warning(f"Geçersiz kılınacak token bulunamadı (Kullanıcı: {username}).")
+
+            logger.warning(f"Geçersiz kılınacak aktif token bulunamadı (Kullanıcı: {username}).")
             return False
         except MySQLError as e:
             logger.error(f"Token geçersiz kılınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
@@ -135,7 +153,10 @@ class BeatifyTokenRepository:
             self._close_if_owned()
 
     def deactivate_all_user_tokens(self, username: str) -> bool:
-        """Bir kullanıcıya ait tüm aktif token'ları geçersiz kılar."""
+        """
+        Bir kullanıcıya ait tüm aktif token'ları geçersiz kılar. Genellikle
+        parola değişikliği veya "tüm cihazlardan çıkış yap" işlevi için kullanılır.
+        """
         self._ensure_connection()
         try:
             query = "UPDATE beatify_auth_tokens SET expired_at = NOW() WHERE username = %s AND expired_at IS NULL"
@@ -144,9 +165,13 @@ class BeatifyTokenRepository:
             logger.info(f"Kullanıcı '{username}' için {self.db.cursor.rowcount} adet token geçersiz kılındı.")
             return self.db.cursor.rowcount > 0
         except MySQLError as e:
-            logger.error(f"Tüm token'lar geçersiz kılınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
+            logger.error(f"Kullanıcının tüm token'ları geçersiz kılınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
                 self.db.connection.rollback()
             return False
         finally:
             self._close_if_owned()
+
+# =============================================================================
+# Beatify Token Veritabanı Deposu Modülü Sonu
+# =============================================================================

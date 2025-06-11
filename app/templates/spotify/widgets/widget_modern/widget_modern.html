@@ -29,12 +29,12 @@
           BackgroundLayoutContainer:
           Arka plan elemanlarının (görsel, renk vb.) widget içindeki yerleşimini kontrol eder.
         -->
-        <div class="BackgroundLayoutContainer">
+        <div class="BackgroundLayoutContainer ">
             <!-- 
               AlbumArtBackgroundLayoutContainer:
               Arka plan albüm görselinin pozisyonunu belirler.
             -->
-            <div class="AlbumArtBackgroundLayoutContainer">
+            <div class="AlbumArtBackgroundLayoutContainer" >
                 <!-- AlbumArtBackgroundAnimationContainer: Animasyonun başlangıç durumunu (opacity, transform vb.) tanımlar. -->
                 <div class="AlbumArtBackgroundAnimationContainer" data-set="a" data-type="AlbumArtBackgroundAnimationContainer">
                     <img id="AlbumArtBackgroundElement_a" class="AlbumArtBackgroundElement" data-set="a" data-type="AlbumArtBackgroundElement" src="" alt="Arka Plan A">
@@ -60,7 +60,7 @@
           EffectsLayoutContainer:
           Gradyan, parçacık gibi görsel efektlerin yerleşimini kontrol eder.
         -->
-        <div class="EffectsLayoutContainer">
+        <div class="EffectsLayoutContainer ">
             <div class="GradientOverlayLayoutContainer">
                 <div class="GradientOverlayAnimationContainer">
                     <div class="GradientOverlayElement"></div>
@@ -72,7 +72,7 @@
           CoverLayoutContainer:
           Ana albüm kapak görselinin widget içindeki yerleşimini kontrol eder.
         -->
-        <div class="CoverLayoutContainer">
+        <div class="CoverLayoutContainer ">
             <div class="CoverAnimationContainer" data-set="a" data-type="CoverAnimationContainer">
                 <img id="CoverElement_a" class="CoverElement" data-set="a" data-type="CoverElement" src="" alt="Kapak A">
             </div>
@@ -88,7 +88,7 @@
         <div class="ContentLayoutContainer">
 
             <!-- TrackInfoLayoutContainer: Şarkı ve sanatçı adını bir arada gruplar ve konumlandırır. -->
-            <div class="TrackInfoLayoutContainer">
+            <div class="TrackInfoLayoutContainer ">
                 <div class="TrackNameLayoutContainer">
                     <div class="TrackNameAnimationContainer" data-set="a" data-type="TrackNameAnimationContainer">
                         <h3 id="TrackNameElement_a" class="TrackNameElement" data-set="a" data-type="TrackNameElement" title="Şarkı Adı Yükleniyor..."></h3>
@@ -108,7 +108,7 @@
             </div>
 
             <!-- PlayerControlsLayoutContainer: İlerleme çubuğu ve zaman göstergelerini gruplar. -->
-            <div class="PlayerControlsLayoutContainer">
+            <div class="PlayerControlsLayoutContainer ">
                 <div class="ProgressBarLayoutContainer">
                     <!-- Animasyon konteyneri burada doğrudan elemanın kendisi için kullanılabilir. -->
                     <div class="ProgressBarAnimationContainer" data-set="a" data-type="ProgressBarAnimationContainer">
@@ -163,7 +163,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Backend'den gelen konfigürasyon verileri -->
     <script>
         // Bu kısım sunucu tarafından render edildiğinde dinamik olarak doldurulur.

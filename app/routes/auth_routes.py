@@ -178,7 +178,7 @@ def init_auth_routes(app: Flask) -> None:
         Eğer kullanıcı zaten oturum açmışsa, profil sayfasına yönlendirilir.
         """
         if auth_service.session_is_user_logged_in():
-            return redirect(url_for('main_bp.profile'))
+            return redirect(url_for('profile'))
 
         if request.method == 'POST':
             return _handle_login_post(request.form)

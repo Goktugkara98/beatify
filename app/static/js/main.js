@@ -32,7 +32,6 @@ $(function () {
 
     register gsap plugins
 
-    ***************************/
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     /***************************
 
@@ -111,20 +110,6 @@ $(function () {
             }, 500);
         }
     };
-
-    // Initialize Spotify Preloader
-    window.addEventListener('load', handleSpotifyPreloader);
-
-    // Fallback: Hide preloader after 5 seconds
-    setTimeout(function() {
-        const preloader = document.querySelector('.spotify-preloader');
-        if (preloader && preloader.style.opacity !== '0') {
-            preloader.style.opacity = '0';
-            setTimeout(function() {
-                preloader.style.display = 'none';
-            }, 500);
-        }
-    }, 5000);
 
     /***************************
 

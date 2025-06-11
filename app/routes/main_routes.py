@@ -111,7 +111,7 @@ def init_main_routes(app: Flask) -> None:
         except Exception as e:
             logger.error(f"Profil sayfasında beklenmeyen hata (Kullanıcı: {username}): {e}", exc_info=True)
             flash("Profil sayfası işlenirken beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.", "danger")
-            return redirect(url_for('main_bp.homepage'))
+            return redirect(url_for('homepage'))
 
 def handle_profile_get_request(username: str) -> Response:
     """
@@ -123,7 +123,7 @@ def handle_profile_get_request(username: str) -> Response:
     if not user_data:
         flash("Kullanıcı bilgileriniz alınamadı. Lütfen tekrar giriş yapın.", "error")
         # auth_bp.logout_page'e yönlendirmek daha mantıklı olabilir
-        return redirect(url_for('auth_bp.login_page'))
+        return redirect(url_for('login'))
     
     # Spotify bağlantı durumu hakkında kullanıcıyı bilgilendir
     spotify_status = spotify_data.get('spotify_data_status', 'Bilinmiyor')

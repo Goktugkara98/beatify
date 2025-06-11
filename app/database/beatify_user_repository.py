@@ -76,7 +76,7 @@ class BeatifyUserRepository:
     # 2.2. Kullanıcı Verisi Sorgulama (Read Operations)
     # -------------------------------------------------------------------------
 
-    def get_user_data(self, username: str) -> Optional[Dict[str, Any]]:
+    def beatify_get_user_data(self, username: str) -> Optional[Dict[str, Any]]:
         """Kullanıcı adına göre tüm kullanıcı verilerini getirir."""
         self._ensure_connection()
         try:
@@ -119,7 +119,7 @@ class BeatifyUserRepository:
         finally:
             self._close_if_owned()
 
-    def get_password_hash(self, username: str) -> Optional[str]:
+    def beatify_get_password_hash_data(self, username: str) -> Optional[str]:
         """Kullanıcının şifre hash'ini veritabanından alır."""
         self._ensure_connection()
         try:
