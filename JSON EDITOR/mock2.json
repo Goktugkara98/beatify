@@ -1,22 +1,14 @@
 {
     "themeName": "modern",
     "elements": [
-        "AlbumArtBackgroundElement_a",
-        "AlbumArtBackgroundElement_b",
-        "CoverElement_a",
-        "CoverElement_b",
-        "TrackNameElement_a",
-        "TrackNameElement_b",
-        "ArtistNameElement_a",
-        "ArtistNameElement_b",
-        "ProgressBarElement_a",
-        "ProgressBarElement_b",
-        "CurrentTimeElement_a",
-        "CurrentTimeElement_b",
-        "TotalTimeElement_a",
-        "TotalTimeElement_b",
-        "ProviderBadgeElement_a",
-        "ProviderBadgeElement_b"
+        "AlbumArtBackgroundElement_a", "AlbumArtBackgroundElement_b",
+        "CoverElement_a", "CoverElement_b", 
+        "TrackNameElement_a", "TrackNameElement_b",
+        "ArtistNameElement_a", "ArtistNameElement_b",
+        "ProgressBarElement_a", "ProgressBarElement_b",
+        "CurrentTimeElement_a", "CurrentTimeElement_b",
+        "TotalTimeElement_a", "TotalTimeElement_b",
+        "ProviderBadgeElement_a","ProviderBadgeElement_b"
     ],
     "AlbumArtBackgroundElement_a": {
         "intro": {
