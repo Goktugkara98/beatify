@@ -374,7 +374,3 @@
     pointer-events: none !important; /* Tıklama gibi olayları engeller */
     animation: none !important; /* Varsa kendi animasyonunu da durdurur */
 }
-
-.is-preparing {
-    opacity: 0 !important;
-  }

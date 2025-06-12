@@ -193,13 +193,13 @@
             "delay": 600
         },
         "transitionIn": {
-            "animation": "slide-in-from-top",
+            "animation": "none",
             "duration": 1000,
-            "delay": 500
+            "delay": 2500
         },
         "transitionOut": {
             "animation": "slide-out-to-bottom",
-            "duration": 500,
+            "duration": 1000,
             "delay": 0
         },
         "outro": {
@@ -215,9 +215,9 @@
             "delay": 600
         },
         "transitionIn": {
-            "animation": "slide-in-from-top",
+            "animation": "none",
             "duration": 1000,
-            "delay": 500
+            "delay": 2500
         },
         "transitionOut": {
             "animation": "slide-out-to-bottom",
