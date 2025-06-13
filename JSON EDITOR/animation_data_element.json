@@ -1,0 +1,365 @@
+{
+    "themeName": "modern",
+    "elements": [
+        "AlbumArtBackgroundElement_a", "AlbumArtBackgroundElement_b",
+        "CoverElement_a", "CoverElement_b", 
+        "TrackNameElement_a", "TrackNameElement_b",
+        "ArtistNameElement_a", "ArtistNameElement_b",
+        "ProgressBarElement_a", "ProgressBarElement_b",
+        "CurrentTimeElement_a", "CurrentTimeElement_b",
+        "TotalTimeElement_a", "TotalTimeElement_b",
+        "ProviderBadgeElement_a","ProviderBadgeElement_b"
+    ],
+    "AlbumArtBackgroundElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 0
+        },
+        "transitionIn": {
+            "animation": "fade-in",
+            "duration": 1000,
+            "delay": 0
+        },
+        "transitionOut": {
+            "animation": "none",
+            "duration": 1000,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "AlbumArtBackgroundElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 0
+        },
+        "transitionIn": {
+            "animation": "fade-in",
+            "duration": 1000,
+            "delay": 0
+        },
+        "transitionOut": {
+            "animation": "none",
+            "duration": 1000,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "CoverElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 200
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 0
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "CoverElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 200
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 0
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "TrackNameElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 400
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-right",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-left",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "TrackNameElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 400
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-right",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-left",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ArtistNameElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 400
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-left",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-right",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ArtistNameElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 400
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-left",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-right",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ProgressBarElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 600
+        },
+        "transitionIn": {
+            "animation": "none",
+            "duration": 1000,
+            "delay": 2500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ProgressBarElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 600
+        },
+        "transitionIn": {
+            "animation": "none",
+            "duration": 1000,
+            "delay": 2500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "CurrentTimeElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 800
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "CurrentTimeElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 800
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "TotalTimeElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 800
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "TotalTimeElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 800
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ProviderBadgeElement_a": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 1000
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    },
+    "ProviderBadgeElement_b": {
+        "intro": {
+            "animation": "fade-in",
+            "duration": 2000,
+            "delay": 1000
+        },
+        "transitionIn": {
+            "animation": "slide-in-from-top",
+            "duration": 1000,
+            "delay": 500
+        },
+        "transitionOut": {
+            "animation": "slide-out-to-bottom",
+            "duration": 500,
+            "delay": 0
+        },
+        "outro": {
+            "animation": "slide-out-to-bottom",
+            "duration": 1000,
+            "delay": 0
+        }
+    }
+}
