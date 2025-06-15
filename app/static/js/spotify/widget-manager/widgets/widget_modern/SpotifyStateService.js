@@ -73,7 +73,7 @@ class SpotifyStateService {
             const data = await response.json();
             this.processData(data);
         } catch (error) {
-            Logger.log(`[SpotifyStateService] Veri çekme hatası: ${error}`, 'STATE');
+            console.error(`[SpotifyStateService] Veri çekme hatası: ${error}`);
             this.dispatchEvent('widget:error', { message: "Widget verisi alınamıyor." });
         }
     }

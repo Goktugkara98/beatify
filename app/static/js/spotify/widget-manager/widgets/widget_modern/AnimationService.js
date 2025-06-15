@@ -25,7 +25,6 @@ class AnimationService {
         const element = document.getElementById(elementId);
         if (!element) return;
 
-        Logger.log(`[AnimationService] HAZIRLIK BAŞLADI: ${elementId}`, 'ANIM');
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
 
         element.removeAttribute('style');
@@ -50,7 +49,6 @@ class AnimationService {
         }
         
         this._applyZIndex(elementId);
-        Logger.log(`[AnimationService] HAZIRLIK TAMAMLANDI: ${elementId}`, 'ANIM');
     }
 
     /**
@@ -66,14 +64,12 @@ class AnimationService {
                 return;
             }
             
-            Logger.log(`[AnimationService] ANİMASYON BAŞLADI: ${elementId} (${animConfig.animation})`, 'ANIM');
             const { animation, duration = 0, delay = 0 } = animConfig;
             const easing = (phase === 'transitionOut' || phase === 'outro') ? 'ease-in' : 'ease-out';
 
             const handleAnimationEnd = (event) => {
                 if (event.target === element && event.animationName === animation) {
                     element.removeEventListener('animationend', handleAnimationEnd);
-                    Logger.log(`[AnimationService] ANİMASYON TAMAMLANDI: ${elementId}`, 'ANIM');
                     resolve();
                 }
             };
@@ -90,7 +86,6 @@ class AnimationService {
         const element = document.getElementById(elementId);
         if (!element) return;
         
-        Logger.log(`[AnimationService] TEMİZLİK BAŞLADI: ${elementId}`, 'ANIM');
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
         element.removeAttribute('style'); 
 
@@ -102,7 +97,7 @@ class AnimationService {
             if (container) container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
             this._applyZIndex(elementId); 
         }
-        Logger.log(`[AnimationService] TEMİZLİK TAMAMLANDI: ${elementId}`, 'ANIM');
+
     }
     
     // Diğer yardımcı metotlar (Bunlar aynı kalmalı)

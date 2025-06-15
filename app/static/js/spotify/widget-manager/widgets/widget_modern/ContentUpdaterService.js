@@ -14,20 +14,32 @@ class ContentUpdaterService {
      * @param {object} data - Spotify'dan gelen veri nesnesi.
      */
     updateAll(set, data) {
-        Logger.log(`${set} seti için içerik güncelleniyor: ${data.item.name}`, 'CONTENT');
         const item = data.item;
         if (!item) return;
+        
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);
+        const trackNameElem = query('.TrackNameElement');
+        const artistNameElem = query('.ArtistNameElement');
+        const coverElem = query('.CoverElement');
+        const coverBgElem = query('.AlbumArtBackgroundElement');
+        const totalTimeElem = query('.TotalTimeElement');
 
-        const trackNameElem = query('.TrackNameElement'), artistNameElem = query('.ArtistNameElement'),
-              coverElem = query('.CoverElement'), coverBgElem = query('.AlbumArtBackgroundElement'),
-              totalTimeElem = query('.TotalTimeElement');
-
-        if (trackNameElem) { trackNameElem.innerText = item.name; trackNameElem.title = item.name; }
-        if (artistNameElem) artistNameElem.innerText = item.artists.map(a => a.name).join(', ');
-        if (coverElem) coverElem.src = item.album.images[0]?.url || '';
-        if (coverBgElem) coverBgElem.src = item.album.images[0]?.url || '';
-        if (totalTimeElem) totalTimeElem.innerText = this._formatTime(item.duration_ms);
+        if (trackNameElem) { 
+            trackNameElem.innerText = item.name; 
+            trackNameElem.title = item.name; 
+        }
+        if (artistNameElem) {
+            artistNameElem.innerText = item.artists.map(a => a.name).join(', ');
+        }
+        if (coverElem) {
+            coverElem.src = item.album.images[0]?.url || '';
+        }
+        if (coverBgElem) {
+            coverBgElem.src = item.album.images[0]?.url || '';
+        }
+        if (totalTimeElem) {
+            totalTimeElem.innerText = this._formatTime(item.duration_ms);
+        }
     }
 
     /**
