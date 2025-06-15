@@ -1,6 +1,6 @@
 // DOSYA ADI: AnimationService.js
+
 class AnimationService {
-    // Animasyonla ilgili statik yapılandırmalar buraya taşındı
     static Z_INDEX_CONFIG = {
         AlbumArtBackgroundElement: { a: 3, b: 1 },
         CoverElement: { a: 4, b: 2 },
@@ -15,44 +15,46 @@ class AnimationService {
         this.widgetElement = widgetElement;
         this.config = config;
         this.animationCache = {};
-        // Her servis örneği için z-index yapılandırmasının bir kopyasını oluştur
         this.zIndexConfig = JSON.parse(JSON.stringify(AnimationService.Z_INDEX_CONFIG));
     }
 
     /**
-     * Bir şarkıdan diğerine geçiş için tam animasyon sekansını yönetir.
-     * @param {string} activeSet - Dışarı çıkan set.
-     * @param {string} passiveSet - İçeri giren set.
+     * YENİ: Bir elementi animasyona hazırlar.
      */
-    async runTransitionSequence(activeSet, passiveSet) {
-        this._flipZIndexes();
+    prepareElement(elementId, phase) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
 
-        const outgoingElementIds = this.config.elements.filter(id => id.endsWith(`_${activeSet}`));
-        const incomingElementIds = this.config.elements.filter(id => id.endsWith(`_${passiveSet}`));
+        Logger.log(`[AnimationService] HAZIRLIK BAŞLADI: ${elementId}`, 'ANIM');
+        const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
 
-        incomingElementIds.forEach(id => this._setElementState(id, 'prepared', 'transitionIn'));
-        outgoingElementIds.forEach(id => this._setElementState(id, 'active'));
+        element.removeAttribute('style');
+        element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
+        if (container) container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
+
+        const animConfig = this.config[elementId]?.[phase];
+        if (animConfig && animConfig.animation !== 'none') {
+            const initialStyles = this.getInitialKeyframeStyles(animConfig.animation);
+            if (initialStyles) {
+                // ==========================================================
+                // DEĞİŞEN KISIM BURASI
+                // ==========================================================
+                // Eski 'for...in' döngüsü yerine, stil nesneleri için daha güvenli olan
+                // 'for...of' döngüsü ve 'setProperty' metodu kullanılıyor.
+                for (const propName of initialStyles) {
+                    // propName -> 'opacity', 'transform' gibi stil adlarını verir.
+                    element.style.setProperty(propName, initialStyles.getPropertyValue(propName));
+                }
+                // ==========================================================
+            }
+        }
         
-        const imageElementIds = incomingElementIds.filter(id => document.getElementById(id)?.tagName === 'IMG');
-        await this.waitForImages(imageElementIds);
-
-        console.log(`[AnimationService] Geçiş başlıyor: ${activeSet} -> ${passiveSet}`);
-        const outgoingAnimations = outgoingElementIds.map(id => this.execute(id, 'transitionOut'));
-        const incomingAnimations = incomingElementIds.map(id => this.execute(id, 'transitionIn'));
-
-        await Promise.all([...outgoingAnimations, ...incomingAnimations]);
-        console.log("[AnimationService] Geçiş animasyonları tamamlandı.");
-
-        // Temizlik
-        outgoingElementIds.forEach(id => this._setElementState(id, 'passive'));
-        incomingElementIds.forEach(id => this._setElementState(id, 'active')); // stilleri temizle
+        this._applyZIndex(elementId);
+        Logger.log(`[AnimationService] HAZIRLIK TAMAMLANDI: ${elementId}`, 'ANIM');
     }
 
     /**
-     * Promise tabanlı, merkezi animasyon fonksiyonu.
-     * @param {string} elementId - Animasyon uygulanacak elementin ID'si.
-     * @param {string} phase - Animasyon fazı ('intro', 'transitionIn', 'transitionOut').
-     * @returns {Promise<void>} Animasyon tamamlandığında resolve olan bir Promise.
+     * "Animasyon" aşaması.
      */
     execute(elementId, phase) {
         return new Promise(resolve => {
@@ -64,50 +66,46 @@ class AnimationService {
                 return;
             }
             
+            Logger.log(`[AnimationService] ANİMASYON BAŞLADI: ${elementId} (${animConfig.animation})`, 'ANIM');
             const { animation, duration = 0, delay = 0 } = animConfig;
             const easing = (phase === 'transitionOut' || phase === 'outro') ? 'ease-in' : 'ease-out';
 
             const handleAnimationEnd = (event) => {
-                if (event.animationName === animation) {
+                if (event.target === element && event.animationName === animation) {
                     element.removeEventListener('animationend', handleAnimationEnd);
+                    Logger.log(`[AnimationService] ANİMASYON TAMAMLANDI: ${elementId}`, 'ANIM');
                     resolve();
                 }
             };
 
             element.addEventListener('animationend', handleAnimationEnd);
-            element.style.animation = `${animation} ${duration / 1000}s ${easing} ${delay / 1000}s both`;
+            element.style.animation = `${animation} ${duration / 1000}s ${easing} ${delay / 1000}s forwards`;
         });
     }
 
-    _setElementState(elementId, state, phaseForPreparation) {
+    /**
+     * Bir element için animasyon sonrası temizlik yapar.
+     */
+    cleanupElement(elementId, type) {
         const element = document.getElementById(elementId);
         if (!element) return;
         
+        Logger.log(`[AnimationService] TEMİZLİK BAŞLADI: ${elementId}`, 'ANIM');
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
-        element.removeAttribute('style');
-        
-        if (state === 'passive') {
+        element.removeAttribute('style'); 
+
+        if (type === 'outgoing') {
             element.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) container.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
-        } else {
+        } else { // incoming
             element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
-
-            if (state === 'prepared' && phaseForPreparation) {
-                const animConfig = this.config[elementId]?.[phaseForPreparation];
-                if (animConfig) {
-                    const initialStyles = this.getInitialKeyframeStyles(animConfig.animation);
-                    if (initialStyles) {
-                        for (const prop of initialStyles) {
-                            element.style[prop] = initialStyles[prop];
-                        }
-                    }
-                }
-            }
-            this._applyZIndex(elementId);
+            this._applyZIndex(elementId); 
         }
+        Logger.log(`[AnimationService] TEMİZLİK TAMAMLANDI: ${elementId}`, 'ANIM');
     }
     
+    // Diğer yardımcı metotlar (Bunlar aynı kalmalı)
     getInitialKeyframeStyles(animationName) {
         if (this.animationCache[animationName]) return this.animationCache[animationName];
 

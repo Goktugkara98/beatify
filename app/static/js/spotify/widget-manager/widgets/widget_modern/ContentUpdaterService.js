@@ -14,6 +14,7 @@ class ContentUpdaterService {
      * @param {object} data - Spotify'dan gelen veri nesnesi.
      */
     updateAll(set, data) {
+        Logger.log(`${set} seti için içerik güncelleniyor: ${data.item.name}`, 'CONTENT');
         const item = data.item;
         if (!item) return;
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);

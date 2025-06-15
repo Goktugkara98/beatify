@@ -21,13 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1.2. Doğrulama Kontrolleri
     // Gerekli HTML elementi veya JavaScript sınıfları bulunamazsa hata günlüğe kaydedilir ve işlem durdurulur.
     if (!widgetElement || typeof SpotifyStateService === 'undefined' || typeof WidgetDOMManager === 'undefined') {
-        console.error("[Main] HATA: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.");
+        Logger.log("[Main] HATA: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.", 'MAIN');
         return;
     }
 
     // Backend konfigürasyonu yüklenemezse hata günlüğe kaydedilir.
     if (!config) {
-        console.error("[Main] HATA: Backend konfigürasyonu (window.configData) yüklenemedi.");
+        Logger.log("[Main] HATA: Backend konfigürasyonu (window.configData) yüklenemedi.", 'MAIN');
         return;
     }
     
@@ -43,5 +43,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // StateService'in init() metodu, Spotify verilerini çekme sürecini başlatır ve widget'ı canlandırır.
     stateService.init();
     
-    console.log("[Main] Spotify Widget başarıyla başlatıldı.");
+    Logger.log("[Main] Spotify Widget başarıyla başlatıldı.", 'MAIN');
 });

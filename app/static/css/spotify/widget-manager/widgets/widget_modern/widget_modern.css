@@ -374,3 +374,9 @@
     pointer-events: none !important; /* Tıklama gibi olayları engeller */
     animation: none !important; /* Varsa kendi animasyonunu da durdurur */
 }
+
+
+/* widget_modern.css dosyasının sonuna ekleyin */
+
+/* widget_modern.css dosyanızdaki eski .LiveLog... stillerini silip bunları ekleyin */
+
