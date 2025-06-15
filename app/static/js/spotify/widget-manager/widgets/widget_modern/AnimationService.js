@@ -22,8 +22,12 @@ class AnimationService {
      * YENİ: Bir elementi animasyona hazırlar.
      */
     prepareElement(elementId, phase) {
+        console.log(`[AnimationService] prepareElement called - elementId: ${elementId}, phase: ${phase}`);
         const element = document.getElementById(elementId);
-        if (!element) return;
+        if (!element) {
+            console.warn(`[AnimationService] Element not found: ${elementId}`);
+            return;
+        }
 
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
 
@@ -54,7 +58,9 @@ class AnimationService {
     /**
      * "Animasyon" aşaması.
      */
-    execute(elementId, phase) {
+    async execute(elementId, phase) {
+        console.log(`[AnimationService] Starting animation - elementId: ${elementId}, phase: ${phase}`);
+        const startTime = performance.now();
         return new Promise(resolve => {
             const element = document.getElementById(elementId);
             const animConfig = this.config[elementId]?.[phase];
@@ -69,6 +75,8 @@ class AnimationService {
 
             const handleAnimationEnd = (event) => {
                 if (event.target === element && event.animationName === animation) {
+                    const duration = performance.now() - startTime;
+                    console.log(`[AnimationService] Animation completed - elementId: ${elementId}, phase: ${phase}, duration: ${duration.toFixed(2)}ms`);
                     element.removeEventListener('animationend', handleAnimationEnd);
                     resolve();
                 }
@@ -83,8 +91,12 @@ class AnimationService {
      * Bir element için animasyon sonrası temizlik yapar.
      */
     cleanupElement(elementId, type) {
+        console.log(`[AnimationService] Cleaning up element - elementId: ${elementId}, type: ${type}`);
         const element = document.getElementById(elementId);
-        if (!element) return;
+        if (!element) {
+            console.warn(`[AnimationService] Element not found for cleanup: ${elementId}`);
+            return;
+        }
         
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
         element.removeAttribute('style'); 
@@ -124,8 +136,12 @@ class AnimationService {
     }
 
     waitForImages(elementIds) {
+        console.log(`[AnimationService] Waiting for images to load - elements:`, elementIds);
         const imageElements = elementIds.map(id => document.getElementById(id)).filter(el => el?.tagName === 'IMG' && el.src);
-        if (imageElements.length === 0) return Promise.resolve();
+        if (imageElements.length === 0) {
+            console.log('[AnimationService] No images to wait for');
+            return Promise.resolve();
+        }
         const promises = imageElements.map(img => new Promise(resolve => {
             if (img.complete) return resolve();
             img.onload = () => resolve();
@@ -135,14 +151,19 @@ class AnimationService {
     }
     
     _flipZIndexes() {
+        console.log('[AnimationService] Flipping z-indexes');
         for (const key in this.zIndexConfig) {
             [this.zIndexConfig[key].a, this.zIndexConfig[key].b] = [this.zIndexConfig[key].b, this.zIndexConfig[key].a];
+            console.log(`[AnimationService] Flipped ${key}: a=${this.zIndexConfig[key].a}, b=${this.zIndexConfig[key].b}`);
         }
     }
 
     _applyZIndex(elementId) {
         const element = document.getElementById(elementId);
-        if (!element) return;
+        if (!element) {
+            console.warn(`[AnimationService] Cannot apply z-index: Element not found - ${elementId}`);
+            return;
+        }
         const baseName = elementId.substring(0, elementId.lastIndexOf('_'));
         const setLetter = elementId.slice(-1);
         const zIndexValue = (this.zIndexConfig[baseName] || this.zIndexConfig.default)[setLetter];

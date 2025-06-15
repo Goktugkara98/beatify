@@ -1,11 +1,13 @@
 // DOSYA ADI: ContentUpdaterService.js
 class ContentUpdaterService {
     constructor(widgetElement) {
+        console.log('[ContentUpdaterService] Initializing with widget element:', widgetElement);
         this.widgetElement = widgetElement;
         this.progressInterval = null;
         this.CSS_CLASSES = {
             ERROR_ACTIVE: 'error-active'
         };
+        this.updateCount = 0;
     }
 
     /**
@@ -14,8 +16,13 @@ class ContentUpdaterService {
      * @param {object} data - Spotify'dan gelen veri nesnesi.
      */
     updateAll(set, data) {
+        this.updateCount++;
+        console.log(`[ContentUpdaterService] updateAll #${this.updateCount} - Set: ${set}`, data);
         const item = data.item;
-        if (!item) return;
+        if (!item) {
+            console.warn('[ContentUpdaterService] No item data provided');
+            return;
+        }
         
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);
         const trackNameElem = query('.TrackNameElement');
@@ -47,6 +54,7 @@ class ContentUpdaterService {
      * @param {string} set - Temizlenecek set ('a' veya 'b').
      */
     reset(set) {
+        console.log(`[ContentUpdaterService] Resetting set: ${set}`);
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);
         
         const elemsToReset = [query('.TrackNameElement'), query('.ArtistNameElement'), query('.TotalTimeElement'), query('.CurrentTimeElement')];
@@ -64,6 +72,7 @@ class ContentUpdaterService {
      * @param {string} set - Güncellenecek set ('a' veya 'b').
      */
     startProgressUpdater(data, set) {
+        console.log(`[ContentUpdaterService] Starting progress updater for set: ${set}`);
         this.stopProgressUpdater(); // Öncekini temizle
         
         let progressMs = data.progress_ms;
@@ -87,26 +96,35 @@ class ContentUpdaterService {
     
     /** Mevcut ilerleme çubuğu güncelleme döngüsünü durdurur. */
     stopProgressUpdater() {
-        clearInterval(this.progressInterval);
-        this.progressInterval = null;
+        if (this.progressInterval) {
+            console.log('[ContentUpdaterService] Stopping progress updater');
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
     }
 
     /** Widget'ta bir hata mesajı gösterir. */
     displayError(message) {
+        console.error(`[ContentUpdaterService] Displaying error: ${message}`);
         const errorElement = this.widgetElement.querySelector('#ErrorMessageElement');
         if (errorElement) {
             errorElement.innerText = message;
             this.widgetElement.classList.add(this.CSS_CLASSES.ERROR_ACTIVE);
+            console.log('[ContentUpdaterService] Error element updated with message');
+        } else {
+            console.warn('[ContentUpdaterService] Error element not found');
         }
         this.stopProgressUpdater();
     }
 
     /** Gösterilen hata mesajını temizler. */
     clearError() {
+        console.log('[ContentUpdaterService] Clearing error state');
         const errorElement = this.widgetElement.querySelector('#ErrorMessageElement');
         if (errorElement && this.widgetElement.classList.contains(this.CSS_CLASSES.ERROR_ACTIVE)) {
             errorElement.innerText = '';
             this.widgetElement.classList.remove(this.CSS_CLASSES.ERROR_ACTIVE);
+            console.log('[ContentUpdaterService] Error state cleared');
         }
     }
     
