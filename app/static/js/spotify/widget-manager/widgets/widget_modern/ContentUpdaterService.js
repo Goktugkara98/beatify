@@ -1,10 +1,11 @@
 // ===================================================================================
 // DOSYA ADI: ContentUpdaterService.js
+// AÇIKLAMA: DOM elementlerinin içeriğini (metin, resim vb.) günceller.
 // ===================================================================================
 class ContentUpdaterService {
-    // DEĞİŞTİ: constructor'a logger eklendi
     constructor(widgetElement, logger) {
-        this.logger = logger; // YENİ
+        this.logger = logger;
+        this.CALLER_FILE = 'ContentUpdaterService.js';
         this.widgetElement = widgetElement;
         this.progressInterval = null;
         this.CSS_CLASSES = { ERROR_ACTIVE: 'error-active' };
@@ -14,11 +15,11 @@ class ContentUpdaterService {
     updateAll(set, data) {
         this.updateCount++;
         this.logger.subgroup(`İçerik Güncelleniyor (updateAll) - Set: ${set}, #${this.updateCount}`);
-        this.logger.data("Gelen Şarkı Verisi", data.item);
+        this.logger.data(this.CALLER_FILE, "Gelen Şarkı Verisi", data.item);
 
         const item = data.item;
         if (!item) {
-            this.logger.warn('Güncellenecek item verisi bulunamadı.');
+            this.logger.warn(this.CALLER_FILE, 'Güncellenecek item verisi bulunamadı.');
             this.logger.groupEnd();
             return;
         }
@@ -40,12 +41,12 @@ class ContentUpdaterService {
         const totalTimeElem = query('.TotalTimeElement');
         if (totalTimeElem) { totalTimeElem.innerText = this._formatTime(item.duration_ms); }
         
-        this.logger.info("Tüm elementler güncellendi.");
+        this.logger.info(this.CALLER_FILE, "Tüm elementler güncellendi.");
         this.logger.groupEnd();
     }
 
     reset(set) {
-        this.logger.info(`Set içeriği sıfırlanıyor: ${set}`);
+        this.logger.info(this.CALLER_FILE, `Set içeriği sıfırlanıyor: ${set}`);
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);
         
         [query('.TrackNameElement'), query('.ArtistNameElement'), query('.TotalTimeElement'), query('.CurrentTimeElement')]
@@ -59,7 +60,7 @@ class ContentUpdaterService {
     }
 
     startProgressUpdater(data, set) {
-        this.logger.info(`İlerleme çubuğu güncelleyici başlatılıyor (Set: ${set}).`);
+        this.logger.info(this.CALLER_FILE, `İlerleme çubuğu güncelleyici başlatılıyor (Set: ${set}).`);
         this.stopProgressUpdater(); 
         
         let progressMs = data.progress_ms;
@@ -68,7 +69,7 @@ class ContentUpdaterService {
         const progressBarElem = this.widgetElement.querySelector(`.ProgressBarElement[data-set="${set}"]`);
 
         if (!currentTimeElem || !progressBarElem) {
-             this.logger.warn("İlerleme çubuğu için gerekli elementler bulunamadı.");
+             this.logger.warn(this.CALLER_FILE, "İlerleme çubuğu için gerekli elementler bulunamadı.");
              return;
         }
 
@@ -86,14 +87,14 @@ class ContentUpdaterService {
     
     stopProgressUpdater() {
         if (this.progressInterval) {
-            this.logger.info('İlerleme çubuğu güncelleyici durduruluyor.');
+            this.logger.info(this.CALLER_FILE, 'İlerleme çubuğu güncelleyici durduruluyor.');
             clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
     }
 
     displayError(message) {
-        this.logger.error(`Hata Mesajı Gösteriliyor: ${message}`);
+        this.logger.error(this.CALLER_FILE, `Hata Mesajı Gösteriliyor: ${message}`);
         const errorElement = this.widgetElement.querySelector('#ErrorMessageElement');
         if (errorElement) {
             errorElement.innerText = message;
@@ -103,7 +104,7 @@ class ContentUpdaterService {
     }
 
     clearError() {
-        this.logger.info('Hata durumu temizleniyor.');
+        this.logger.info(this.CALLER_FILE, 'Hata durumu temizleniyor.');
         const errorElement = this.widgetElement.querySelector('#ErrorMessageElement');
         if (errorElement && this.widgetElement.classList.contains(this.CSS_CLASSES.ERROR_ACTIVE)) {
             errorElement.innerText = '';

@@ -1,10 +1,16 @@
 // ===================================================================================
 // DOSYA ADI: main.js
+// AÇIKLAMA: Uygulamanın başlangıç noktası. Servisleri başlatır ve
+//           bağımlılıkları enjekte eder.
 // ===================================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
-    // YENİ: Logger servisini başlat
+    // Logger servisini başlat
+    // Not: Bu dosyadan önce LoggerService.js'nin yüklendiğinden emin olun.
     const logger = new LoggerService();
     window.logger = logger; // Diğer dosyalardan kolay erişim için global yap
+
+    const CALLER_FILE = 'main.js';
 
     logger.group('WIDGET BAŞLATMA SÜRECİ');
 
@@ -12,26 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = window.configData;
 
     if (!widgetElement || typeof SpotifyStateService === 'undefined' || typeof WidgetDOMManager === 'undefined') {
-        logger.error("Hata: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.");
+        logger.error(CALLER_FILE, "Hata: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.");
         logger.groupEnd();
         return;
     }
 
     if (!config) {
-        logger.error("Backend konfigürasyonu (window.configData) bulunamadı.");
+        logger.error(CALLER_FILE, "Backend konfigürasyonu (window.configData) bulunamadı.");
         logger.groupEnd();
         return;
     }
 
-    logger.action('Tüm doğrulamalar başarılı.');
-    logger.action('Servisler başlatılıyor...');
+    logger.action(CALLER_FILE, 'Tüm doğrulamalar başarılı. Servisler başlatılıyor...');
 
-    // YENİ: Logger'ı servislere constructor üzerinden aktar
+    // Logger'ı servislere constructor üzerinden aktar
     const stateService = new SpotifyStateService(widgetElement, logger);
     new WidgetDOMManager(widgetElement, config, stateService, logger);
 
     stateService.init();
 
-    logger.info("Spotify Widget başarıyla başlatıldı.");
+    logger.info(CALLER_FILE, "Spotify Widget başarıyla başlatıldı.");
     logger.groupEnd();
 });

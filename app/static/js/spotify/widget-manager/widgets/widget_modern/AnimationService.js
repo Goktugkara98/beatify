@@ -1,5 +1,6 @@
 // ===================================================================================
 // DOSYA ADI: AnimationService.js
+// AÇIKLAMA: CSS animasyonlarını yönetir, elementleri hazırlar, yürütür ve temizler.
 // ===================================================================================
 class AnimationService {
     static Z_INDEX_CONFIG = {
@@ -12,9 +13,9 @@ class AnimationService {
         ANIMATION_CONTAINER_SELECTOR: '[class*="AnimationContainer"]'
     };
 
-    // DEĞİŞTİ: constructor'a logger eklendi
     constructor(widgetElement, config, logger) {
-        this.logger = logger; // YENİ
+        this.logger = logger;
+        this.CALLER_FILE = 'AnimationService.js';
         this.widgetElement = widgetElement;
         this.config = config;
         this.animationCache = {};
@@ -22,10 +23,10 @@ class AnimationService {
     }
 
     prepareElement(elementId, phase) {
-        this.logger.info(`Element hazırlanıyor: ${elementId}, Faz: ${phase}`);
+        this.logger.info(this.CALLER_FILE, `Element hazırlanıyor: ${elementId}, Faz: ${phase}`);
         const element = document.getElementById(elementId);
         if (!element) {
-            this.logger.warn(`Element bulunamadı: ${elementId}`);
+            this.logger.warn(this.CALLER_FILE, `Element bulunamadı: ${elementId}`);
             return;
         }
 
@@ -66,7 +67,7 @@ class AnimationService {
             const handleAnimationEnd = (event) => {
                 if (event.target === element && event.animationName === animation) {
                     const animDuration = performance.now() - startTime;
-                    this.logger.info(`Animasyon tamamlandı. Süre: ${animDuration.toFixed(2)}ms`);
+                    this.logger.info(this.CALLER_FILE, `Animasyon tamamlandı. Süre: ${animDuration.toFixed(2)}ms`);
                     element.removeEventListener('animationend', handleAnimationEnd);
                     this.logger.groupEnd(); // Yürütme alt grubunu kapat
                     resolve();
@@ -79,10 +80,10 @@ class AnimationService {
     }
 
     cleanupElement(elementId, type) {
-        this.logger.info(`Element temizleniyor: ${elementId}, Tip: ${type}`);
+        this.logger.info(this.CALLER_FILE, `Element temizleniyor: ${elementId}, Tip: ${type}`);
         const element = document.getElementById(elementId);
         if (!element) {
-            this.logger.warn(`Temizlenecek element bulunamadı: ${elementId}`);
+            this.logger.warn(this.CALLER_FILE, `Temizlenecek element bulunamadı: ${elementId}`);
             return;
         }
         
@@ -126,7 +127,7 @@ class AnimationService {
         if (imageElements.length === 0) {
             return Promise.resolve();
         }
-        this.logger.info(`${imageElements.length} adet resmin yüklenmesi bekleniyor...`);
+        this.logger.info(this.CALLER_FILE, `${imageElements.length} adet resmin yüklenmesi bekleniyor...`);
         const promises = imageElements.map(img => new Promise(resolve => {
             if (img.complete) return resolve();
             img.onload = () => resolve();
@@ -136,7 +137,7 @@ class AnimationService {
     }
     
     _flipZIndexes() {
-        this.logger.info('z-index değerleri ters çevriliyor (flip).');
+        this.logger.info(this.CALLER_FILE, 'z-index değerleri ters çevriliyor (flip).');
         for (const key in this.zIndexConfig) {
             [this.zIndexConfig[key].a, this.zIndexConfig[key].b] = [this.zIndexConfig[key].b, this.zIndexConfig[key].a];
         }
@@ -145,7 +146,7 @@ class AnimationService {
     _applyZIndex(elementId) {
         const element = document.getElementById(elementId);
         if (!element) {
-            this.logger.warn(`z-index uygulanamadı: Element bulunamadı - ${elementId}`);
+            this.logger.warn(this.CALLER_FILE, `z-index uygulanamadı: Element bulunamadı - ${elementId}`);
             return;
         }
         const baseName = elementId.substring(0, elementId.lastIndexOf('_'));
