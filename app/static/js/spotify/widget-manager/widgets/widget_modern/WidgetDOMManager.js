@@ -1,263 +1,203 @@
-// DOSYA ADI: WidgetDOMManager.js (Yeniden Düzenlenmiş Orkestratör)
+// ===================================================================================
+// DOSYA ADI: WidgetDOMManager.js
+// ===================================================================================
 class WidgetDOMManager {
-    static CSS_CLASSES = {
-        WIDGET_INACTIVE: 'widget-inactive'
-    };
+    static CSS_CLASSES = { WIDGET_INACTIVE: 'widget-inactive' };
 
-    constructor(widgetElement, config, stateService) {
-        console.log('[WidgetDOMManager] Initializing with config:', config);
+    // DEĞİŞTİ: constructor'a logger eklendi
+    constructor(widgetElement, config, stateService, logger) {
+        this.logger = logger; // YENİ
+        this.logger.subgroup('WidgetDOMManager Kurulumu (constructor)');
+
         if (!widgetElement || !config || !stateService) {
             const error = new Error("Gerekli tüm modüller sağlanmalıdır.");
-            console.error('[WidgetDOMManager] Initialization error:', error);
+            this.logger.error("Başlatma Hatası:", error);
             throw error;
         }
-        
+
         this.widgetElement = widgetElement;
         this.config = config;
         this.stateService = stateService;
         this.isBusy = false;
         this.pendingEvent = null;
 
-        console.log('[WidgetDOMManager] Creating service instances');
-        // Uzman servislerin örneklerini oluştur
-        this.contentUpdater = new ContentUpdaterService(this.widgetElement);
-        this.animationService = new AnimationService(this.widgetElement, this.config);
+        this.logger.action("Uzman servisler oluşturuluyor...");
+        // YENİ: Logger'ı alt servislere aktar
+        this.contentUpdater = new ContentUpdaterService(this.widgetElement, this.logger);
+        this.animationService = new AnimationService(this.widgetElement, this.config, this.logger);
 
-        console.log('[WidgetDOMManager] Setting up event listeners');
         this.listenToEvents();
-        console.log('[WidgetDOMManager] Initialization complete');
+        this.logger.info("Kurulum tamamlandı.");
+        this.logger.groupEnd();
     }
 
-    /**
-     * StateService tarafından gönderilen olayları dinler ve ilgili yönetici metotları çağırır.
-     */
     listenToEvents() {
-        console.log('[WidgetDOMManager] Setting up event listeners');
+        this.logger.action("Olay dinleyicileri (event listeners) ayarlanıyor.");
         
-        // Intro event handler
         this.widgetElement.addEventListener('widget:intro', (e) => {
-            console.log('[WidgetDOMManager] Received widget:intro event', e.detail);
+            this.logger.subgroup("Olay Alındı: widget:intro");
+            this.logger.data("Olay Detayı", e.detail);
             if (this.isBusy) {
-                console.log('[WidgetDOMManager] Busy, queuing intro event');
+                this.logger.warn("Widget meşgul, olay sıraya alınıyor.");
                 this.pendingEvent = { type: 'intro', detail: e.detail };
-                return;
+            } else {
+                this.runIntro(e.detail);
             }
-            this.runIntro(e.detail);
+            this.logger.groupEnd();
         });
-        
-        // Transition event handler
+
         this.widgetElement.addEventListener('widget:transition', (e) => {
-            console.log('[WidgetDOMManager] Received widget:transition event', e.detail);
+            this.logger.subgroup("Olay Alındı: widget:transition");
+            this.logger.data("Olay Detayı", e.detail);
             if (this.isBusy) {
-                console.log('[WidgetDOMManager] Busy, queuing transition event');
+                this.logger.warn("Widget meşgul, olay sıraya alınıyor.");
                 this.pendingEvent = { type: 'transition', detail: e.detail };
-                return;
+            } else {
+                this.runTransition(e.detail);
             }
-            this.runTransition(e.detail);
+            this.logger.groupEnd();
         });
-        
-        // Outro event handler (handled immediately if not busy)
+
         this.widgetElement.addEventListener('widget:outro', (e) => {
-            console.log('[WidgetDOMManager] Received widget:outro event', e.detail);
-            if (this.isBusy) {
-                console.log('[WidgetDOMManager] Busy, but processing outro immediately');
-            }
+            this.logger.subgroup("Olay Alındı: widget:outro");
+            this.logger.data("Olay Detayı", e.detail);
             this.runOutro(e.detail);
+            this.logger.groupEnd();
         });
-        
-        // Sync event handler (only if not busy)
+
         this.widgetElement.addEventListener('widget:sync', (e) => {
-            console.log('[WidgetDOMManager] Received widget:sync event', e.detail);
+             this.logger.subgroup("Olay Alındı: widget:sync");
+             this.logger.data("Olay Detayı", e.detail);
             if (!this.isBusy) {
                 this.contentUpdater.startProgressUpdater(e.detail.data, e.detail.set);
             } else {
-                console.log('[WidgetDOMManager] Busy, skipping sync update');
+                this.logger.warn("Widget meşgul, 'sync' işlemi atlanıyor.");
             }
+             this.logger.groupEnd();
         });
-        
-        // Error handling
-        this.widgetElement.addEventListener('widget:error', (e) => {
-            console.error('[WidgetDOMManager] Received error:', e.detail.message);
-            this.contentUpdater.displayError(e.detail.message);
-        });
-        
-        this.widgetElement.addEventListener('widget:clear-error', () => {
-            console.log('[WidgetDOMManager] Clearing error state');
-            this.contentUpdater.clearError();
-        });
+
+        this.widgetElement.addEventListener('widget:error', (e) => this.contentUpdater.displayError(e.detail.message));
+        this.widgetElement.addEventListener('widget:clear-error', () => this.contentUpdater.clearError());
     }
 
-    /**
-     * Widget ilk kez başlatıldığında çalışır. Görevleri delege eder.
-     */
     async runIntro({ set, data }) {
-        console.log(`[WidgetDOMManager] Running intro for set: ${set}`, data);
+        this.logger.group('Eylem: WIDGET INTRO');
         this.isBusy = true;
-        
         try {
-            // 1. İçeriği doldur
-            console.log(`[WidgetDOMManager] Updating content for set: ${set}`);
+            this.logger.action(`1. Adım: İçerik dolduruluyor (Set: ${set}).`);
             this.contentUpdater.updateAll(set, data);
 
-            // 2. Animasyonları çalıştır
             const introElementIds = this.config.elements.filter(id => id.endsWith(`_${set}`));
             const imageElementIds = introElementIds.filter(id => document.getElementById(id)?.tagName === 'IMG');
             
-            console.log(`[WidgetDOMManager] Preparing ${introElementIds.length} elements for intro animation`);
+            this.logger.action('2. Adım: Animasyonlar için elementler hazırlanıyor.');
             introElementIds.forEach(id => this.animationService.prepareElement(id, 'intro'));
-            
-            console.log(`[WidgetDOMManager] Waiting for ${imageElementIds.length} images to load`);
+
+            this.logger.action(`3. Adım: Resimlerin yüklenmesi bekleniyor (${imageElementIds.length} adet).`);
             await this.animationService.waitForImages(imageElementIds);
             
-            console.log('[WidgetDOMManager] Activating widget and starting animations');
+            this.logger.action('4. Adım: Widget aktive ediliyor ve animasyonlar başlatılıyor.');
             this.widgetElement.classList.remove(WidgetDOMManager.CSS_CLASSES.WIDGET_INACTIVE);
             
             const introAnimations = introElementIds.map(id => this.animationService.execute(id, 'intro'));
-            console.log(`[WidgetDOMManager] Started ${introAnimations.length} intro animations`);
-            
             await Promise.all(introAnimations);
-            console.log('[WidgetDOMManager] All intro animations completed');
-            
-            // 3. İlerleme çubuğunu başlat
-            console.log(`[WidgetDOMManager] Starting progress updater for set: ${set}`);
+            this.logger.info('Tüm intro animasyonları tamamlandı.');
+
+            this.logger.action('5. Adım: İlerleme çubuğu başlatılıyor.');
             this.contentUpdater.startProgressUpdater(data, set);
             
         } catch (error) {
-            console.error('[WidgetDOMManager] Error in runIntro:', error);
-            throw error;
+            this.logger.error('runIntro sırasında hata:', error);
         } finally {
             this.isBusy = false;
+            this.logger.info('Intro eylemi tamamlandı. Meşgul durumu kaldırıldı.');
             this.processPendingEvent();
+            this.logger.groupEnd();
         }
     }
 
-    /**
-     * runTransition metodu bir önceki adımdaki gibi kalacak.
-     */
     async runTransition({ activeSet, passiveSet, data }) {
-        console.log(`[WidgetDOMManager] Starting transition from ${activeSet} to ${passiveSet}`);
+        this.logger.group(`Eylem: ŞARKI GEÇİŞİ ('${activeSet}' -> '${passiveSet}')`);
         this.isBusy = true;
-        
         try {
-            // 0. Mevcut ilerleme çubuğunu durdur
-            console.log('[WidgetDOMManager] Stopping current progress updater');
+            this.logger.action('0. Adım: Mevcut ilerleme çubuğu durduruluyor.');
             this.contentUpdater.stopProgressUpdater();
 
-            // 1. Yeni içeriği pasif sete yükle
-            console.log(`[WidgetDOMManager] Updating content for passive set: ${passiveSet}`);
+            this.logger.action(`1. Adım: Yeni içerik pasif sete yükleniyor (Set: ${passiveSet}).`);
             this.contentUpdater.updateAll(passiveSet, data);
 
             const outgoingElementIds = this.config.elements.filter(id => id.endsWith(`_${activeSet}`));
             const incomingElementIds = this.config.elements.filter(id => id.endsWith(`_${passiveSet}`));
             const incomingImageIds = incomingElementIds.filter(id => document.getElementById(id)?.tagName === 'IMG');
             
-            // FAZ 1: HAZIRLIK
-            console.log('[WidgetDOMManager] PHASE 1: PREPARATION');
-            console.log(`- Flipping z-indexes for ${outgoingElementIds.length} outgoing and ${incomingElementIds.length} incoming elements`);
+            this.logger.group('FAZ 1: HAZIRLIK');
             this.animationService._flipZIndexes();
-            
-            console.log(`- Preparing ${incomingElementIds.length} incoming elements`);
             incomingElementIds.forEach(id => this.animationService.prepareElement(id, 'transitionIn'));
-            
-            console.log(`- Preparing ${outgoingElementIds.length} outgoing elements`);
             outgoingElementIds.forEach(id => this.animationService.prepareElement(id, 'transitionOut'));
-            
-            console.log(`- Waiting for ${incomingImageIds.length} images to load`);
             await this.animationService.waitForImages(incomingImageIds);
+            this.logger.groupEnd();
 
-            // FAZ 2: ANİMASYON
-            console.log('[WidgetDOMManager] PHASE 2: ANIMATION');
-            console.log(`- Starting ${outgoingElementIds.length} outgoing animations`);
+            this.logger.group('FAZ 2: ANİMASYON');
             const outgoingAnimations = outgoingElementIds.map(id => this.animationService.execute(id, 'transitionOut'));
-            
-            console.log(`- Starting ${incomingElementIds.length} incoming animations`);
             const incomingAnimations = incomingElementIds.map(id => this.animationService.execute(id, 'transitionIn'));
-            
-            console.log(`- Waiting for all animations to complete (${outgoingAnimations.length + incomingAnimations.length} total)`);
             await Promise.all([...outgoingAnimations, ...incomingAnimations]);
-            console.log('- All animations completed');
+            this.logger.info('Tüm geçiş animasyonları tamamlandı.');
+            this.logger.groupEnd();
 
-            // FAZ 3: TEMİZLİK
-            console.log('[WidgetDOMManager] PHASE 3: CLEANUP');
-            console.log(`- Cleaning up ${outgoingElementIds.length} outgoing elements`);
+            this.logger.group('FAZ 3: TEMİZLİK');
             outgoingElementIds.forEach(id => this.animationService.cleanupElement(id, 'outgoing'));
-            
-            console.log(`- Cleaning up ${incomingElementIds.length} incoming elements`);
             incomingElementIds.forEach(id => this.animationService.cleanupElement(id, 'incoming'));
-            
-            console.log(`- Resetting active set: ${activeSet}`);
             this.contentUpdater.reset(activeSet);
-
-            // SON ADIM: Durumu Sonlandır
-            console.log(`[WidgetDOMManager] Finalizing transition to set: ${passiveSet}`);
+            this.logger.groupEnd();
+            
+            this.logger.action("SON ADIM: StateService'e geçişin tamamlandığı bildiriliyor.");
             this.stateService.finalizeTransition(passiveSet);
             
         } catch (error) {
-            console.error('[WidgetDOMManager] Error in runTransition:', error);
-            throw error;
+            this.logger.error('runTransition sırasında hata:', error);
         } finally {
             this.isBusy = false;
+            this.logger.info('Transition eylemi tamamlandı. Meşgul durumu kaldırıldı.');
             this.processPendingEvent();
+            this.logger.groupEnd();
         }
     }
 
-    /**
-     * DEĞİŞTİ: Müzik durduğunda çalışır. 
-     * @param {Object} param - activeSet parametresi
-     */
     async runOutro({ activeSet }) {
-        console.log(`[WidgetDOMManager] Running outro for set: ${activeSet}`);
-        
+        this.logger.group('Eylem: WIDGET OUTRO');
         try {
-            // Ä°lerleme çubuğunu durdur
-            console.log('[WidgetDOMManager] Stopping progress updater');
+            this.logger.action('1. Adım: İlerleme çubuğu durduruluyor.');
             this.contentUpdater.stopProgressUpdater();
             
-            // Widget'ı inaktif duruma getir
-            console.log('[WidgetDOMManager] Deactivating widget');
+            this.logger.action('2. Adım: Widget inaktif duruma getiriliyor.');
             this.widgetElement.classList.add(WidgetDOMManager.CSS_CLASSES.WIDGET_INACTIVE);
             
-            // Çıkış animasyonu için elemanları temizle
             const outroElementIds = this.config.elements.filter(id => id.endsWith(`_${activeSet}`));
-            console.log(`[WidgetDOMManager] Cleaning up ${outroElementIds.length} elements`);
-            
-            // Elemanları pasif duruma getir ve stillerini temizle
+            this.logger.action(`3. Adım: Çıkış yapılacak elementler temizleniyor (${outroElementIds.length} adet).`);
             outroElementIds.forEach(id => this.animationService.cleanupElement(id, 'outgoing'));
             
-            // İçeriği sıfırla
-            console.log(`[WidgetDOMManager] Resetting content for set: ${activeSet}`);
+            this.logger.action(`4. Adım: Aktif set içeriği sıfırlanıyor (Set: ${activeSet}).`);
             this.contentUpdater.reset(activeSet);
             
-            console.log('[WidgetDOMManager] Outro completed');
+            this.logger.info('Outro tamamlandı.');
         } catch (error) {
-            console.error('[WidgetDOMManager] Error in runOutro:', error);
-            throw error;
+            this.logger.error('runOutro sırasında hata:', error);
+        } finally {
+             this.logger.groupEnd();
         }
     }
 
-    /**
-     * Bekleyen olayı işler (eğer varsa).
-     * Bir animasyon tamamlandığında çağrılır.
-     */
     processPendingEvent() {
-        if (!this.pendingEvent) {
-            console.log('[WidgetDOMManager] No pending events to process');
-            return;
-        }
+        if (!this.pendingEvent) return;
         
         const { type, detail } = this.pendingEvent;
-        console.log(`[WidgetDOMManager] Processing pending ${type} event`);
+        this.logger.warn(`Sıradaki olay işleniyor: ${type}`);
         this.pendingEvent = null;
         
         switch (type) {
-            case 'intro':
-                this.runIntro(detail);
-                break;
-            case 'transition':
-                this.runTransition(detail);
-                break;
-            default:
-                console.warn(`[WidgetDOMManager] Unknown pending event type: ${type}`);
+            case 'intro': this.runIntro(detail); break;
+            case 'transition': this.runTransition(detail); break;
+            default: this.logger.error(`Bilinmeyen bekleyen olay tipi: ${type}`);
         }
     }
 }

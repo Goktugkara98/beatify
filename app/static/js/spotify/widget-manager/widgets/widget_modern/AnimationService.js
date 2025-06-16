@@ -1,5 +1,6 @@
+// ===================================================================================
 // DOSYA ADI: AnimationService.js
-
+// ===================================================================================
 class AnimationService {
     static Z_INDEX_CONFIG = {
         AlbumArtBackgroundElement: { a: 3, b: 1 },
@@ -11,21 +12,20 @@ class AnimationService {
         ANIMATION_CONTAINER_SELECTOR: '[class*="AnimationContainer"]'
     };
 
-    constructor(widgetElement, config) {
+    // DEĞİŞTİ: constructor'a logger eklendi
+    constructor(widgetElement, config, logger) {
+        this.logger = logger; // YENİ
         this.widgetElement = widgetElement;
         this.config = config;
         this.animationCache = {};
         this.zIndexConfig = JSON.parse(JSON.stringify(AnimationService.Z_INDEX_CONFIG));
     }
 
-    /**
-     * YENİ: Bir elementi animasyona hazırlar.
-     */
     prepareElement(elementId, phase) {
-        console.log(`[AnimationService] prepareElement called - elementId: ${elementId}, phase: ${phase}`);
+        this.logger.info(`Element hazırlanıyor: ${elementId}, Faz: ${phase}`);
         const element = document.getElementById(elementId);
         if (!element) {
-            console.warn(`[AnimationService] Element not found: ${elementId}`);
+            this.logger.warn(`Element bulunamadı: ${elementId}`);
             return;
         }
 
@@ -39,28 +39,16 @@ class AnimationService {
         if (animConfig && animConfig.animation !== 'none') {
             const initialStyles = this.getInitialKeyframeStyles(animConfig.animation);
             if (initialStyles) {
-                // ==========================================================
-                // DEĞİŞEN KISIM BURASI
-                // ==========================================================
-                // Eski 'for...in' döngüsü yerine, stil nesneleri için daha güvenli olan
-                // 'for...of' döngüsü ve 'setProperty' metodu kullanılıyor.
                 for (const propName of initialStyles) {
-                    // propName -> 'opacity', 'transform' gibi stil adlarını verir.
                     element.style.setProperty(propName, initialStyles.getPropertyValue(propName));
                 }
-                // ==========================================================
             }
         }
         
         this._applyZIndex(elementId);
     }
 
-    /**
-     * "Animasyon" aşaması.
-     */
     async execute(elementId, phase) {
-        console.log(`[AnimationService] Starting animation - elementId: ${elementId}, phase: ${phase}`);
-        const startTime = performance.now();
         return new Promise(resolve => {
             const element = document.getElementById(elementId);
             const animConfig = this.config[elementId]?.[phase];
@@ -70,14 +58,17 @@ class AnimationService {
                 return;
             }
             
+            this.logger.subgroup(`Animasyon Yürütülüyor: ${elementId} (${phase})`);
+            const startTime = performance.now();
             const { animation, duration = 0, delay = 0 } = animConfig;
             const easing = (phase === 'transitionOut' || phase === 'outro') ? 'ease-in' : 'ease-out';
 
             const handleAnimationEnd = (event) => {
                 if (event.target === element && event.animationName === animation) {
-                    const duration = performance.now() - startTime;
-                    console.log(`[AnimationService] Animation completed - elementId: ${elementId}, phase: ${phase}, duration: ${duration.toFixed(2)}ms`);
+                    const animDuration = performance.now() - startTime;
+                    this.logger.info(`Animasyon tamamlandı. Süre: ${animDuration.toFixed(2)}ms`);
                     element.removeEventListener('animationend', handleAnimationEnd);
+                    this.logger.groupEnd(); // Yürütme alt grubunu kapat
                     resolve();
                 }
             };
@@ -87,14 +78,11 @@ class AnimationService {
         });
     }
 
-    /**
-     * Bir element için animasyon sonrası temizlik yapar.
-     */
     cleanupElement(elementId, type) {
-        console.log(`[AnimationService] Cleaning up element - elementId: ${elementId}, type: ${type}`);
+        this.logger.info(`Element temizleniyor: ${elementId}, Tip: ${type}`);
         const element = document.getElementById(elementId);
         if (!element) {
-            console.warn(`[AnimationService] Element not found for cleanup: ${elementId}`);
+            this.logger.warn(`Temizlenecek element bulunamadı: ${elementId}`);
             return;
         }
         
@@ -104,15 +92,13 @@ class AnimationService {
         if (type === 'outgoing') {
             element.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) container.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
-        } else { // incoming
+        } else {
             element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
             this._applyZIndex(elementId); 
         }
-
     }
     
-    // Diğer yardımcı metotlar (Bunlar aynı kalmalı)
     getInitialKeyframeStyles(animationName) {
         if (this.animationCache[animationName]) return this.animationCache[animationName];
 
@@ -136,12 +122,11 @@ class AnimationService {
     }
 
     waitForImages(elementIds) {
-        console.log(`[AnimationService] Waiting for images to load - elements:`, elementIds);
         const imageElements = elementIds.map(id => document.getElementById(id)).filter(el => el?.tagName === 'IMG' && el.src);
         if (imageElements.length === 0) {
-            console.log('[AnimationService] No images to wait for');
             return Promise.resolve();
         }
+        this.logger.info(`${imageElements.length} adet resmin yüklenmesi bekleniyor...`);
         const promises = imageElements.map(img => new Promise(resolve => {
             if (img.complete) return resolve();
             img.onload = () => resolve();
@@ -151,17 +136,16 @@ class AnimationService {
     }
     
     _flipZIndexes() {
-        console.log('[AnimationService] Flipping z-indexes');
+        this.logger.info('z-index değerleri ters çevriliyor (flip).');
         for (const key in this.zIndexConfig) {
             [this.zIndexConfig[key].a, this.zIndexConfig[key].b] = [this.zIndexConfig[key].b, this.zIndexConfig[key].a];
-            console.log(`[AnimationService] Flipped ${key}: a=${this.zIndexConfig[key].a}, b=${this.zIndexConfig[key].b}`);
         }
     }
 
     _applyZIndex(elementId) {
         const element = document.getElementById(elementId);
         if (!element) {
-            console.warn(`[AnimationService] Cannot apply z-index: Element not found - ${elementId}`);
+            this.logger.warn(`z-index uygulanamadı: Element bulunamadı - ${elementId}`);
             return;
         }
         const baseName = elementId.substring(0, elementId.lastIndexOf('_'));

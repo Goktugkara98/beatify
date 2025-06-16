@@ -1,47 +1,37 @@
+// ===================================================================================
 // DOSYA ADI: main.js
-// =================================================================================================
-// ||                                     İÇİNDEKİLER                                             ||
-// =================================================================================================
-//
-// 1.0. WIDGET BAŞLATMA (Widget Initialization)
-//    - DOMContentLoaded Event Listener: Sayfa tamamen yüklendiğinde widget'ı başlatan ana mantık.
-//
-// =================================================================================================
-
-/**
- * 1.0. WIDGET BAŞLATMA
- * Sayfa içeriği tamamen yüklendiğinde (DOMContentLoaded), widget'ı başlatmak için bu olay dinleyici tetiklenir.
- * Gerekli tüm bileşenlerin ve yapılandırmanın mevcut olduğunu doğrular, ardından servisleri başlatır.
- */
+// ===================================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1.1. Gerekli Element ve Konfigürasyonun Alınması
+    // YENİ: Logger servisini başlat
+    const logger = new LoggerService();
+    window.logger = logger; // Diğer dosyalardan kolay erişim için global yap
+
+    logger.group('WIDGET BAŞLATMA SÜRECİ');
+
     const widgetElement = document.getElementById('spotifyWidgetModern');
-    const config = window.configData; // Backend'den gelen yapılandırma verisi
+    const config = window.configData;
 
-    // 1.2. Doğrulama Kontrolleri
-    // Gerekli HTML elementi veya JavaScript sınıfları bulunamazsa hata günlüğe kaydedilir ve işlem durdurulur.
     if (!widgetElement || typeof SpotifyStateService === 'undefined' || typeof WidgetDOMManager === 'undefined') {
-        console.error("Error: Required HTML element (spotifyWidgetModern) or classes (SpotifyStateService, WidgetDOMManager) not found.");
+        logger.error("Hata: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.");
+        logger.groupEnd();
         return;
     }
 
-    // Backend konfigürasyonu yüklenemezse hata günlüğe kaydedilir.
     if (!config) {
-        console.error("Backend config not found");
+        logger.error("Backend konfigürasyonu (window.configData) bulunamadı.");
+        logger.groupEnd();
         return;
     }
-    
-    // 1.3. Servislerin Başlatılması
-    // StateService, widget'ın durumunu (hangi şarkı çalıyor, duraklatıldı mı vb.) yönetir.
-    const stateService = new SpotifyStateService(widgetElement);
-    
-    // DOMManager, tüm görsel güncellemeleri, animasyonları ve DOM manipülasyonlarını yönetir.
-    // StateService'den gelen olayları dinleyerek çalışır.
-    new WidgetDOMManager(widgetElement, config, stateService);
 
-    // 1.4. Sistemi Çalıştırma
-    // StateService'in init() metodu, Spotify verilerini çekme sürecini başlatır ve widget'ı canlandırır.
+    logger.action('Tüm doğrulamalar başarılı.');
+    logger.action('Servisler başlatılıyor...');
+
+    // YENİ: Logger'ı servislere constructor üzerinden aktar
+    const stateService = new SpotifyStateService(widgetElement, logger);
+    new WidgetDOMManager(widgetElement, config, stateService, logger);
+
     stateService.init();
-    
-    console.log("Spotify Widget başlatıldı");
+
+    logger.info("Spotify Widget başarıyla başlatıldı.");
+    logger.groupEnd();
 });
