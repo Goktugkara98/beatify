@@ -1,6 +1,10 @@
 // ===================================================================================
 // DOSYA ADI: ContentUpdaterService.js
 // AÇIKLAMA: DOM elementlerinin içeriğini (metin, resim vb.) günceller.
+// YENİ YAPI NOTU: Bu sınıf artık log gruplarını yönetmez. Sadece kendi
+//                 spesifik görevleriyle ilgili (içerik güncelleme, sıfırlama vb.)
+//                 'info', 'warn' gibi detay logları basar. Grup yönetimi,
+//                 bu servisi çağıran 'WidgetDOMManager' tarafından yapılır.
 // ===================================================================================
 class ContentUpdaterService {
     constructor(widgetElement, logger) {
@@ -9,18 +13,16 @@ class ContentUpdaterService {
         this.widgetElement = widgetElement;
         this.progressInterval = null;
         this.CSS_CLASSES = { ERROR_ACTIVE: 'error-active' };
-        this.updateCount = 0;
+        this.logger.info(this.CALLER_FILE, 'ContentUpdaterService oluşturuldu.');
     }
 
     updateAll(set, data) {
-        this.updateCount++;
-        this.logger.subgroup(`İçerik Güncelleniyor (updateAll) - Set: ${set}, #${this.updateCount}`);
-        this.logger.data(this.CALLER_FILE, "Gelen Şarkı Verisi", data.item);
+        this.logger.info(this.CALLER_FILE, `Tüm içerik güncelleniyor (Set: ${set}).`);
+        this.logger.data(this.CALLER_FILE, "Güncellenecek Şarkı Verisi", data.item);
 
         const item = data.item;
         if (!item) {
-            this.logger.warn(this.CALLER_FILE, 'Güncellenecek item verisi bulunamadı.');
-            this.logger.groupEnd();
+            this.logger.warn(this.CALLER_FILE, 'updateAll çağrıldı ancak güncellenecek "item" verisi boş.');
             return;
         }
         
@@ -41,8 +43,7 @@ class ContentUpdaterService {
         const totalTimeElem = query('.TotalTimeElement');
         if (totalTimeElem) { totalTimeElem.innerText = this._formatTime(item.duration_ms); }
         
-        this.logger.info(this.CALLER_FILE, "Tüm elementler güncellendi.");
-        this.logger.groupEnd();
+        this.logger.info(this.CALLER_FILE, "Tüm elementlerin içeriği başarıyla güncellendi.");
     }
 
     reset(set) {
@@ -60,8 +61,8 @@ class ContentUpdaterService {
     }
 
     startProgressUpdater(data, set) {
-        this.logger.info(this.CALLER_FILE, `İlerleme çubuğu güncelleyici başlatılıyor (Set: ${set}).`);
         this.stopProgressUpdater(); 
+        this.logger.info(this.CALLER_FILE, `İlerleme çubuğu güncelleyici başlatılıyor (Set: ${set}).`);
         
         let progressMs = data.progress_ms;
         const durationMs = data.item.duration_ms;

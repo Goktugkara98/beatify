@@ -1,6 +1,9 @@
 // ===================================================================================
 // DOSYA ADI: AnimationService.js
 // AÇIKLAMA: CSS animasyonlarını yönetir, elementleri hazırlar, yürütür ve temizler.
+// YENİ YAPI NOTU: Bu sınıf da artık log gruplarını yönetmez. Sadece animasyon
+//                 hazırlama, yürütme ve temizleme gibi kendi görevleriyle ilgili
+//                 detay logları basar.
 // ===================================================================================
 class AnimationService {
     static Z_INDEX_CONFIG = {
@@ -20,13 +23,14 @@ class AnimationService {
         this.config = config;
         this.animationCache = {};
         this.zIndexConfig = JSON.parse(JSON.stringify(AnimationService.Z_INDEX_CONFIG));
+        this.logger.info(this.CALLER_FILE, 'AnimationService oluşturuldu.');
     }
 
     prepareElement(elementId, phase) {
         this.logger.info(this.CALLER_FILE, `Element hazırlanıyor: ${elementId}, Faz: ${phase}`);
         const element = document.getElementById(elementId);
         if (!element) {
-            this.logger.warn(this.CALLER_FILE, `Element bulunamadı: ${elementId}`);
+            this.logger.warn(this.CALLER_FILE, `Hazırlanacak element bulunamadı: ${elementId}`);
             return;
         }
 
@@ -55,11 +59,12 @@ class AnimationService {
             const animConfig = this.config[elementId]?.[phase];
 
             if (!element || !animConfig || !animConfig.animation || animConfig.animation === 'none') {
+                this.logger.info(this.CALLER_FILE, `Animasyon atlanıyor (tanımlı değil): ${elementId}`);
                 resolve();
                 return;
             }
             
-            this.logger.subgroup(`Animasyon Yürütülüyor: ${elementId} (${phase})`);
+            this.logger.info(this.CALLER_FILE, `Animasyon yürütülüyor: ${elementId} (${phase}) - ${animConfig.animation}`);
             const startTime = performance.now();
             const { animation, duration = 0, delay = 0 } = animConfig;
             const easing = (phase === 'transitionOut' || phase === 'outro') ? 'ease-in' : 'ease-out';
@@ -67,9 +72,8 @@ class AnimationService {
             const handleAnimationEnd = (event) => {
                 if (event.target === element && event.animationName === animation) {
                     const animDuration = performance.now() - startTime;
-                    this.logger.info(this.CALLER_FILE, `Animasyon tamamlandı. Süre: ${animDuration.toFixed(2)}ms`);
+                    this.logger.info(this.CALLER_FILE, `Animasyon tamamlandı: ${elementId}. Süre: ${animDuration.toFixed(2)}ms`);
                     element.removeEventListener('animationend', handleAnimationEnd);
-                    this.logger.groupEnd(); // Yürütme alt grubunu kapat
                     resolve();
                 }
             };
