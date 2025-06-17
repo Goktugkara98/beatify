@@ -1,51 +1,40 @@
-// ===================================================================================
-// DOSYA ADI: main.js
-// AÇIKLAMA: Uygulamanın başlangıç noktası. Servisleri başlatır ve
-//           bağımlılıkları enjekte eder.
-// YENİ YAPI NOTU: Bu dosya, en üst seviye 'WIDGET BAŞLATMA SÜRECİ' grubunu
-//                 yönetir ve tüm başlatma işlemlerinin bu grup altında
-//                 loglanmasını sağlar.
-// ===================================================================================
+/**
+ * @file main.js
+ * @description Uygulamanın başlangıç noktası. Gerekli servisleri başlatır ve bağımlılıkları enjekte eder.
+ */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Logger servisini başlat
-    const logger = new LoggerService();
-    window.logger = logger; // Diğer dosyalardan kolay erişim için global yap
-
-    const CALLER_FILE = 'main.js';
-    
-    // En üst seviye başlangıç grubunu oluştur
-    logger.group('WIDGET BAŞLATMA SÜRECİ');
-
     try {
         const widgetElement = document.getElementById('spotifyWidgetModern');
         const config = window.configData;
 
-        if (!widgetElement || typeof SpotifyStateService === 'undefined' || typeof WidgetDOMManager === 'undefined') {
-            logger.error(CALLER_FILE, "Hata: Gerekli HTML elementi (spotifyWidgetModern) veya sınıflar (SpotifyStateService, WidgetDOMManager) bulunamadı.");
-            return; // groupEnd() finally bloğunda çalışacak
+        // Gerekli element ve konfigürasyonun varlığını kontrol et
+        if (!widgetElement) {
+            throw new Error("Gerekli HTML elementi (ID: spotifyWidgetModern) bulunamadı.");
         }
-
         if (!config) {
-            logger.error(CALLER_FILE, "Backend konfigürasyonu (window.configData) bulunamadı.");
-            return; // groupEnd() finally bloğunda çalışacak
+            throw new Error("Backend konfigürasyonu (window.configData) bulunamadı.");
+        }
+        if (typeof SpotifyStateService === 'undefined' || typeof WidgetDOMManager === 'undefined' || typeof AnimationService === 'undefined' || typeof ContentUpdaterService === 'undefined') {
+            throw new Error("Gerekli JavaScript sınıflarından biri veya birkaçı yüklenemedi.");
         }
 
-        logger.action(CALLER_FILE, 'Tüm doğrulamalar başarılı. Servisler başlatılıyor...');
+        // Servisleri başlat
+        const stateService = new SpotifyStateService(widgetElement);
+        new WidgetDOMManager(widgetElement, config, stateService);
 
-        // Logger'ı servislere constructor üzerinden aktar
-        const stateService = new SpotifyStateService(widgetElement, logger);
-        new WidgetDOMManager(widgetElement, config, stateService, logger);
-
-        // StateService'i başlat. Bu, veri çekme döngüsünü tetikleyecek.
+        // Veri çekme döngüsünü başlat
         stateService.init();
 
-        logger.info(CALLER_FILE, "Spotify Widget başarıyla başlatıldı.");
-
     } catch (error) {
-        logger.error(CALLER_FILE, "Widget başlatılırken kritik bir hata oluştu:", error);
-    } finally {
-        // Başlatma süreci grubunu her durumda kapat
-        logger.groupEnd();
+        console.error("Widget başlatılırken kritik bir hata oluştu:", error);
+        // İsteğe bağlı olarak kullanıcıya bir hata mesajı gösterebilirsiniz.
+        const errorDisplay = document.getElementById('spotifyWidgetModern');
+        if(errorDisplay) {
+            errorDisplay.innerText = "Widget yüklenirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.";
+            errorDisplay.style.color = 'white';
+            errorDisplay.style.textAlign = 'center';
+            errorDisplay.style.padding = '20px';
+        }
     }
 });
