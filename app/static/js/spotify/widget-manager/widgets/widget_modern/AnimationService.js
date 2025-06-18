@@ -115,33 +115,35 @@ class AnimationService {
 
     /**
      * Animasyon sonrası bir elementi temizler.
-     * - Giden (outgoing) elementler için: .passive ekler
-     * - Gelen (incoming) elementler için: inline stilleri temizler
      * @param {string} elementId - Temizlenecek elementin ID'si.
      * @param {string} type - Temizleme tipi ('incoming' veya 'outgoing').
      */
     cleanupElement(elementId, type) {
         const element = document.getElementById(elementId);
         if (!element) return;
-        
-        const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
-        
-        // Bu satırlar her iki durumda da çalıştığı için burada kalabilir.
-        element.style.animation = '';
-        element.style.animationName = '';
-        
+
         if (type === 'outgoing') {
-            // 1. ADIM: Elementi gizlemek için .passive sınıfını ekle.
+            // Giden elementler tamamen gizlenmeli ve sıfırlanmalıdır.
+            const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
             element.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) {
                 container.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             }
-            // 2. ADIM: Animasyondan kalan tüm inline stilleri temizle.
             element.removeAttribute('style');
 
         } else { // 'incoming'
-            // Gelen element için de tüm inline stilleri temizle.
+            // Gelen element için:
+            // 1. Kritik olan z-index'i koru.
+            const zIndex = element.style.zIndex;
+
+            // 2. Animasyondan kalan TÜM inline stilleri (opacity:0, animation, vb.) temizle.
             element.removeAttribute('style');
+
+            // 3. Koruduğumuz z-index'i geri yükle.
+            //    Bu, elementin bir sonraki geçiş için doğru katmanda kalmasını sağlar.
+            if (zIndex) {
+                element.style.zIndex = zIndex;
+            }
         }
 
             // 2. ADIM: BU SATIRI SİLİYORUZ VEYA YORUM SATIRI YAPIYORUZ
