@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Widget Çalışma Mantığı ve Akış Şeması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/mermaid@9.1.7/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1b26;
+            color: #c0caf5;
+        }
+        .header {
+            background-color: #24283b;
+            border-bottom: 1px solid #414868;
+        }
+        .content-box {
+            background-color: #1f2335;
+            border: 1px solid #414868;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .explanation-box {
+            background-color: #24283b;
+            border-left: 4px solid #7aa2f7;
+            transition: all 0.3s ease-in-out;
+        }
+        .mermaid .node rect {
+            fill: #24283b !important;
+            stroke: #7aa2f7 !important;
+            stroke-width: 2px !important;
+            rx: 8px !important;
+            ry: 8px !important;
+        }
+        .mermaid .node text {
+            fill: #c0caf5 !important;
+            font-weight: 600 !important;
+        }
+        .mermaid .edgeLabel text {
+            fill: #a9b1d6 !important;
+            background-color: #1a1b26;
+        }
+        .mermaid .cluster rect {
+             fill: #1f2335 !important;
+             stroke: #414868 !important;
+             stroke-width: 1px !important;
+             rx: 8px !important;
+             ry: 8px !important;
+        }
+        .mermaid .cluster text {
+            fill: #7aa2f7 !important;
+            font-weight: bold;
+        }
+        .mermaid .loopLine {
+            stroke: #ff9e64 !important;
+        }
+        .mermaid .loopText {
+            fill: #ff9e64 !important;
+        }
+        .clickable-node {
+            cursor: pointer;
+        }
+        .clickable-node:hover rect {
+            fill: #414868 !important;
+            transition: fill 0.2s ease;
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="header p-6 rounded-lg mb-8 content-box">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-[#e0af68]">Widget Çalışma Mimarisi</h1>
+            <p class="text-center mt-2 text-lg text-[#a9b1d6]">Widget'ın başlangıçtan veri akışına, durum yönetimine ve animasyonlara kadar tüm sürecini keşfedin. <br class="hidden md:block">Aşağıdaki şemada yer alan adımlara tıklayarak detaylı açıklamaları okuyabilirsiniz.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 content-box p-4 md:p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[#7aa2f7]">Akış Şeması</h2>
+                <div class="mermaid-container overflow-x-auto">
+                    <div class="mermaid" id="flowchart">
+                        graph TD
+                            subgraph s_baslangic [Başlangıç - main.js]
+                                A[Sayfa Yüklendi <br> (DOMContentLoaded)] --> B(Servisleri Başlat);
+                                B --> B1(new SpotifyStateService);
+                                B --> B2(new WidgetDOMManager);
+                                B2 --> B3(new ContentUpdaterService);
+                                B2 --> B4(new AnimationService);
+                            end
+                        
+                            subgraph s_veri [Veri ve Durum Yönetimi - SpotifyStateService]
+                                C(stateService.init) --> D{Veri Çekme Döngüsü <br> (setInterval 5sn)};
+                                D --> E[API'ye İstek At <br> (fetchData)];
+                                E --> F{Veri İşlendi mi?};
+                                F -- Hata --> G[widget:error olayı tetikle];
+                                F -- Başarılı --> H(Gelen Veriyi İşle <br> _processData);
+                                H --> I{Müzik Çalıyor mu?};
+                                I -- Hayır --> J[Durum: Müzik Durdu <br> widget:outro];
+                                I -- Evet --> K{İlk Yükleme mi?};
+                                K -- Evet --> L[Durum: İlk Açılış <br> widget:intro];
+                                K -- Hayır --> M{Şarkı Değişti mi?};
+                                M -- Evet --> N[Durum: Şarkı Geçişi <br> widget:transition];
+                                M -- Hayır --> O[Durum: Senkronizasyon <br> widget:sync];
+                            end
+                        
+                            subgraph s_dom [DOM ve Animasyon Yönetimi - WidgetDOMManager]
+                                P(Olay Dinleyicileri <br> .addEventListener)
+                                sub_intro[widget:intro]
+                                sub_transition[widget:transition]
+                                sub_outro[widget:outro]
+                                sub_sync[widget:sync]
+                                sub_error[widget:error]
+                            end
+
+                            subgraph s_detayli [Detaylı Akışlar]
+                                L --> sub_intro;
+                                N --> sub_transition;
+                                J --> sub_outro;
+                                O --> sub_sync;
+                                G --> sub_error;
+
+                                sub_intro --> Intro[runIntro Çalıştır];
+                                Intro --> Intro1[İçerik Servisi: <br> Görünür Seti (A) Doldur];
+                                Intro1 --> Intro2[Animasyon Servisi: <br> Giriş Animasyonunu Yürüt];
+                                Intro2 --> Intro3[İlerleme Çubuğunu Başlat];
+
+                                sub_transition --> Trans[runTransition Çalıştır];
+                                Trans --> Trans1[İçerik Servisi: <br> Pasif Seti (B) Doldur];
+                                Trans1 --> Trans2[Animasyon Servisi: <br> 'A' için Çıkış, 'B' için Giriş Animasyonu];
+                                Trans2 --> Trans3[Durum Servisi: <br> Geçişi Sonlandır (B Artık Aktif)];
+
+                                sub_outro --> Outro[runOutro Çalıştır];
+                                Outro --> Outro1[Widget'ı Gizle];
+
+                                sub_sync --> Sync[İlerleme Çubuğunu <br> Senkronize Et];
+                                
+                                sub_error --> Err[Hata Mesajı Göster];
+                            end
+
+                            B1 --> C;
+                            B2 --> P;
+                            
+                            classDef default fill:#24283b,stroke:#7aa2f7,stroke-width:2px,color:#c0caf5,font-weight:600,rx:8,ry:8;
+                            classDef subgraph_style fill:#1f2335,stroke:#414868,color:#7aa2f7;
+                            class s_baslangic,s_veri,s_dom,s_detayli subgraph_style;
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="content-box p-4 md:p-6 sticky top-8">
+                    <h2 class="text-2xl font-bold mb-4 text-[#7aa2f7]">Açıklama</h2>
+                    <div id="explanation-box" class="explanation-box p-4 rounded-lg min-h-[100px]">
+                        <p id="explanation-text" class="text-[#a9b1d6]">Lütfen akış şemasındaki bir adıma tıklayarak detaylı bilgi alın.</p>
+                    </div>
+                     <h3 class="text-xl font-bold mt-6 mb-3 text-[#bb9af7]">Temel Kavramlar</h3>
+                    <ul class="space-y-3 text-[#a9b1d6]">
+                        <li><strong>Olay Yönelimli Mimari (Event-Driven):</strong> Servisler birbirini doğrudan çağırmak yerine, olaylar (custom events) aracılığıyla haberleşir. Örneğin, `SpotifyStateService` veri değiştiğinde `widget:transition` olayı yayınlar, `WidgetDOMManager` bu olayı dinler ve animasyonu başlatır. Bu, modüllerin birbirinden bağımsız kalmasını sağlar.</li>
+                        <li><strong>Servis Tabanlı Yapı:</strong> Kod, belirli sorumlulukları olan sınıflara (Servislere) ayrılmıştır. `StateService` durumu yönetir, `ContentUpdater` DOM'u günceller, `AnimationService` animasyonları yönetir ve `DOMManager` bu servisleri bir orkestra şefi gibi yönetir.</li>
+                        <li><strong>A/B Set (Double Buffering):</strong> Animasyonların akıcı olması için iki set HTML elementi (`_a` ve `_b` ile biten ID'ler) kullanılır. Şarkı değiştiğinde, yeni bilgi ekranda görünmeyen (pasif) sete yüklenir. Ardından, görünür olan set ekrandan çıkış animasyonu yaparken, yeni bilgiyi içeren pasif set giriş animasyonuyla ekrana gelir. Bu, içerik yüklenirken donma veya takılma olmasını engeller.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mermaid.js initialization
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Add click handlers for nodes
+        document.addEventListener('DOMContentLoaded', function() {
+            const explanationBox = document.getElementById('explanation-box');
+            const explanationTitle = explanationBox.querySelector('h2');
+            const explanationText = explanationBox.querySelector('#explanation-text');
+
+            // Add click handlers for nodes
+            const nodes = document.querySelectorAll('.mermaid .node');
+            nodes.forEach(node => {
+                node.classList.add('clickable-node');
+                node.addEventListener('click', function() {
+                    const nodeText = this.querySelector('text')?.textContent || 'Bilgi yok';
+                    explanationTitle.textContent = 'Detaylar';
+                    explanationText.textContent = `Seçilen öğe: ${nodeText}`;
+                    
+                    // Add smooth scroll to explanation
+                    explanationBox.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
+
+                    <ul class="space-y-3 text-[#a9b1d6]">
+                        <li><strong>Olay Yönelimli Mimari (Event-Driven):</strong> Servisler birbirini doğrudan çağırmak yerine, olaylar (custom events) aracılığıyla haberleşir. Örneğin, `SpotifyStateService` veri değiştiğinde `widget:transition` olayı yayınlar, `WidgetDOMManager` bu olayı dinler ve animasyonu başlatır. Bu, modüllerin birbirinden bağımsız kalmasını sağlar.</li>
+                        <li><strong>Servis Tabanlı Yapı:</strong> Kod, belirli sorumlulukları olan sınıflara (Servislere) ayrılmıştır. `StateService` durumu yönetir, `ContentUpdater` DOM'u günceller, `AnimationService` animasyonları yönetir ve `DOMManager` bu servisleri bir orkestra şefi gibi yönetir.</li>
+                        <li><strong>A/B Set (Double Buffering):</strong> Animasyonların akıcı olması için iki set HTML elementi (`_a` ve `_b` ile biten ID'ler) kullanılır. Şarkı değiştiğinde, yeni bilgi ekranda görünmeyen (pasif) sete yüklenir. Ardından, görünür olan set ekrandan çıkış animasyonu yaparken, yeni bilgiyi içeren pasif set giriş animasyonuyla ekrana gelir. Bu, içerik yüklenirken donma veya takılma olmasını engeller.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const explanations = {
+            A: "<strong>Sayfa Yüklendi (DOMContentLoaded):</strong> Tarayıcı, HTML'in tamamını ayrıştırıp DOM ağacını oluşturduğunda bu olay tetiklenir. `main.js` içerisindeki tüm uygulama mantığı bu olaydan sonra çalışmaya başlar.",
+            B: "<strong>Servisleri Başlat:</strong> `main.js`, uygulamanın ana servislerini (`SpotifyStateService` ve `WidgetDOMManager`) oluşturur. `WidgetDOMManager` de kendi içinde `ContentUpdaterService` ve `AnimationService`'i başlatır. Bu, tüm sistemin hazır hale gelmesini sağlar.",
+            C: "<strong>stateService.init:</strong> `SpotifyStateService`'in başlatıcı fonksiyonudur. İlk veri çekme işlemini hemen yapar ve ardından her 5 saniyede bir veriyi tekrar çekmek için bir zamanlayıcı (`setInterval`) kurar.",
+            D: "<strong>Veri Çekme Döngüsü:</strong> `setInterval` ile kurulan bu döngü, Spotify'dan düzenli olarak güncel verileri alarak widget'ın canlı kalmasını sağlar.",
+            E: "<strong>API'ye İstek At (fetchData):</strong> Belirlenen API endpoint'ine bir `fetch` isteği gönderilir. Bu istek, o an çalan şarkı, ilerleme durumu gibi bilgileri getirmeyi amaçlar.",
+            F: "<strong>Veri İşlendi mi?:</strong> API'den gelen cevabın başarılı (HTTP 200 OK) olup olmadığı kontrol edilir. Cevap başarılı değilse 'Hata' yoluna, başarılı ise 'Başarılı' yoluna gidilir.",
+            G: "<strong>widget:error olayı tetikle:</strong> API'den hata dönmesi veya ağ hatası durumunda, `SpotifyStateService` özel bir `widget:error` olayı tetikler. Bu olay, `WidgetDOMManager` tarafından yakalanarak kullanıcıya bir hata mesajı gösterilmesini sağlar.",
+            H: "<strong>Gelen Veriyi İşle (_processData):</strong> Gelen JSON verisi, mevcut durumla karşılaştırılmak üzere analiz edilir. Bu fonksiyon, widget'ın bir sonraki adımda ne yapacağına karar verir (ilk açılış mı, şarkı geçişi mi vb.).",
+            I: "<strong>Müzik Çalıyor mu?:</strong> API verisindeki `is_playing` alanı kontrol edilir. Eğer `false` ise, müzik durmuş demektir.",
+            J: "<strong>Durum: Müzik Durdu (widget:outro):</strong> Eğer bir önceki durumda müzik çalıyordu ama şimdi durduysa, widget'ın kapanış animasyonunu tetiklemek için `widget:outro` olayı yayınlanır.",
+            K: "<strong>İlk Yükleme mi?:</strong> Uygulama ilk kez veri çektiğinde bu durum geçerlidir. Widget'ın ekrana giriş animasyonuyla gelmesini sağlar.",
+            L: "<strong>Durum: İlk Açılış (widget:intro):</strong> Widget'ın açılışını (giriş animasyonunu) başlatmak için `widget:intro` olayı tetiklenir.",
+            M: "<strong>Şarkı Değişti mi?:</strong> Mevcut şarkının ID'si ile API'den gelen yeni şarkının ID'si karşılaştırılır. Eğer farklıysa, bir şarkı geçişi yaşanıyor demektir.",
+            N: "<strong>Durum: Şarkı Geçişi (widget:transition):</strong> Bir şarkıdan diğerine geçiş animasyonunu başlatmak için `widget:transition` olayı tetiklenir. Bu olay, A/B setlerinin değişimini yönetir.",
+            O: "<strong>Durum: Senkronizasyon (widget:sync):</strong> Çalan şarkı aynıysa, herhangi bir büyük animasyon yapılmaz. Sadece şarkının ilerleme çubuğu ve süresini güncellemek için `widget:sync` olayı tetiklenir.",
+            P: "<strong>Olay Dinleyicileri:</strong> `WidgetDOMManager`, `SpotifyStateService` tarafından yayınlanan `widget:intro`, `widget:transition` gibi özel olayları dinlemek için `addEventListener` kullanır ve ilgili fonksiyonu (örneğin `runIntro`) çağırır.",
+            Intro: "<strong>runIntro Çalıştır:</strong> `widget:intro` olayı yakalandığında bu fonksiyon çalışır. Widget'ın tüm giriş animasyon sürecini yönetir.",
+            Intro1: "<strong>İçerik Servisi: Görünür Seti (A) Doldur:</strong> `ContentUpdaterService` kullanılarak, şarkı adı, sanatçı, albüm kapağı gibi bilgiler başlangıçta aktif olan 'A' setindeki HTML elementlerine yazılır.",
+            Intro2: "<strong>Animasyon Servisi: Giriş Animasyonunu Yürüt:</strong> `AnimationService`'i kullanarak 'A' setindeki tüm elementler için yapılandırılmış giriş animasyonları (`fade-in`, `slide-in` vb.) aynı anda çalıştırılır.",
+            Intro3: "<strong>İlerleme Çubuğunu Başlat:</strong> Animasyonlar bittikten sonra, şarkının süresini ve ilerlemesini gösteren zamanlayıcı `ContentUpdaterService` üzerinden başlatılır.",
+            Trans: "<strong>runTransition Çalıştır:</strong> `widget:transition` olayı yakalandığında bu fonksiyon çalışır. Bir şarkıdan diğerine akıcı geçişi organize eder.",
+            Trans1: "<strong>İçerik Servisi: Pasif Seti (B) Doldur:</strong> Yeni şarkının bilgileri, o an ekranda görünmeyen 'B' setindeki elementlere yüklenir. Bu sırada kullanıcı hala eski şarkının bilgilerini görmektedir.",
+            Trans2: "<strong>Animasyon Servisi: 'A' için Çıkış, 'B' için Giriş Animasyonu:</strong> `AnimationService`, eski şarkıyı içeren 'A' setini çıkış animasyonuyla ekrandan kaldırırken, eş zamanlı olarak yeni şarkıyı içeren 'B' setini giriş animasyonuyla ekrana getirir. Bu, A/B Set (Double Buffering) tekniğinin kalbidir.",
+            Trans3: "<strong>Durum Servisi: Geçişi Sonlandır:</strong> Animasyonlar tamamlandıktan sonra, `WidgetDOMManager` artık yeni aktif setin 'B' olduğunu bildirmek için `stateService.finalizeTransition('b')` fonksiyonunu çağırır. Bu, bir sonraki veri kontrolünde sistemin doğru durumu bilmesini sağlar.",
+            Outro: "<strong>runOutro Çalıştır:</strong> `widget:outro` olayı yakalandığında bu fonksiyon çalışır ve widget'ı ekrandan kaldırır.",
+            Outro1: "<strong>Widget'ı Gizle:</strong> Genellikle widget'ın ana kapsayıcısına bir CSS sınıfı (`widget-inactive`) eklenerek `opacity` ve `visibility` özellikleri değiştirilir ve widget kaybolur.",
+            Sync: "<strong>İlerleme Çubuğunu Senkronize Et:</strong> `widget:sync` olayı yakalandığında, sadece `ContentUpdaterService`'in ilerleme çubuğunu ve zaman göstergesini güncelleyen fonksiyonu çalıştırılır.",
+            Err: "<strong>Hata Mesajı Göster:</strong> `widget:error` olayı yakalandığında, `ContentUpdaterService` aracılığıyla HTML'deki ilgili alana hata mesajı yazdırılır."
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mermaid.initialize({ startOnLoad: true, theme: 'base' });
+
+            const explanationText = document.getElementById('explanation-text');
+            const defaultText = explanationText.innerHTML;
+
+            // Wait for Mermaid to render before adding click listeners
+            const observer = new MutationObserver((mutations, obs) => {
+                const svg = document.querySelector('#flowchart svg');
+                if (svg) {
+                    Object.keys(explanations).forEach(id => {
+                        const node = document.getElementById(id);
+                        if (node) {
+                            node.classList.add('clickable-node');
+                            node.addEventListener('click', () => {
+                                explanationText.innerHTML = explanations[id];
+                            });
+                        }
+                    });
+                    obs.disconnect(); // We're done, no need to observe further
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script>
+
+</body>
+</html>

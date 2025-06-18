@@ -8,8 +8,8 @@ class AnimationService {
      * @static
      */
     static Z_INDEX_CONFIG = {
-        AlbumArtBackgroundElement: { a: 3, b: 1 },
-        CoverElement: { a: 4, b: 2 },
+        AlbumArtBackgroundAnimationContainer: { a: 3, b: 1 },
+        CoverAnimationContainer: { a: 4, b: 2 },
         default: { a: 6, b: 5 }
     };
 
@@ -36,7 +36,8 @@ class AnimationService {
 
     /**
      * Bir elementi animasyonun belirli bir fazı için hazırlar.
-     * Stilleri temizler, pasif durumdan çıkarır ve animasyonun başlangıç karelerini uygular.
+     * Stilleri temizler ve animasyonun başlangıç karelerini uygular.
+     * NOT: .passive sınıfını KALDIRMAZ - bu execute() sırasında yapılır.
      * @param {string} elementId - Hazırlanacak elementin ID'si.
      * @param {string} phase - Animasyon fazı ('intro', 'transitionIn', vb.).
      */
@@ -44,31 +45,31 @@ class AnimationService {
         const element = document.getElementById(elementId);
         if (!element) return;
 
-        const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
-
+        // Mevcut stilleri temizle
         element.removeAttribute('style');
-        element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
-        if (container) {
-            container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
-        }
-
+        
+        // Animasyon konfigürasyonunu al
         const animConfig = this.config[elementId]?.[phase];
-        if (animConfig && animConfig.animation !== 'none') {
+        if (animConfig?.animation && animConfig.animation !== 'none') {
+            // Başlangıç keyframe'lerini al ve uygula
             const initialStyles = this._getInitialKeyframeStyles(animConfig.animation);
             if (initialStyles) {
                 // Başlangıç keyframe'indeki stilleri element'e uygula
                 for (let i = 0; i < initialStyles.length; i++) {
                     const propName = initialStyles[i];
+                    // !important ekleme, sadece değeri uygula
                     element.style.setProperty(propName, initialStyles.getPropertyValue(propName));
                 }
             }
         }
         
+        // Z-index'i ayarla
         this._applyZIndex(elementId);
     }
 
     /**
      * Belirtilen element için yapılandırılmış animasyonu yürütür.
+     * CSS Contract'a göre çalışır: Önce .passive kaldırılır, sonra animasyon başlatılır.
      * @param {string} elementId - Animasyon uygulanacak elementin ID'si.
      * @param {string} phase - Animasyon fazı.
      * @returns {Promise<void>} Animasyon tamamlandığında çözülen bir Promise.
@@ -78,30 +79,44 @@ class AnimationService {
             const element = document.getElementById(elementId);
             const animConfig = this.config[elementId]?.[phase];
 
-            if (!element || !animConfig || !animConfig.animation || animConfig.animation === 'none') {
+            if (!element || !animConfig?.animation || animConfig.animation === 'none') {
                 resolve();
                 return;
             }
             
             const { animation, duration = 0, delay = 0 } = animConfig;
             const easing = (phase === 'transitionOut' || phase === 'outro') ? 'ease-in' : 'ease-out';
+            const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
 
             const handleAnimationEnd = (event) => {
-                // Olayın doğru element ve animasyondan geldiğini doğrula
+                // Sadece bu element ve bu animasyon için tetiklenen olayı işle
                 if (event.target === element && event.animationName === animation) {
                     element.removeEventListener('animationend', handleAnimationEnd);
                     resolve();
                 }
             };
 
+            // Animasyon bitişini dinle
             element.addEventListener('animationend', handleAnimationEnd);
-            element.style.animation = `${animation} ${duration / 1000}s ${easing} ${delay / 1000}s forwards`;
+
+            // RAF kullanarak pasif sınıfını kaldır ve animasyonu başlat
+            requestAnimationFrame(() => {
+                // 1. Önce .passive sınıfını kaldır (görünür hale gelir)
+                element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
+                if (container) {
+                    container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
+                }
+
+                // 2. Hemen ardından animasyonu başlat
+                element.style.animation = `${animation} ${duration / 1000}s ${easing} ${delay / 1000}s forwards`;
+            });
         });
     }
 
     /**
      * Animasyon sonrası bir elementi temizler.
-     * Stilleri sıfırlar ve giden (outgoing) elementleri pasif duruma getirir.
+     * - Giden (outgoing) elementler için: .passive ekler
+     * - Gelen (incoming) elementler için: inline stilleri temizler
      * @param {string} elementId - Temizlenecek elementin ID'si.
      * @param {string} type - Temizleme tipi ('incoming' veya 'outgoing').
      */
@@ -110,20 +125,27 @@ class AnimationService {
         if (!element) return;
         
         const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
-        element.removeAttribute('style'); 
-
+        
+        // Bu satırlar her iki durumda da çalıştığı için burada kalabilir.
+        element.style.animation = '';
+        element.style.animationName = '';
+        
         if (type === 'outgoing') {
+            // 1. ADIM: Elementi gizlemek için .passive sınıfını ekle.
             element.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) {
                 container.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             }
-        } else {
-            element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
-            if (container) {
-                container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
-            }
-            this._applyZIndex(elementId); 
+            // 2. ADIM: Animasyondan kalan tüm inline stilleri temizle.
+            element.removeAttribute('style');
+
+        } else { // 'incoming'
+            // Gelen element için de tüm inline stilleri temizle.
+            element.removeAttribute('style');
         }
+
+            // 2. ADIM: BU SATIRI SİLİYORUZ VEYA YORUM SATIRI YAPIYORUZ
+            // this._applyZIndex(elementId); 
     }
     
     /**
@@ -166,12 +188,20 @@ class AnimationService {
      * @param {string} elementId - Z-index uygulanacak elementin ID'si.
      * @private
      */
+    /**
+     * Bir elemente konfigürasyona göre doğru z-index değerini uygular.
+     * @param {string} elementId - Z-index uygulanacak elementin ID'si.
+     * @private
+     */
     _applyZIndex(elementId) {
         const element = document.getElementById(elementId);
         if (!element) return;
 
+        // Değişiklik: baseName artık doğrudan gelen containerId'den türetiliyor.
+        // 'AnimationContainer' -> 'Element' dönüşümü kaldırıldı.
+        // Örnek: "CoverAnimationContainer_a" ise baseName "CoverAnimationContainer" olacak.
         const baseName = elementId.substring(0, elementId.lastIndexOf('_'));
-        const setLetter = elementId.slice(-1);
+        const setLetter = elementId.slice(-1); // Bu, orijinal container ID'sinin son harfini alır.
         const zIndexConfig = this.zIndexConfig[baseName] || this.zIndexConfig.default;
         const zIndexValue = zIndexConfig?.[setLetter];
         
