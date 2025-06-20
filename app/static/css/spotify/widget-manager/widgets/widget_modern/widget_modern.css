@@ -55,6 +55,9 @@
 }
 
 .AlbumArtBackgroundAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
@@ -329,11 +332,21 @@
 
 /* ==========================================================================
    4. YARDIMCI VE ANİMASYON KONTEYNERLARI
-   Bu sınıflar genellikle diğer elemanları sarmalayarak %100 genişlik/yükseklik
-   sağlar ve animasyonlar için bir katman görevi görür.
    ========================================================================== */
 
-
+/*
+ * BU KURAL EKSİK OLAN PARÇADIR.
+ * Tüm animasyon konteynerlerinin ana layout konteynerine göre mutlak olarak
+ * konumlanmasını, aynı alanı kaplamasını ve üst üste binmesini sağlar.
+ * Bu, geçişler sırasında birbirlerinin pozisyonunu bozmalarını engeller.
+ */
+ [class*="AnimationContainer"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 /* ==========================================================================
    5. DURUM VE YARDIMCI SINIFLAR
    ========================================================================== */

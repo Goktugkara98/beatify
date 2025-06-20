@@ -75,42 +75,55 @@ class WidgetDOMManager {
 
     /**
      * Şarkı değiştirme animasyonunu (transition) çalıştırır.
+     * Bu versiyon, giden ve gelen animasyonları bağımsız olarak yönetir ve z-index durumunu doğru şekilde sıfırlar.
      */
     async runTransition({ activeSet, passiveSet, data }) {
         try {
+            // 1. Mevcut durumu hazırla (ilerleme çubuğunu durdur, yeni veriyi yükle)
             this.contentUpdater.stopProgressUpdater();
             this.contentUpdater.updateAll(passiveSet, data);
-
-            // ESKİ: const outgoingIds = this.config.elements.filter(...)
-            // YENİ: Container ID'lerini al.
+    
             const outgoingContainerIds = this.config.AnimationContainers.filter(id => id.endsWith(`_${activeSet}`));
             const incomingContainerIds = this.config.AnimationContainers.filter(id => id.endsWith(`_${passiveSet}`));
             
+            // 2. Z-index'leri GEÇİCİ olarak ters çevir (gelenler üste çıksın)
             this.animationService._flipZIndexes();
-
-            // prepareElement'ı container'lar için çağır.
+    
+            // 3. Giden ve gelen tüm elementleri animasyonun ilk karesine hazırla
+            // Bu aşamada stiller uygulanır ama elementler hala .passive sınıfına sahip olabilir
             incomingContainerIds.forEach(id => this.animationService.prepareElement(id, 'transitionIn'));
             outgoingContainerIds.forEach(id => this.animationService.prepareElement(id, 'transitionOut'));
-
-            // DİKKAT: waitForImages için yine <img> elementlerinin ID'leri gerekli.
+    
+            // 4. Yeni yüklenecek görsellerin hazır olmasını bekle (kritik adım)
             const incomingImageElementIds = incomingContainerIds
                 .filter(id => id.startsWith('AlbumArt') || id.startsWith('Cover'))
                 .map(id => id.replace('AnimationContainer', 'Element'));
             await this.animationService.waitForImages(incomingImageElementIds);
+    
+            // 5. Animasyonları BAĞIMSIZ olarak başlat ve tamamlanmalarını bekle
+            // Her grup kendi içinde tamamlandığında temizlenir.
+            const outgoingAnimationsPromise = Promise.all(
+                outgoingContainerIds.map(id => this.animationService.execute(id, 'transitionOut'))
+            ).then(() => {
+                // Giden animasyonlar biter bitmez kendi temizliklerini yap
+                outgoingContainerIds.forEach(id => this.animationService.cleanupElement(id, 'outgoing'));
+                this.contentUpdater.reset(activeSet); // Giden setin içeriğini temizle
+            });
 
-            // execute'u container'lar için çağır.
-            const animations = [
-                ...outgoingContainerIds.map(id => this.animationService.execute(id, 'transitionOut')),
-                ...incomingContainerIds.map(id => this.animationService.execute(id, 'transitionIn'))
-            ];
-            await Promise.all(animations);
-
-            // cleanupElement'ı container'lar için çağır.
-            outgoingContainerIds.forEach(id => this.animationService.cleanupElement(id, 'outgoing'));
-            incomingContainerIds.forEach(id => this.animationService.cleanupElement(id, 'incoming'));
-            this.contentUpdater.reset(activeSet);
+            const incomingAnimationsPromise = Promise.all(
+                incomingContainerIds.map(id => this.animationService.execute(id, 'transitionIn'))
+            ).then(() => {
+                // Gelen animasyonlar biter bitmez kendi temizliklerini yap
+                incomingContainerIds.forEach(id => this.animationService.cleanupElement(id, 'incoming'));
+            });
             
+            // 6. Her iki animasyon grubunun da (ve temizliklerinin) bitmesini bekle
+            await Promise.all([outgoingAnimationsPromise, incomingAnimationsPromise]);
+    
+            
+            // 8. Ana durumu güncelle ve yeni şarkının ilerleme çubuğunu başlat
             this.stateService.finalizeTransition(passiveSet);
+
         } catch (error) {
             console.error('runTransition sırasında hata:', error);
         }

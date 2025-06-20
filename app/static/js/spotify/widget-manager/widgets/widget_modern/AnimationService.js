@@ -78,7 +78,10 @@ class AnimationService {
         return new Promise(resolve => {
             const element = document.getElementById(elementId);
             const animConfig = this.config[elementId]?.[phase];
-
+    
+            // DEBUG: Gelen animasyon ayarlarını ve gecikmeyi kontrol et
+            console.log(`Executing phase '${phase}' for '${elementId}'. Config:`, animConfig);
+    
             if (!element || !animConfig?.animation || animConfig.animation === 'none') {
                 resolve();
                 return;
@@ -144,10 +147,8 @@ class AnimationService {
             if (zIndex) {
                 element.style.zIndex = zIndex;
             }
+            this._applyZIndex(elementId); // cleanupElement'tan sonra z-index'i tekrar uygula
         }
-
-            // 2. ADIM: BU SATIRI SİLİYORUZ VEYA YORUM SATIRI YAPIYORUZ
-            // this._applyZIndex(elementId); 
     }
     
     /**
@@ -181,7 +182,9 @@ class AnimationService {
     _flipZIndexes() {
         for (const key in this.zIndexConfig) {
             const config = this.zIndexConfig[key];
-            [config.a, config.b] = [config.b, config.a];
+            const tempA = config.a;
+            config.a = config.b;
+            config.b = tempA;
         }
     }
 
