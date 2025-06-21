@@ -1,28 +1,16 @@
 /**
- * widget_modern.css (YENİDEN DÜZENLENMİŞ)
+ * widget_modern.css (Yapısal Olarak İyileştirilmiş)
  *
- * AMAÇ: Bu CSS, okunabilirliği ve yönetim kolaylığını artırmak amacıyla mantıksal
- * olarak gruplandırılmıştır. Stil kuralları, ana kapsayıcıdan başlayarak katmanlara,
- * bileşenlere ve yardımcı sınıflara doğru hiyerarşik bir yapıda sıralanmıştır.
- *
- * UYGULANAN YAPI:
- * 1.  Widget Kök Konteyneri: Tüm widget'ın temelini oluşturan ana kapsayıcı.
- * 2.  Ana Katmanlar: Arka plan, kapak görseli, efektler ve içerik gibi ana görsel katmanlar.
- * 3.  Bileşenler: Şarkı bilgileri, ilerleme çubuğu, zaman göstergeleri gibi belirli
- * işlevlere sahip UI modülleri.
- * 4.  Yardımcı ve Animasyon Konteynerları: Diğer elemanları sarmalamak için kullanılan
- * yardımcı konteynerler.
- * 5.  Durum ve Yardımcı Sınıflar: Widget'ın farklı durumlarını (örn: pasif, hata)
- * belirten veya genel amaçlı kullanılan sınıflar.
- *
- * NOT: Orijinal dosyada belirtilen "her seçicinin kendi bloğunda olması" kuralına
- * sadık kalınmıştır.
+ * YENİ MANTIK: Elementlerin yerleşimini belirleyen `position` gibi kurallar,
+ * ilgili `LayoutContainer`'lara taşınmıştır. Artık her konteyner, kendi
+ * içindeki elementin konumlanacağı alanı ve referans noktasını tanımlar.
+ * Bu, bileşen bazlı yapıyı güçlendirir ve bakımı kolaylaştırır.
  */
 
 /* ==========================================================================
    1. WIDGET KÖK KONTEYNERİ
-   Tüm widget için referans noktası (koordinat sistemi).
    ========================================================================== */
+
    .WidgetContainer {
     width: 600px;
     aspect-ratio: 1 / 1;
@@ -37,10 +25,9 @@
 
 /* ==========================================================================
    2. ANA KATMANLAR
-   Tüm katmanlar üst üste binecek şekilde mutlak konumlandırılmıştır.
    ========================================================================== */
 
-/* Arka Plan Katmanı */
+/* 2.1. Arka Plan Katmanı */
 .WidgetContainer .BackgroundLayoutContainer {
     position: absolute;
     top: 0;
@@ -63,9 +50,7 @@
 }
 
 .WidgetContainer .AlbumArtBackgroundElement {
-    position: absolute;
-    top: 0;
-    left: 0;
+    /* DEĞİŞTİ: Konumlandırma sorumluluğu LayoutContainer'a geçti. */
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -73,7 +58,7 @@
     transform: scale(1.1);
 }
 
-/* Kapak Görseli Katmanı */
+/* 2.2. Kapak Görseli Katmanı */
 .WidgetContainer .CoverLayoutContainer {
     position: absolute;
     top: 0;
@@ -88,36 +73,27 @@
 }
 
 .WidgetContainer .CoverElement {
-    position: absolute;
-    top: 0;
-    left: 0;
+    /* DEĞİŞTİ: Konumlandırma sorumluluğu LayoutContainer'a geçti. */
     width: 100%;
     height: 100%;
     object-fit: cover;
-
-    mask-image: linear-gradient(to bottom,
-        rgba(0, 0, 0, 1) 0%,    /* Üstten başla - tam opak */
-        rgba(0, 0, 0, 1) 50%,   /* Ortaya kadar tam opak */
-        rgba(0, 0, 0, 0.4) 60%,
-        rgba(0, 0, 0, 0.3) 70%,
-        rgba(0, 0, 0, 0.2) 80%,
-        rgba(0, 0, 0, 0.1) 90%,
-        rgba(0, 0, 0, 0) 100%   /* En alt - tamamen şeffaf */
-    );
-
-    -webkit-mask-image: linear-gradient(to bottom,
-        rgba(0, 0, 0, 1) 0%,
-        rgba(0, 0, 0, 1) 50%,
-        rgba(0, 0, 0, 0.4) 60%,
-        rgba(0, 0, 0, 0.3) 70%,
-        rgba(0, 0, 0, 0.2) 80%,
-        rgba(0, 0, 0, 0.1) 90%,
-        rgba(0, 0, 0, 0) 100%
-    );
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, 
+    rgba(0,0,0,1) 50%, 
+    rgba(0,0,0,0.4) 60%, 
+    rgba(0,0,0,0.3) 70%, 
+    rgba(0,0,0,0.2) 80%, 
+    rgba(0,0,0,0.1) 90%, 
+    rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, 
+    rgba(0,0,0,1) 50%, 
+    rgba(0,0,0,0.4) 60%, 
+    rgba(0,0,0,0.3) 70%, 
+    rgba(0,0,0,0.2) 80%, 
+    rgba(0,0,0,0.1) 90%, 
+    rgba(0,0,0,0) 100%);
 }
     
-
-/* Efektler ve Gradyan Katmanı */
+/* 2.3. Efektler ve Gradyan Katmanı */
 .EffectsLayoutContainer {
     position: absolute;
     top: 0;
@@ -125,29 +101,32 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    z-index: 4;
 }
 
 .GradientOverlayLayoutContainer {
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
 .GradientOverlayAnimationContainer {
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
 .GradientOverlayElement {
-    position: relative;
     width: 100%;
     height: 100%;
-    background: linear-gradient( to bottom,
-     rgba(0,0,0,0) 0%,
-     rgba(0,0,0,0.5) 70%,
-     rgba(0,0,0,1) 100% );
+    background: linear-gradient( to bottom, 
+    rgba(0,0,0,0) 0%, 
+    rgba(0,0,0,0.5) 70%, 
+    rgba(0,0,0,1) 100% );
+    z-index: 1;
 }
 
-/* Ana İçerik Katmanı (Tüm UI elemanlarının ana kapsayıcısı) */
+/* 2.4. Ana İçerik Katmanı */
 .WidgetContainer .ContentLayoutContainer {
     position: absolute;
     top: 0;
@@ -158,7 +137,6 @@
 
 /* ==========================================================================
    3. BİLEŞENLER
-   Şarkı bilgileri, oynatıcı kontrolleri ve logo gibi UI elemanları.
    ========================================================================== */
 
 /* 3.1. Şarkı ve Sanatçı Bilgileri */
@@ -173,6 +151,7 @@
 }
 
 .WidgetContainer .TrackNameLayoutContainer {
+    position: relative; /* YENİ: TrackNameElement için konumlandırma referansı oldu. */
     width: 100%;
     min-height: 1.2em;
     margin-bottom: 15px;
@@ -185,6 +164,8 @@
 
 .WidgetContainer .TrackNameElement {
     position: absolute;
+    top: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
+    left: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -197,6 +178,7 @@
 }
 
 .WidgetContainer .ArtistNameLayoutContainer {
+    position: relative; /* YENİ: ArtistNameElement için konumlandırma referansı oldu. */
     width: 100%;
     min-height: 1.2em;
 }
@@ -208,6 +190,8 @@
 
 .WidgetContainer .ArtistNameElement {
     position: absolute;
+    top: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
+    left: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -221,7 +205,7 @@
     line-height: 1.2;
 }
 
-/* 3.2. Oynatıcı Kontrolleri (İlerleme Çubuğu ve Zaman) */
+/* 3.2. Oynatıcı Kontrolleri (Bu bölüm zaten doğru yapıdaydı) */
 .WidgetContainer .PlayerControlsLayoutContainer {
     position: absolute;
     bottom: 12%;
@@ -240,6 +224,7 @@
     background-color: rgba(255, 255, 255, 0.25);
     border-radius: 4px;
 }
+
 .ProgressBarAnimationContainer {
     width: 100%;
     height: 100%;
@@ -275,6 +260,7 @@
     width: 100%;
     height: 100%;
 }
+
 .WidgetContainer .CurrentTimeElement {
     position: absolute;
     top: 0;
@@ -304,6 +290,8 @@
     position: absolute;
     top: 4%;
     left: 4%;
+    /* YENİ: ProviderBadgeElement'in mutlak konumlanması için referans noktası oldu. */
+    position: relative;
 }
 
 .ProviderBadgeAnimationContainer {
@@ -334,35 +322,28 @@
    4. YARDIMCI VE ANİMASYON KONTEYNERLARI
    ========================================================================== */
 
-/*
- * BU KURAL EKSİK OLAN PARÇADIR.
- * Tüm animasyon konteynerlerinin ana layout konteynerine göre mutlak olarak
- * konumlanmasını, aynı alanı kaplamasını ve üst üste binmesini sağlar.
- * Bu, geçişler sırasında birbirlerinin pozisyonunu bozmalarını engeller.
- */
- [class*="AnimationContainer"] {
+[class*="AnimationContainer"] {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
+
 /* ==========================================================================
    5. DURUM VE YARDIMCI SINIFLAR
    ========================================================================== */
 
-/*
- * .passive Sınıfı: Sadece Gizler, Karışmaz
- * Bu sınıfın tek görevi elementi görünmez ve etkileşimsiz yapmaktır.
- * Animasyonun başlangıç pozisyonu ile ilgili hiçbir stil içermemelidir.
- */
 .passive {
-    /* Elementi görünmez yapar. Opacity veya transform gibi
-       animasyon özelliklerine ASLA dokunmaz. */
     visibility: hidden !important;
-
-    /* Tıklama gibi olayları engeller. */
     pointer-events: none;
+}
+
+.WidgetContainer.widget-inactive {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .WidgetContainer .widget-error-message {
@@ -380,22 +361,8 @@
     z-index: 20;
 }
 
-.WidgetContainer.widget-inactive {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-
 .dev-hidden {
     opacity: 0 !important;
-    pointer-events: none !important; /* Tıklama gibi olayları engeller */
-    animation: none !important; /* Varsa kendi animasyonunu da durdurur */
+    pointer-events: none !important;
+    animation: none !important;
 }
-
-
-/* widget_modern.css dosyasının sonuna ekleyin */
-
-/* widget_modern.css dosyanızdaki eski .LiveLog... stillerini silip bunları ekleyin */
-

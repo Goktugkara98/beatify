@@ -1,16 +1,54 @@
 /**
- * @class ContentUpdaterService
- * @description DOM elementlerinin içeriğini (metin, resim, ilerleme çubuğu vb.) günceller.
+ * =================================================================================
+ * ContentUpdaterService - İçindekiler
+ * =================================================================================
+ *
+ * Bu servis, DOM elementlerinin içeriğini (metin, resim, ilerleme çubuğu vb.)
+ * güncellemeyi yönetir.
+ *
+ * ---
+ *
+ * BÖLÜM 1: KURULUM (SETUP)
+ * 1.1. constructor: Servisi başlatır ve temel ayarları yapar.
+ *
+ * BÖLÜM 2: GENEL İÇERİK YÖNETİMİ (PUBLIC CONTENT MANAGEMENT)
+ * 2.1. updateAll: Belirtilen veri setine ait tüm UI elementlerini günceller.
+ * 2.2. reset: Belirtilen sete ait tüm içerik elementlerini sıfırlar.
+ *
+ * BÖLÜM 3: İLERLEME ÇUBUĞU KONTROLÜ (PROGRESS UPDATER CONTROL)
+ * 3.1. startProgressUpdater: Şarkı ilerlemesini gösteren zamanlayıcıyı başlatır.
+ * 3.2. stopProgressUpdater: Aktif ilerleme zamanlayıcısını durdurur.
+ *
+ * BÖLÜM 4: HATA YÖNETİMİ (ERROR HANDLING)
+ * 4.1. displayError: Widget'ta bir hata mesajı görüntüler.
+ * 4.2. clearError: Görüntülenen hata mesajını temizler.
+ *
+ * BÖLÜM 5: ÖZEL YARDIMCI FONKSİYONLAR (PRIVATE HELPERS)
+ * 5.1. _formatTime: Milisaniyeyi "dakika:saniye" formatına çevirir.
+ *
+ * =================================================================================
  */
 class ContentUpdaterService {
+    // =================================================================================
+    // BÖLÜM 1: KURULUM (SETUP)
+    // =================================================================================
+
+    /**
+     * 1.1. ContentUpdaterService'in bir örneğini oluşturur.
+     * @param {HTMLElement} widgetElement - Widget'ın ana elementi.
+     */
     constructor(widgetElement) {
         this.widgetElement = widgetElement;
         this.progressInterval = null;
         this.CSS_CLASSES = { ERROR_ACTIVE: 'error-active' };
     }
 
+    // =================================================================================
+    // BÖLÜM 2: GENEL İÇERİK YÖNETİMİ (PUBLIC CONTENT MANAGEMENT)
+    // =================================================================================
+
     /**
-     * Belirtilen veri setine ait tüm UI elementlerini (şarkı adı, sanatçı, kapak resmi) günceller.
+     * 2.1. Belirtilen veri setine ait tüm UI elementlerini (şarkı adı, sanatçı, kapak resmi) günceller.
      * @param {string} set - Güncellenecek element setinin adı ('a' veya 'b').
      * @param {object} data - Spotify'dan gelen ve şarkı bilgilerini içeren veri nesnesi.
      */
@@ -48,7 +86,7 @@ class ContentUpdaterService {
     }
 
     /**
-     * Belirtilen sete ait tüm içerik elementlerini varsayılan durumuna sıfırlar.
+     * 2.2. Belirtilen sete ait tüm içerik elementlerini varsayılan durumuna sıfırlar.
      * @param {string} set - Sıfırlanacak element setinin adı.
      */
     reset(set) {
@@ -70,8 +108,12 @@ class ContentUpdaterService {
         }
     }
 
+    // =================================================================================
+    // BÖLÜM 3: İLERLEME ÇUBUĞU KONTROLÜ (PROGRESS UPDATER CONTROL)
+    // =================================================================================
+
     /**
-     * Şarkı ilerlemesini gösteren zamanlayıcıyı ve ilerleme çubuğunu başlatır.
+     * 3.1. Şarkı ilerlemesini gösteren zamanlayıcıyı ve ilerleme çubuğunu başlatır.
      * @param {object} data - Mevcut çalma durumunu içeren veri nesnesi.
      * @param {string} set - Güncellenecek aktif set.
      */
@@ -99,7 +141,7 @@ class ContentUpdaterService {
     }
     
     /**
-     * Aktif ilerleme zamanlayıcısını durdurur.
+     * 3.2. Aktif ilerleme zamanlayıcısını durdurur.
      */
     stopProgressUpdater() {
         if (this.progressInterval) {
@@ -108,8 +150,12 @@ class ContentUpdaterService {
         }
     }
 
+    // =================================================================================
+    // BÖLÜM 4: HATA YÖNETİMİ (ERROR HANDLING)
+    // =================================================================================
+
     /**
-     * Widget'ta bir hata mesajı görüntüler.
+     * 4.1. Widget'ta bir hata mesajı görüntüler.
      * @param {string} message - Gösterilecek hata mesajı.
      */
     displayError(message) {
@@ -122,7 +168,7 @@ class ContentUpdaterService {
     }
 
     /**
-     * Görüntülenen hata mesajını temizler.
+     * 4.2. Görüntülenen hata mesajını temizler.
      */
     clearError() {
         const errorElement = this.widgetElement.querySelector('#ErrorMessageElement');
@@ -132,8 +178,12 @@ class ContentUpdaterService {
         }
     }
     
+    // =================================================================================
+    // BÖLÜM 5: ÖZEL YARDIMCI FONKSİYONLAR (PRIVATE HELPERS)
+    // =================================================================================
+
     /**
-     * Milisaniyeyi "dakika:saniye" formatına çevirir.
+     * 5.1. Milisaniyeyi "dakika:saniye" formatına çevirir.
      * @param {number} ms - Dönüştürülecek milisaniye.
      * @returns {string} Formatlanmış zaman metni.
      * @private

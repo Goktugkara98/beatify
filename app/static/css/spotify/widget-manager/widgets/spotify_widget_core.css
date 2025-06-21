@@ -1,49 +1,70 @@
 /**
- * core.css
+ * spotify_widget_core.css (Revize Edilmiş)
  *
- * Tüm widget'lar için ortak temel sayfa stil kuralları.
- * Bu dosya, widget'ın sayfada nasıl görüneceğini ve temel sıfırlamaları kontrol eder.
+ * AMAÇ: Bu dosya, tüm widget'lar için ortak olan ve sadece bir kez yüklenmesi gereken
+ * temel sayfa stillerini içerir. Widget'ın kendisiyle değil, içinde bulunduğu
+ * web sayfasıyla ilgilenir.
  *
- * İÇİNDEKİLER:
- * 1. TEMEL SAYFA VE GÖVDE STİLLERİ
- * 1.1. Genel Sıfırlama ve Kutu Model Ayarı
- * 1.2. Gövde Düzeni (Widget'ı Sayfada Ortalamak İçin)
- * 2. YARDIMCI SINIFLAR
- * 2.1. Gizli Element (.hidden)
+ * YAPI:
+ * 1. Genel Sıfırlama: Tarayıcı varsayılanlarını sıfırlayarak tutarlı bir başlangıç
+ * noktası sağlar.
+ * 2. Sayfa Düzeni: Widget'ı sayfada dikey ve yatay olarak ortalamak için body
+ * elementini bir flex konteyner olarak ayarlar.
+ * 3. Yardımcı Sınıflar: Proje genelinde kullanılabilecek yardımcı sınıflar.
  */
 
-/* 1. TEMEL SAYFA VE GÖVDE STİLLERİ */
-/* 1.1. Genel Sıfırlama ve Kutu Model Ayarı */
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Sayfada kaydırma çubuklarını engeller */
-    background: transparent; /* Arka planı şeffaf yapar */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    box-sizing: border-box;
-}
+/* ==========================================================================
+   1. GENEL SIFIRLAMA (RESET)
+   ========================================================================== */
 
-*,
-*::before,
-*::after {
-    box-sizing: inherit;
-}
-
-/* 1.2. Gövde Düzeni (Widget'ı Sayfada Ortalamak İçin) */
-body {
-    display: flex;
-    align-items: center; /* Dikeyde ortala */
-    justify-content: center; /* Yatayda ortala */
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-/* 2. YARDIMCI SINIFLAR */
-/* 2.1. Gizli Element (.hidden) - Tailwind CSS ile uyumluluk için */
-.hidden {
-    display: none !important;
-}
+   *,
+   *::before,
+   *::after {
+       /* Evrensel kutu modeli: padding ve border, genişlik/yüksekliğe dahil edilir. */
+       box-sizing: border-box;
+       margin: 0;
+       padding: 0;
+   }
+   
+   html,
+   body {
+       width: 100%;
+       height: 100%;
+       /* Sayfada istenmeyen kaydırma çubuklarını engeller. */
+       overflow: hidden;
+       /* OBS gibi ortamlarda şeffaflık sağlar. */
+       background: transparent;
+   }
+   
+   /* ==========================================================================
+      2. SAYFA DÜZENİ (PAGE LAYOUT)
+      ========================================================================== */
+   
+   body {
+       /* Widget'ı sayfanın tam ortasına yerleştirmek için flexbox kullanılır. */
+       display: flex;
+       align-items: center;    /* Dikeyde ortala */
+       justify-content: center; /* Yatayda ortala */
+   
+       /* Daha iyi metin okunabilirliği için tarayıcı ipuçları. */
+       text-rendering: optimizeLegibility;
+       -webkit-font-smoothing: antialiased;
+       -moz-osx-font-smoothing: grayscale;
+   
+       /* Proje genelinde kullanılacak varsayılan font ailesi. */
+       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+   }
+   
+   /* ==========================================================================
+      3. YARDIMCI SINIFLAR (HELPERS)
+      ========================================================================== */
+   
+   /**
+    * .is-hidden
+    * Bir elementi hem görsel olarak gizler hem de DOM akışından kaldırır.
+    * (Tailwind CSS'teki .hidden sınıfıyla aynı işlevi görür)
+    */
+   .is-hidden {
+       display: none !important;
+   }
+   

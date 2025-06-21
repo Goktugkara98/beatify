@@ -1,8 +1,37 @@
 /**
- * @class SpotifyStateService
- * @description Spotify API'sinden veri çeker, durumu yönetir ve widget olaylarını tetikler.
+ * =================================================================================
+ * SpotifyStateService - İçindekiler
+ * =================================================================================
+ *
+ * Spotify API'sinden veri çeker, durumu yönetir ve widget olaylarını tetikler.
+ *
+ * ---
+ *
+ * BÖLÜM 1: KURULUM VE BAŞLATMA (SETUP & INITIALIZATION)
+ * 1.1. constructor: Servisi başlatır ve temel değişkenleri ayarlar.
+ * 1.2. init: Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
+ *
+ * BÖLÜM 2: VERİ YÖNETİMİ (DATA MANAGEMENT)
+ * 2.1. fetchData: Spotify API'sinden mevcut çalma durumunu çeker.
+ * 2.2. _processData: API'den gelen veriyi işler ve duruma göre ilgili olayı tetikler.
+ *
+ * BÖLÜM 3: DURUM GÜNCELLEME (STATE UPDATE)
+ * 3.1. finalizeTransition: Şarkı geçişi animasyonu sonrası durumu günceller.
+ *
+ * BÖLÜM 4: ÖZEL OLAY YAYINLAMA (PRIVATE EVENT DISPATCHING)
+ * 4.1. _dispatchEvent: Widget elementinde özel bir olay tetikler.
+ *
+ * =================================================================================
  */
 class SpotifyStateService {
+    // =================================================================================
+    // BÖLÜM 1: KURULUM VE BAŞLATMA (SETUP & INITIALIZATION)
+    // =================================================================================
+
+    /**
+     * 1.1. SpotifyStateService'in bir örneğini oluşturur.
+     * @param {HTMLElement} widgetElement - Widget'ın ana elementi.
+     */
     constructor(widgetElement) {
         if (!widgetElement) {
             throw new Error("SpotifyStateService için bir widget elementi sağlanmalıdır!");
@@ -21,15 +50,19 @@ class SpotifyStateService {
     }
 
     /**
-     * Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
+     * 1.2. Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
      */
     init() {
         this.fetchData();
         this.pollInterval = setInterval(() => this.fetchData(), 5000);
     }
 
+    // =================================================================================
+    // BÖLÜM 2: VERİ YÖNETİMİ (DATA MANAGEMENT)
+    // =================================================================================
+
     /**
-     * Spotify API'sinden mevcut çalma durumunu çeker.
+     * 2.1. Spotify API'sinden mevcut çalma durumunu çeker.
      * @async
      */
     async fetchData() {
@@ -52,7 +85,7 @@ class SpotifyStateService {
     }
 
     /**
-     * API'den gelen veriyi işler ve duruma göre ilgili olayı tetikler.
+     * 2.2. API'den gelen veriyi işler ve duruma göre ilgili olayı tetikler.
      * @param {object} data - API'den gelen veri.
      * @private
      */
@@ -60,7 +93,6 @@ class SpotifyStateService {
         this._dispatchEvent('widget:clear-error');
         this.currentData = data;
 
-        // Müzik çalmıyorsa
         if (!data.is_playing) {
             if (this.isPlaying) {
                 this.isPlaying = false;
@@ -70,7 +102,6 @@ class SpotifyStateService {
             return;
         }
 
-        // İlk yükleme ise
         if (this.isInitialLoad) {
             this.isPlaying = true;
             this.isInitialLoad = false;
@@ -79,7 +110,6 @@ class SpotifyStateService {
             return;
         }
 
-        // Şarkı değiştiyse
         if (this.currentTrackId !== data.item.id) {
             this.isPlaying = true;
             const passiveSet = this.activeSet === 'a' ? 'b' : 'a';
@@ -87,12 +117,15 @@ class SpotifyStateService {
             return;
         }
         
-        // Aynı şarkı çalmaya devam ediyorsa (sadece senkronizasyon)
         this._dispatchEvent('widget:sync', { data: data, set: this.activeSet });
     }
 
+    // =================================================================================
+    // BÖLÜM 3: DURUM GÜNCELLEME (STATE UPDATE)
+    // =================================================================================
+
     /**
-     * Şarkı geçişi animasyonu tamamlandıktan sonra durumu günceller.
+     * 3.1. Şarkı geçişi animasyonu tamamlandıktan sonra durumu günceller.
      * @param {string} newActiveSet - Yeni aktif set ('a' veya 'b').
      */
     finalizeTransition(newActiveSet) {
@@ -101,8 +134,12 @@ class SpotifyStateService {
         this._dispatchEvent('widget:sync', { data: this.currentData, set: this.activeSet });
     }
 
+    // =================================================================================
+    // BÖLÜM 4: ÖZEL OLAY YAYINLAMA (PRIVATE EVENT DISPATCHING)
+    // =================================================================================
+
     /**
-     * Widget elementinde özel bir olay tetikler.
+     * 4.1. Widget elementinde özel bir olay tetikler.
      * @param {string} eventName - Tetiklenecek olayın adı.
      * @param {object} detail - Olayla birlikte gönderilecek veri.
      * @private

@@ -1,6 +1,28 @@
 /**
- * @class AnimationService
- * @description CSS animasyonlarını yönetir, elementleri animasyon için hazırlar, yürütür ve sonrasında temizler.
+ * =================================================================================
+ * AnimationService - İçindekiler
+ * =================================================================================
+ *
+ * Bu sınıf, CSS animasyonlarını yönetir, elementleri animasyon için hazırlar,
+ * yürütür ve sonrasında temizler.
+ *
+ * ---
+ *
+ * BÖLÜM 1: YAPILANDIRMA VE KURULUM (CONFIGURATION & SETUP)
+ * 1.1. constructor: Servisi başlatır ve temel ayarları yapar.
+ *
+ * BÖLÜM 2: GENEL ANİMASYON KONTROLÜ (PUBLIC ANIMATION CONTROL)
+ * 2.1. prepareElement: Bir elementi animasyonun belirli bir fazı için hazırlar.
+ * 2.2. execute: Yapılandırılmış animasyonu yürütür.
+ * 2.3. cleanupElement: Animasyon sonrası bir elementi temizler.
+ * 2.4. waitForImages: Belirtilen görsellerin yüklenmesini bekler.
+ *
+ * BÖLÜM 3: ÖZEL DAHİLİ FONKSİYONLAR (PRIVATE INTERNAL FUNCTIONS)
+ * 3.1. _flipZIndexes: Geçiş animasyonları için z-index değerlerini tersine çevirir.
+ * 3.2. _applyZIndex: Bir elemente konfigürasyona göre doğru z-index değerini uygular.
+ * 3.3. _getInitialKeyframeStyles: Bir CSS animasyonunun başlangıç keyframe stillerini bulur ve önbelleğe alır.
+ *
+ * =================================================================================
  */
 class AnimationService {
     /**
@@ -22,9 +44,13 @@ class AnimationService {
         ANIMATION_CONTAINER_SELECTOR: '[class*="AnimationContainer"]'
     };
 
+    // =================================================================================
+    // BÖLÜM 1: YAPILANDIRMA VE KURULUM (CONFIGURATION & SETUP)
+    // =================================================================================
+
     /**
-     * AnimationService'in bir örneğini oluşturur.
-     * @param {HTMLElement} widgetElement - Widget'ın ana element'i.
+     * 1.1. AnimationService'in bir örneğini oluşturur.
+     * @param {HTMLElement} widgetElement - Widget'ın ana elementi.
      * @param {object} config - Animasyon yapılandırmalarını içeren nesne.
      */
     constructor(widgetElement, config) {
@@ -34,8 +60,12 @@ class AnimationService {
         this.zIndexConfig = JSON.parse(JSON.stringify(AnimationService.Z_INDEX_CONFIG));
     }
 
+    // =================================================================================
+    // BÖLÜM 2: GENEL ANİMASYON KONTROLÜ (PUBLIC ANIMATION CONTROL)
+    // =================================================================================
+
     /**
-     * Bir elementi animasyonun belirli bir fazı için hazırlar.
+     * 2.1. Bir elementi animasyonun belirli bir fazı için hazırlar.
      * Stilleri temizler ve animasyonun başlangıç karelerini uygular.
      * NOT: .passive sınıfını KALDIRMAZ - bu execute() sırasında yapılır.
      * @param {string} elementId - Hazırlanacak elementin ID'si.
@@ -57,7 +87,6 @@ class AnimationService {
                 // Başlangıç keyframe'indeki stilleri element'e uygula
                 for (let i = 0; i < initialStyles.length; i++) {
                     const propName = initialStyles[i];
-                    // !important ekleme, sadece değeri uygula
                     element.style.setProperty(propName, initialStyles.getPropertyValue(propName));
                 }
             }
@@ -68,7 +97,7 @@ class AnimationService {
     }
 
     /**
-     * Belirtilen element için yapılandırılmış animasyonu yürütür.
+     * 2.2. Belirtilen element için yapılandırılmış animasyonu yürütür.
      * CSS Contract'a göre çalışır: Önce .passive kaldırılır, sonra animasyon başlatılır.
      * @param {string} elementId - Animasyon uygulanacak elementin ID'si.
      * @param {string} phase - Animasyon fazı.
@@ -78,9 +107,6 @@ class AnimationService {
         return new Promise(resolve => {
             const element = document.getElementById(elementId);
             const animConfig = this.config[elementId]?.[phase];
-    
-            // DEBUG: Gelen animasyon ayarlarını ve gecikmeyi kontrol et
-            console.log(`Executing phase '${phase}' for '${elementId}'. Config:`, animConfig);
     
             if (!element || !animConfig?.animation || animConfig.animation === 'none') {
                 resolve();
@@ -92,32 +118,26 @@ class AnimationService {
             const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
 
             const handleAnimationEnd = (event) => {
-                // Sadece bu element ve bu animasyon için tetiklenen olayı işle
                 if (event.target === element && event.animationName === animation) {
                     element.removeEventListener('animationend', handleAnimationEnd);
                     resolve();
                 }
             };
 
-            // Animasyon bitişini dinle
             element.addEventListener('animationend', handleAnimationEnd);
 
-            // RAF kullanarak pasif sınıfını kaldır ve animasyonu başlat
             requestAnimationFrame(() => {
-                // 1. Önce .passive sınıfını kaldır (görünür hale gelir)
                 element.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
                 if (container) {
                     container.classList.remove(AnimationService.CSS_CLASSES.PASSIVE);
                 }
-
-                // 2. Hemen ardından animasyonu başlat
                 element.style.animation = `${animation} ${duration / 1000}s ${easing} ${delay / 1000}s forwards`;
             });
         });
     }
 
     /**
-     * Animasyon sonrası bir elementi temizler.
+     * 2.3. Animasyon sonrası bir elementi temizler.
      * @param {string} elementId - Temizlenecek elementin ID'si.
      * @param {string} type - Temizleme tipi ('incoming' veya 'outgoing').
      */
@@ -126,33 +146,24 @@ class AnimationService {
         if (!element) return;
 
         if (type === 'outgoing') {
-            // Giden elementler tamamen gizlenmeli ve sıfırlanmalıdır.
             const container = element.closest(AnimationService.CSS_CLASSES.ANIMATION_CONTAINER_SELECTOR);
             element.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             if (container) {
                 container.classList.add(AnimationService.CSS_CLASSES.PASSIVE);
             }
             element.removeAttribute('style');
-
         } else { // 'incoming'
-            // Gelen element için:
-            // 1. Kritik olan z-index'i koru.
             const zIndex = element.style.zIndex;
-
-            // 2. Animasyondan kalan TÜM inline stilleri (opacity:0, animation, vb.) temizle.
             element.removeAttribute('style');
-
-            // 3. Koruduğumuz z-index'i geri yükle.
-            //    Bu, elementin bir sonraki geçiş için doğru katmanda kalmasını sağlar.
             if (zIndex) {
                 element.style.zIndex = zIndex;
             }
-            this._applyZIndex(elementId); // cleanupElement'tan sonra z-index'i tekrar uygula
+            this._applyZIndex(elementId);
         }
     }
     
     /**
-     * Belirtilen element ID'lerine sahip görsellerin yüklenmesini bekler.
+     * 2.4. Belirtilen element ID'lerine sahip görsellerin yüklenmesini bekler.
      * @param {string[]} elementIds - IMG elementlerinin ID'lerini içeren dizi.
      * @returns {Promise<void>} Tüm görseller yüklendiğinde veya hata verdiğinde çözülen bir Promise.
      */
@@ -175,8 +186,12 @@ class AnimationService {
         return Promise.all(promises);
     }
     
+    // =================================================================================
+    // BÖLÜM 3: ÖZEL DAHİLİ FONKSİYONLAR (PRIVATE INTERNAL FUNCTIONS)
+    // =================================================================================
+
     /**
-     * Geçiş animasyonları için z-index değerlerini tersine çevirir.
+     * 3.1. Geçiş animasyonları için z-index değerlerini tersine çevirir.
      * @private
      */
     _flipZIndexes() {
@@ -189,12 +204,7 @@ class AnimationService {
     }
 
     /**
-     * Bir elemente konfigürasyona göre doğru z-index değerini uygular.
-     * @param {string} elementId - Z-index uygulanacak elementin ID'si.
-     * @private
-     */
-    /**
-     * Bir elemente konfigürasyona göre doğru z-index değerini uygular.
+     * 3.2. Bir elemente konfigürasyona göre doğru z-index değerini uygular.
      * @param {string} elementId - Z-index uygulanacak elementin ID'si.
      * @private
      */
@@ -202,11 +212,8 @@ class AnimationService {
         const element = document.getElementById(elementId);
         if (!element) return;
 
-        // Değişiklik: baseName artık doğrudan gelen containerId'den türetiliyor.
-        // 'AnimationContainer' -> 'Element' dönüşümü kaldırıldı.
-        // Örnek: "CoverAnimationContainer_a" ise baseName "CoverAnimationContainer" olacak.
         const baseName = elementId.substring(0, elementId.lastIndexOf('_'));
-        const setLetter = elementId.slice(-1); // Bu, orijinal container ID'sinin son harfini alır.
+        const setLetter = elementId.slice(-1);
         const zIndexConfig = this.zIndexConfig[baseName] || this.zIndexConfig.default;
         const zIndexValue = zIndexConfig?.[setLetter];
         
@@ -216,7 +223,7 @@ class AnimationService {
     }
 
     /**
-     * Bir CSS animasyonunun başlangıç (`0%` veya `from`) keyframe stillerini bulur ve önbelleğe alır.
+     * 3.3. Bir CSS animasyonunun başlangıç (`0%` veya `from`) keyframe stillerini bulur ve önbelleğe alır.
      * @param {string} animationName - Stil sayfalarında aranacak animasyonun adı.
      * @returns {CSSStyleDeclaration | null} Bulunan stil nesnesi veya bulunamazsa null.
      * @private
