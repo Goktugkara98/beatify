@@ -1,5 +1,5 @@
 /**
- * widget_modern.css (Yapısal Olarak İyileştirilmiş)
+ * widget_modern.css (Yapısal Olarak İyileştirilmiş ve Performans Ayarlı)
  *
  * YENİ MANTIK: Elementlerin yerleşimini belirleyen `position` gibi kurallar,
  * ilgili `LayoutContainer`'lara taşınmıştır. Artık her konteyner, kendi
@@ -20,6 +20,7 @@
     position: relative;
     color: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Donma sorunlarını azaltmak için ana konteynere de donanım hızlandırma ipucu eklenir. */
     transform: translateZ(0);
 }
 
@@ -50,7 +51,6 @@
 }
 
 .WidgetContainer .AlbumArtBackgroundElement {
-    /* DEĞİŞTİ: Konumlandırma sorumluluğu LayoutContainer'a geçti. */
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -73,7 +73,6 @@
 }
 
 .WidgetContainer .CoverElement {
-    /* DEĞİŞTİ: Konumlandırma sorumluluğu LayoutContainer'a geçti. */
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -151,7 +150,7 @@
 }
 
 .WidgetContainer .TrackNameLayoutContainer {
-    position: relative; /* YENİ: TrackNameElement için konumlandırma referansı oldu. */
+    position: relative;
     width: 100%;
     min-height: 1.2em;
     margin-bottom: 15px;
@@ -164,8 +163,8 @@
 
 .WidgetContainer .TrackNameElement {
     position: absolute;
-    top: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
-    left: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
+    top: 0;
+    left: 0;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -178,7 +177,7 @@
 }
 
 .WidgetContainer .ArtistNameLayoutContainer {
-    position: relative; /* YENİ: ArtistNameElement için konumlandırma referansı oldu. */
+    position: relative;
     width: 100%;
     min-height: 1.2em;
 }
@@ -190,8 +189,8 @@
 
 .WidgetContainer .ArtistNameElement {
     position: absolute;
-    top: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
-    left: 0; /* YENİ: Konteyner içindeki pozisyonu netleştirildi. */
+    top: 0;
+    left: 0;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -205,7 +204,7 @@
     line-height: 1.2;
 }
 
-/* 3.2. Oynatıcı Kontrolleri (Bu bölüm zaten doğru yapıdaydı) */
+/* 3.2. Oynatıcı Kontrolleri */
 .WidgetContainer .PlayerControlsLayoutContainer {
     position: absolute;
     bottom: 12%;
@@ -290,7 +289,6 @@
     position: absolute;
     top: 4%;
     left: 4%;
-    /* YENİ: ProviderBadgeElement'in mutlak konumlanması için referans noktası oldu. */
     position: relative;
 }
 
@@ -328,6 +326,16 @@
     left: 0;
     width: 100%;
     height: 100%;
+    
+    /* PERFORMANS İYİLEŞTİRMESİ:
+      Bu yeni eklenen kurallar, tarayıcıya bu elementlerin `transform` ve `opacity` 
+      özelliklerinin sıkça değişeceğini önceden bildirir. Tarayıcı bu sayede 
+      elementi kendi grafik katmanına (GPU layer) alarak animasyonları CPU yerine 
+      GPU'da daha akıcı bir şekilde işler. Bu, özellikle OBS gibi kaynaklarda 
+      yaşanan "donma" veya "takılma" hissini önemli ölçüde azaltır.
+    */
+    backface-visibility: hidden;
+    will-change: transform, opacity;
 }
 
 /* ==========================================================================
