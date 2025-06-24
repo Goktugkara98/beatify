@@ -1,35 +1,68 @@
 /**
- * widget_modern.css (Yapısal Olarak İyileştirilmiş ve Performans Ayarlı)
+ * widget_ayristirilmis.css
  *
- * YENİ MANTIK: Elementlerin yerleşimini belirleyen `position` gibi kurallar,
- * ilgili `LayoutContainer`'lara taşınmıştır. Artık her konteyner, kendi
- * içindeki elementin konumlanacağı alanı ve referans noktasını tanımlar.
- * Bu, bileşen bazlı yapıyı güçlendirir ve bakımı kolaylaştırır.
+ * TASARIM PRENSİPLERİ (Kullanıcı Taleplerine Göre Uygulanmış):
+ * 1. İÇERİK ODAKLI BOYUTLANDIRMA: Tüm '...LayoutContainer' sınıfları, 'width: auto' 
+ * ve 'height: auto' kullanarak boyutlarını içerdikleri elemanlara göre alır.
+ * 2. BAĞIMSIZ KONUMLANDIRMA (İTTİRME YOK): Ana içerik bileşenleri ('TrackInfoLayoutContainer', 
+ * 'PlayerControlsLayoutContainer' vb.) 'position: absolute' ile widget'ın kenarlarına 
+ * göre sabit ve bağımsız olarak konumlandırılmıştır. Bu, bir elemanın boyutunun veya 
+ * varlığının diğerlerini etkilemesini engeller.
+ * 3. SABİT ZEMİN MESAFESİ: Ana içerik elemanları, widget'ın alt kenarına ('zemin') 
+ * göre '--player-controls-bottom' gibi CSS değişkenleriyle tanımlanmış sabit 
+ * mesafelerle konumlandırılmıştır.
+ * 4. AYRIŞTIRILMIŞ STİLLER (BİRLEŞTİRME YOK): Her sınıfın kendi stil tanımı vardır.
+ * Okunabilirlik ve yönetim kolaylığı için virgülle (`selector1, selector2`)
+ * birleştirilmiş stil blokları kullanılmamıştır.
  */
 
 /* ==========================================================================
-   1. WIDGET KÖK KONTEYNERİ
+   1. TEMEL YAPILAR VE DEĞİŞKENLER
    ========================================================================== */
 
-   .WidgetContainer {
-    width: 600px;
-    aspect-ratio: 1 / 1;
-    border-radius: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0);
-    overflow: hidden;
-    position: relative;
-    color: #ffffff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* Donma sorunlarını azaltmak için ana konteynere de donanım hızlandırma ipucu eklenir. */
-    transform: translateZ(0);
+   :root {
+    --widget-width: 600px;
+    --widget-height: 600px;
+    --widget-border-radius: 24px;
+    --widget-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --widget-text-color: #ffffff;
+    --widget-text-shadow: 0 2px Spx rgba(0, 0, 0, 0.6);
+    
+    /* Ana bileşenlerin widget alt kenarına olan sabit mesafeleri */
+    --player-controls-bottom: 40px;
+    --track-info-bottom: 190px;     
+    
+    /* Yatay iç boşluklar */
+    --widget-padding-horizontal: 40px;
+
+    /* Bileşen içi boşluk */
+    --info-to-artist-gap: 70px;
 }
 
 /* ==========================================================================
-   2. ANA KATMANLAR
+   2. ANA WIDGET KONTEYNERİ
    ========================================================================== */
 
-/* 2.1. Arka Plan Katmanı */
-.WidgetContainer .BackgroundLayoutContainer {
+.WidgetContainer {
+    position: relative; /* İçindeki absolute konumlandırılmış katmanlar için referans noktası */
+    width: var(--widget-width);
+    height: var(--widget-height);
+    border-radius: var(--widget-border-radius);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    color: var(--widget-text-color);
+    font-family: var(--widget-font-family);
+    transform: translateZ(0); /* Donanım hızlandırmayı tetikler */
+}
+
+/* ==========================================================================
+   3. ANA YERLEŞİM KATMANLARI (GÖRSEL)
+   ========================================================================== */
+
+/* Her bir görsel katman, `position: absolute` ile üst üste bindirilir ve
+   birbirini ittirmez. */
+
+.BackgroundLayoutContainer {
     position: absolute;
     top: 0;
     left: 0;
@@ -38,6 +71,9 @@
 }
 
 .AlbumArtBackgroundLayoutContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
@@ -50,16 +86,18 @@
     height: 100%;
 }
 
-.WidgetContainer .AlbumArtBackgroundElement {
+.AlbumArtBackgroundElement {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(10px) brightness(1);
-    transform: scale(1.1);
+    filter: blur(12px) brightness(0.7);
+    transform: scale(1.15); /* Blur'dan kaynaklanan kenar boşluklarını kapatır */
 }
 
-/* 2.2. Kapak Görseli Katmanı */
-.WidgetContainer .CoverLayoutContainer {
+.CoverLayoutContainer {
     position: absolute;
     top: 0;
     left: 0;
@@ -68,344 +106,302 @@
 }
 
 .CoverAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
 
-.WidgetContainer .CoverElement {
+.CoverElement {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, 
-    rgba(0,0,0,1) 50%, 
-    rgba(0,0,0,0.4) 60%, 
-    rgba(0,0,0,0.3) 70%, 
-    rgba(0,0,0,0.2) 80%, 
-    rgba(0,0,0,0.1) 90%, 
-    rgba(0,0,0,0) 100%);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, 
-    rgba(0,0,0,1) 50%, 
-    rgba(0,0,0,0.4) 60%, 
-    rgba(0,0,0,0.3) 70%, 
-    rgba(0,0,0,0.2) 80%, 
-    rgba(0,0,0,0.1) 90%, 
-    rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
+    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
 }
-    
-/* 2.3. Efektler ve Gradyan Katmanı */
+
 .EffectsLayoutContainer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 4;
+    pointer-events: none; /* Tıklama olaylarını engellemez */
+    z-index: 5;
 }
 
 .GradientOverlayLayoutContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
 }
 
 .GradientOverlayAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
 }
 
 .GradientOverlayElement {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient( to bottom, 
-    rgba(0,0,0,0) 0%, 
-    rgba(0,0,0,0.5) 70%, 
-    rgba(0,0,0,1) 100% );
-    z-index: 1;
-}
-
-/* 2.4. Ana İçerik Katmanı */
-.WidgetContainer .ContentLayoutContainer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 75%);
 }
 
 /* ==========================================================================
-   3. BİLEŞENLER
+   4. İÇERİK KATMANI VE BİLEŞENLERİ
    ========================================================================== */
 
-/* 3.1. Şarkı ve Sanatçı Bilgileri */
-.WidgetContainer .TrackInfoLayoutContainer {
+.ContentLayoutContainer {
     position: absolute;
-    bottom: 27%;
-    left: 5%;
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    gap: 55px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
-.WidgetContainer .TrackNameLayoutContainer {
+/* KURAL UYGULAMASI: PlayerControls, `bottom` ile zemine sabitlenmiştir. Boyutu
+   içeriğine (ProgressBar, TimeDisplay) bağlıdır. TrackInfo'yu ittirmez. */
+.PlayerControlsLayoutContainer {
+    position: absolute;
+    bottom: var(--player-controls-bottom); 
+    left: var(--widget-padding-horizontal);
+    right: var(--widget-padding-horizontal);
+    width: auto; /* Kural 1: Genişlik, sol/sağ boşluklara göre otomatik ayarlanır */
+    height: auto; /* Kural 1: Yükseklik, çocuklarının yüksekliğine göre belirlenir */
+    display: flex;
+    flex-direction: column;
+    gap: 24px; 
+}
+
+/* KURAL UYGULAMASI: TrackInfo, `bottom` ile zemine sabitlenmiştir. Boyutu
+   içeriğine (TrackName, ArtistName) bağlıdır. PlayerControls'u ittirmez. */
+.TrackInfoLayoutContainer {
+    position: absolute;
+    bottom: var(--track-info-bottom); 
+    left: var(--widget-padding-horizontal);
+    right: var(--widget-padding-horizontal);
+    width: auto; /* Kural 1: Genişlik, sol/sağ boşluklara göre otomatik ayarlanır */
+    height: auto; /* Kural 1: Yükseklik, çocuklarının yüksekliğine göre belirlenir */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--info-to-artist-gap); 
+}
+
+/* --- İçerik Elemanları --- */
+
+.TrackNameLayoutContainer {
     position: relative;
     width: 100%;
-    min-height: 1.2em;
-    margin-bottom: 15px;
+    height: auto; /* Boyut içerikten gelir */
 }
 
 .TrackNameAnimationContainer {
-    width: 100%;
-    height: 100%;
-}
-
-.WidgetContainer .TrackNameElement {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    margin: 0;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
-    font-size: clamp(50px, 8vw, 72px);
-    font-weight: 700;
-    line-height: 1.5;
+    height: 100%;
 }
 
-.WidgetContainer .ArtistNameLayoutContainer {
+.TrackNameElement {
+    margin: 0;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: var(--widget-text-shadow);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    height: auto; /* Boyut içerikten gelir */
+}
+
+.ArtistNameLayoutContainer {
     position: relative;
     width: 100%;
-    min-height: 1.2em;
+    height: auto; /* Boyut içerikten gelir */
 }
 
 .ArtistNameAnimationContainer {
-    width: 100%;
-    height: 100%;
-}
-
-.WidgetContainer .ArtistNameElement {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    height: 100%;
+}
+
+.ArtistNameElement {
     margin: 0;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
-    font-size: clamp(36px, 4vw, 48px);
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 44.8px;
     font-weight: 500;
-    opacity: 0.9;
     line-height: 1.2;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: var(--widget-text-shadow);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    height: auto; /* Boyut içerikten gelir */
 }
 
-/* 3.2. Oynatıcı Kontrolleri */
-.WidgetContainer .PlayerControlsLayoutContainer {
-    position: absolute;
-    bottom: 12%;
-    left: 5%;
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
-.WidgetContainer .ProgressBarLayoutContainer {
+.ProgressBarLayoutContainer {
     position: relative;
     width: 100%;
-    height: 7px;
+    height: 8px; /* İlerleme çubuğu yüksekliği sabit */
     background-color: rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
+    border-radius: 2px;
 }
 
 .ProgressBarAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
 
-.WidgetContainer .ProgressBarElement {
+.ProgressBarElement {
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #ffffff;
     height: 100%;
-    border-radius: 4px;
-    width: 0%;
-    transition: width 0.1s linear;
+    background-color: #ffffff;
+    border-radius: 2px;
 }
 
-.WidgetContainer .TimeDisplayLayoutContainer {
-    position: relative;
+.TimeDisplayLayoutContainer {
+    width: 100%;
+    height: 40px; /* Explicit height for the container */
+    font-size: 40px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
-    width: 100%;
-    font-size: clamp(30px, 2.5vw, 36px);
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 500;
 }
+
+/* KURAL UYGULAMASI: Her sınıf için ayrı stil blokları. */
 
 .CurrentTimeLayoutContainer {
-    width: 100%;
+    width: auto;
     height: 100%;
-}
-
-.CurrentTimeAnimationContainer {
-    width: 100%;
-    height: 100%;
-}
-
-.WidgetContainer .CurrentTimeElement {
-    position: absolute;
-    top: 0;
-    left: 0;
-    line-height: 1;
+    position: relative; /* For absolute positioning of children */
+    display: flex;
+    align-items: center;
 }
 
 .TotalTimeLayoutContainer {
+    width: auto;
+    max-width: 50%;
+    height: 100%;
+    text-align: right;
+    position: relative; /* For absolute positioning of children */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.CurrentTimeAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
 
 .TotalTimeAnimationContainer {
-    width: 100%;
-    height: 100%;
-}
-
-.WidgetContainer .TotalTimeElement {
     position: absolute;
     top: 0;
-    right: 0;
-    line-height: 1;
+    right: 0; /* Align to right instead of left */
+    width: auto; /* Don't force 100% width */
+    max-width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-/* 3.3. Sağlayıcı Logosu (Badge) */
-.WidgetContainer .BadgeLayoutContainer {
+.CurrentTimeElement {
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+    justify-self: start;
+}
+
+.TotalTimeElement {
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+
+.BadgeLayoutContainer {
     position: absolute;
-    top: 4%;
-    left: 4%;
+    top: 30px; 
+    left: 30px;
+    width: auto;
+    height: auto;
     position: relative;
 }
 
 .ProviderBadgeAnimationContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
 
-.WidgetContainer .ProviderBadgeElement {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 8px;
-    background: rgba(30, 30, 30, 0.6);
+.ProviderBadgeElement {
+    position: relative;
+    width: auto;
+    height: auto;
+    padding: 6px 12px;
+    background: rgba(30, 30, 30, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-radius: 22px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
-.WidgetContainer .ProviderLogo {
+.ProviderLogo {
     height: 40px;
     width: auto;
     display: block;
 }
 
 /* ==========================================================================
-   4. YARDIMCI VE ANİMASYON KONTEYNERLARI
-   ========================================================================== */
-
-[class*="AnimationContainer"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    
-    /* PERFORMANS İYİLEŞTİRMESİ:
-      Bu yeni eklenen kurallar, tarayıcıya bu elementlerin `transform` ve `opacity` 
-      özelliklerinin sıkça değişeceğini önceden bildirir. Tarayıcı bu sayede 
-      elementi kendi grafik katmanına (GPU layer) alarak animasyonları CPU yerine 
-      GPU'da daha akıcı bir şekilde işler. Bu, özellikle OBS gibi kaynaklarda 
-      yaşanan "donma" veya "takılma" hissini önemli ölçüde azaltır.
-    */
-    backface-visibility: hidden;
-    will-change: transform, opacity;
-}
-
-/* ==========================================================================
-   MARQUEE ANİMASYONU (NİHAİ VE ÖNCELİKLİ VERSİYON)
-   ========================================================================== */
-
-/* Keyframes for the scrolling text animation */
-@keyframes marquee-scroll-animation {
-    0%   { transform: translateX(0); }
-    /* Başlangıçta 2 saniye bekle */
-    15%  { transform: translateX(0); }
-    /* Metnin sonuna kadar kaydır */
-    50%  { transform: translateX(var(--marquee-scroll-distance)); }
-    /* Sonda 2 saniye bekle */
-    65%  { transform: translateX(var(--marquee-scroll-distance)); }
-    /* Başlangıca geri dön */
-    90%  { transform: translateX(0); }
-    100% { transform: translateX(0); }
-  }
-  
-  /*
-    Marquee animasyonunu uygulayan sınıf (ARTIRILMIŞ ÖNCELİK).
-    Bu seçici, orijinal 'text-overflow: ellipsis' kuralını ezecek kadar güçlüdür.
-  */
-  .WidgetContainer .TrackNameElement.marquee-scroll,
-  .WidgetContainer .ArtistNameElement.marquee-scroll {
-      /* Animasyon süresi JavaScript tarafından dinamik olarak ayarlanır */
-      animation: marquee-scroll-animation var(--marquee-animation-duration, 15s) linear infinite;
-      will-change: transform; /* Performans optimizasyonu */
-  
-      /* Elipsisi ('...') devre dışı bırakır ve metni keser. */
-      text-overflow: clip;
-  }
-
-/* ==========================================================================
-   5. DURUM VE YARDIMCI SINIFLAR
+   5. YARDIMCI SINIFLAR
    ========================================================================== */
 
 .passive {
     visibility: hidden !important;
-    pointer-events: none;
-}
-
-.WidgetContainer.widget-inactive {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-.WidgetContainer .widget-error-message {
-    position: absolute;
-    bottom: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    max-width: 90%;
-    text-align: center;
-    background-color: rgba(220, 53, 69, 0.9);
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 8px;
-    z-index: 20;
-}
-
-.dev-hidden {
-    opacity: 0 !important;
     pointer-events: none !important;
-    animation: none !important;
+}
+
+.widget-inactive {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 
-.dev-border {
-    border: 1px solid red;
-}

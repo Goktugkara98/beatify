@@ -31,7 +31,7 @@
           BackgroundLayoutContainer:
           Arka plan elemanlarının (görsel, renk vb.) widget içindeki yerleşimini kontrol eder.
         -->
-        <div class="BackgroundLayoutContainer">
+        <div class="BackgroundLayoutContainer ">
             <!-- 
               AlbumArtBackgroundLayoutContainer:
               Arka plan albüm görselinin pozisyonunu belirler.
@@ -62,7 +62,7 @@
           EffectsLayoutContainer:
           Gradyan, parçacık gibi görsel efektlerin yerleşimini kontrol eder.
         -->
-        <div class="EffectsLayoutContainer">
+        <div class="EffectsLayoutContainer ">
             <div class="GradientOverlayLayoutContainer">
                 <div class="GradientOverlayAnimationContainer">
                     <div class="GradientOverlayElement"></div>
@@ -74,7 +74,7 @@
           CoverLayoutContainer:
           Ana albüm kapak görselinin widget içindeki yerleşimini kontrol eder.
         -->
-        <div class="CoverLayoutContainer">
+        <div class="CoverLayoutContainer ">
             <div id = CoverAnimationContainer_a class="CoverAnimationContainer" data-set="a">
                 <img id="CoverElement_a" class="CoverElement" data-set="a" src="" alt="Kapak A">
             </div>
@@ -90,7 +90,7 @@
         <div class="ContentLayoutContainer">
 
             <!-- TrackInfoLayoutContainer: Şarkı ve sanatçı adını bir arada gruplar ve konumlandırır. -->
-            <div class="TrackInfoLayoutContainer dev-border">
+            <div class="TrackInfoLayoutContainer">
                 <div class="TrackNameLayoutContainer">
                     <div id = TrackNameAnimationContainer_a class="TrackNameAnimationContainer" data-set="a">
                         <h3 id="TrackNameElement_a" class="TrackNameElement" data-set="a" title="Şarkı Adı Yükleniyor..."></h3>
@@ -111,7 +111,7 @@
 
             <!-- PlayerControlsLayoutContainer: İlerleme çubuğu ve zaman göstergelerini gruplar. -->
             <div class="PlayerControlsLayoutContainer ">
-                <div class="ProgressBarLayoutContainer dev-hidden">
+                <div class="ProgressBarLayoutContainer ">
                     <div id = ProgressBarAnimationContainer_a class="ProgressBarAnimationContainer" data-set="a">
                         <div id="ProgressBarElement_a" class="ProgressBarElement" style="width: 0%;" data-set="a"></div>
                     </div>
@@ -154,17 +154,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- 
-          ErrorMessageLayoutContainer:
-          Hata mesajlarının gösterileceği alan.
-        -->
-        <div class="ErrorMessageLayoutContainer">
-            <div id="ErrorMessageElement" class="ErrorMessageElement">
-                <!-- Hata mesajı JavaScript ile buraya eklenecek -->
-            </div>
-        </div>
-    </div>
     
     <!-- Backend'den gelen konfigürasyon verileri -->
     <script>
