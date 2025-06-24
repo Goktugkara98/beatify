@@ -3,21 +3,29 @@
  * @description StateService'den gelen olayları dinler ve DOM/Animasyon servislerini yönetir.
  */
 class WidgetDOMManager {
-    constructor(widgetElement, stateService) {
-        this.widgetElement = widgetElement;
-        this.stateService = stateService; // State'i güncellemek için referans
-
-        // Servisleri başlat
-        this.contentUpdater = new ContentUpdaterService(widgetElement);
-        this.animationService = new AnimationService(widgetElement);
-        this.errorContainer = widgetElement.querySelector('.WidgetErrorContainer');
-        
-        this._bindEvents();
-    }
 
     /**
-     * StateService'den gelecek olayları dinlemek için event listener'ları bağlar.
+     * @param {HTMLElement} widgetElement
+     * @param {object} services - Gerekli tüm servisleri içeren ve main.js tarafından sağlanan obje.
      */
+    constructor(widgetElement, services) {
+        this.widgetElement = widgetElement;
+
+        // Bu kısım, main.js'in verdiği "dolu" servisleri alır.
+        // Kendi içinde "new" ile bir şey oluşturmaz.
+        this.stateService = services.stateService;
+        this.animationService = services.animationService;
+        this.contentUpdater = services.contentUpdater;
+        
+        this.errorContainer = widgetElement.querySelector('.WidgetErrorContainer');
+        
+        // Bu logu kontrol amaçlı bırakıyorum.
+        console.log('%c[DOMManager constructor] BANA VERİLEN animationService:', 'color: orange; font-weight: bold;', this.animationService);
+
+        this._bindEvents();
+        console.log('[DOMManager] Yönetici başlatıldı ve olaylar dinleniyor.');
+    }
+
     _bindEvents() {
         this.widgetElement.addEventListener('widget:intro', (e) => this._handleIntro(e.detail));
         this.widgetElement.addEventListener('widget:outro', (e) => this._handleOutro(e.detail));
@@ -27,10 +35,17 @@ class WidgetDOMManager {
         this.widgetElement.addEventListener('widget:clear-error', () => this._handleClearError());
     }
 
-    _handleIntro({ set, data }) {
-        this.contentUpdater.updateAllForSet(set, data);
-        this.contentUpdater.startProgressUpdater(data, set);
+    async _handleIntro(detail) {
+        console.log(`[DOMManager] İLK AÇILIŞ BAŞLADI (Set: ${detail.set})`);
+        
+        this.contentUpdater.updateAllForSet(detail.set, detail.data);
+        
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        
+        console.log('%c[DOMManager _handleIntro] KULLANILAN animationService:', 'color: red; font-weight: bold;', this.animationService);
         this.animationService.playIntro();
+        
+        this.contentUpdater.startProgressUpdater(detail.data, detail.set);
     }
     
     _handleOutro() {
@@ -39,22 +54,24 @@ class WidgetDOMManager {
     }
 
     async _handleTransition(detail) {
-        const { passiveSet, data } = detail;
-        // 1. Pasif olan setin içeriğini yeni şarkı bilgileriyle doldur
-        this.contentUpdater.updateAllForSet(passiveSet, data);
-        
-        // 2. Geçiş animasyonunu oynat ve bitmesini bekle
+        console.log(`[DOMManager] ŞARKI GEÇİŞİ BAŞLADI (Aktif: ${detail.activeSet}, Pasif: ${detail.passiveSet})`);
+    
+        // 1. ADIM: Yeni (pasif) setin içeriğini animasyon başlamadan önce güncelle.
+        // Bu olmadan, 'b' seti boş bir şekilde ekrana gelirdi.
+        this.contentUpdater.updateAllForSet(detail.passiveSet, detail.data);
+    
+        // 2. ADIM: Geçiş animasyonunu başlat ve tamamlanmasını bekle.
+        // 'await' olmadan, aşağıdaki kod animasyon bitmeden anında çalışırdı.
         await this.animationService.playTransition(detail);
-
-        // 3. Animasyon bittikten sonra StateService'e durumu sonlandırmasını söyle
-        this.stateService.finalizeTransition(passiveSet);
+    
+        // 3. ADIM: Animasyon bittikten sonra StateService'e haber ver.
+        // Bu, mevcut şarkı ID'sini güncelleyerek sonsuz döngüyü engeller.
+        this.stateService.finalizeTransition(detail.passiveSet);
         
-        // 4. Yeni aktif set için ilerleme çubuğunu başlat
-        this._handleSync({data, set: passiveSet});
+        console.log(`[DOMManager] ŞARKI GEÇİŞİ TAMAMLANDI. Yeni aktif set: ${detail.passiveSet}`);
     }
 
     _handleSync({ data, set }) {
-        // Sadece ilerleme ve zamanı güncelle
         this.contentUpdater.startProgressUpdater(data, set);
     }
     

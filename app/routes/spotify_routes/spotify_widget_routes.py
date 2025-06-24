@@ -86,9 +86,7 @@ def spotify_widget(widget_token: str) -> Any:
             logger.warning(f"Geçersiz widget token'ı: {widget_token}")
             return render_template("spotify/widgets/widget-error.html", error="Widget bulunamadı."), 404
 
-        theme = config.get('themeName')
-        print(config)
-        print(type(config))
+        theme = config.get('theme', {}).get('name', 'modern')
         template_name = f"spotify/widgets/widget_{theme}/widget_{theme}.html"
         
         return render_template(template_name, config=config, widget_token=widget_token)

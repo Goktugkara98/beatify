@@ -1,30 +1,37 @@
-/**
- * @file main.js
- * @description Uygulamanın ana başlangıç noktasıdır.
- * Gerekli servisleri ve yöneticileri başlatır.
- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     try {
+        console.log('[main.js] DOM yüklendi, widget başlatılıyor...');
         const widgetElement = document.getElementById('spotifyWidgetModern');
         if (!widgetElement) {
-            throw new Error("Ana widget elementi (ID: spotifyWidgetModern) bulunamadı.");
+            throw new Error("Ana widget elementi bulunamadı.");
         }
 
-        // 1. Durum ve veri akışını yönetecek servisi başlat
+        // 1. Tüm servisleri burada oluşturuyoruz.
+        const themeService = new ThemeService();
+        await themeService.load();
+
         const stateService = new SpotifyStateService(widgetElement);
+        const cssParser = new CSSAnimationParser();
+        const contentUpdater = new ContentUpdaterService(widgetElement);
+        // AnimationService, ihtiyaç duyduğu themeService ve cssParser ile oluşturuluyor.
+            const animationService = new AnimationService(widgetElement, themeService, cssParser);
+            // YENİ LOG SATIRI:
+            console.log('%c[main.js] OLUŞTURULAN animationService:', 'color: green; font-weight: bold;', animationService);
 
-        // 2. Arayüzü (DOM) yönetecek olan yöneticiyi başlat
-        new WidgetDOMManager(widgetElement, stateService);
 
-        // 3. Veri çekme döngüsünü başlat
+    // DOM Yöneticisine, oluşturduğumuz tüm servisleri bir "paket" halinde veriyoruz.
+    new WidgetDOMManager(widgetElement, {
+        stateService,
+        animationService,
+        contentUpdater
+    });
+
+        // 3. Başlatma komutunu veriyoruz.
         stateService.init();
+        
+        console.log('[main.js] Widget başarıyla başlatıldı.');
 
     } catch (error) {
-        console.error("Widget başlatılırken kritik bir hata oluştu:", error);
-        const errorDisplay = document.getElementById('spotifyWidgetModern');
-        if (errorDisplay) {
-            errorDisplay.innerText = "Widget yüklenemedi.";
-            errorDisplay.classList.remove('widget-inactive');
-        }
+        console.error("!!! [main.js] Widget başlatılırken kritik bir hata oluştu: !!!", error.message);
     }
 });

@@ -12,7 +12,8 @@
 <body>
     <div id="spotifyWidgetModern" class="WidgetMasterContainer widget-inactive"
          data-token="j5Bp8lwM6iad"
-         data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
+         data-endpoint-template="/spotify/api/widget-data/{TOKEN}"
+         data-type= "WidgetMasterContainer">
         
         <!-- WIDGET INSTANCE A (AKTİF) -->
         <div class="WidgetContainer_a">
@@ -67,9 +68,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="BadgeLayoutContainer_a">
-                    <div class="ProviderBadgeAnimationContainer_a">
-                        <div class="ProviderBadgeElement_a spotify">
+                <div class="BadgeLayoutContainer_a" data-type="BadgeLayoutContainer">
+                    <div class="ProviderBadgeAnimationContainer_a" data-type="ProviderBadgeAnimationContainer">
+                        <div class="ProviderBadgeElement_a spotify" data-type="ProviderBadgeElement">
                             <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo_a">
                         </div>
                     </div>
@@ -78,62 +79,62 @@
         </div>
 
         <!-- WIDGET INSTANCE B (PASİF) -->
-        <div class="WidgetContainer_b passive">
-            <div class="BackgroundLayoutContainer_b passive">
-                <div class="AlbumArtBackgroundLayoutContainer_b passive">
-                    <div class="AlbumArtBackgroundAnimationContainer_b passive">
-                        <img class="AlbumArtBackgroundElement_b passive" src="" alt="Arka Plan B">
+        <div class="WidgetContainer_b passive" data-type="WidgetContainer">
+            <div class="BackgroundLayoutContainer_b" data-type="BackgroundLayoutContainer">
+                <div class="AlbumArtBackgroundLayoutContainer_b" data-type="AlbumArtBackgroundLayoutContainer">
+                    <div class="AlbumArtBackgroundAnimationContainer_b" data-type="AlbumArtBackgroundAnimationContainer">
+                        <img class="AlbumArtBackgroundElement_b" data-type="AlbumArtBackgroundElement" src="" alt="Arka Plan B">
                     </div>
                 </div>
             </div>
-            <div class="EffectsLayoutContainer_b passive">
-                <div class="GradientOverlayLayoutContainer_b passive">
-                    <div class="GradientOverlayAnimationContainer_b passive">
-                        <div class="GradientOverlayElement_b passive"></div>
+            <div class="EffectsLayoutContainer_b" data-type="EffectsLayoutContainer">
+                <div class="GradientOverlayLayoutContainer_b" data-type="GradientOverlayLayoutContainer">
+                    <div class="GradientOverlayAnimationContainer_b" data-type="GradientOverlayAnimationContainer">
+                        <div class="GradientOverlayElement_b" data-type="GradientOverlayElement"></div>
                     </div>
                 </div>
             </div>
-            <div class="CoverLayoutContainer_b passive">
-                <div class="CoverAnimationContainer_b passive">
-                    <img class="CoverElement_b passive" src="" alt="Kapak B">
+            <div class="CoverLayoutContainer_b" data-type="CoverLayoutContainer">
+                <div class="CoverAnimationContainer_b" data-type="CoverAnimationContainer">
+                    <img class="CoverElement_b" data-type="CoverElement" src="" alt="Kapak B">
                 </div>
             </div>
-            <div class="ContentLayoutContainer_b passive">
-                <div class="TrackInfoLayoutContainer_b passive">
-                    <div class="TrackNameLayoutContainer_b passive">
-                        <div class="TrackNameAnimationContainer_b passive">
-                            <h3 class="TrackNameElement_b passive" title=""></h3>
+            <div class="ContentLayoutContainer_b" data-type="ContentLayoutContainer">
+                <div class="TrackInfoLayoutContainer_b" data-type="TrackInfoLayoutContainer">
+                    <div class="TrackNameLayoutContainer_b" data-type="TrackNameLayoutContainer">
+                        <div class="TrackNameAnimationContainer_b" data-type="TrackNameAnimationContainer">
+                            <h3 class="TrackNameElement_b" data-type="TrackNameElement" title=""></h3>
                         </div>
                     </div>
-                    <div class="ArtistNameLayoutContainer_b passive">
-                        <div class="ArtistNameAnimationContainer_b passive">
-                            <p class="ArtistNameElement_b passive"></p>
+                    <div class="ArtistNameLayoutContainer_b">
+                        <div class="ArtistNameAnimationContainer_b">
+                            <p class="ArtistNameElement_b"></p>
                         </div>
                     </div>
                 </div>
-                <div class="PlayerControlsLayoutContainer_b passive">
-                    <div class="ProgressBarLayoutContainer_b passive">
-                        <div class="ProgressBarAnimationContainer_b passive">
-                            <div class="ProgressBarElement_b passive" style="width: 0%;"></div>
+                <div class="PlayerControlsLayoutContainer_b">
+                    <div class="ProgressBarLayoutContainer_b">
+                        <div class="ProgressBarAnimationContainer_b">
+                            <div class="ProgressBarElement_b" style="width: 0%;"></div>
                         </div>
                     </div>
-                    <div class="TimeDisplayLayoutContainer_b passive">
-                        <div class="CurrentTimeLayoutContainer_b passive">
-                            <div class="CurrentTimeAnimationContainer_b passive">
-                                <span class="CurrentTimeElement_b passive">0:00</span>
+                    <div class="TimeDisplayLayoutContainer_b">
+                        <div class="CurrentTimeLayoutContainer_b">
+                            <div class="CurrentTimeAnimationContainer_b">
+                                <span class="CurrentTimeElement_b">0:00</span>
                             </div>
                         </div>
-                        <div class="TotalTimeLayoutContainer_b passive">
-                            <div class="TotalTimeAnimationContainer_b passive">
-                                <span class="TotalTimeElement_b passive">0:00</span>
+                        <div class="TotalTimeLayoutContainer_b">
+                            <div class="TotalTimeAnimationContainer_b">
+                                <span class="TotalTimeElement_b">0:00</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="BadgeLayoutContainer_b passive">
-                    <div class="ProviderBadgeAnimationContainer_b passive">
-                        <div class="ProviderBadgeElement_b spotify passive">
-                            <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo_b passive">
+                <div class="BadgeLayoutContainer_b">
+                    <div class="ProviderBadgeAnimationContainer_b">
+                        <div class="ProviderBadgeElement_b spotify">
+                            <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo_b">
                         </div>
                     </div>
                 </div>
@@ -141,17 +142,20 @@
         </div>
     </div>
     
-    <!-- Backend'den gelen konfigürasyon verileri -->
-    <script>
-        // Bu kısım sunucu tarafından render edildiğinde dinamik olarak doldurulur.
-        window.configData = JSON.parse('{{ config|tojson|safe }}');
+    <script type="application/json" id="themeConfig">
+        {{ config|tojson|safe }}
     </script>
-
-    <!-- Gerekli JavaScript dosyaları (Bu dosyaların içeriğinin de yeni yapıya göre güncellenmesi gerekecektir) -->
+    <script>
+        // Parse the JSON from the script tag
+        window.themeConfig = JSON.parse(document.getElementById('themeConfig').textContent);
+    </script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/CSSAnimationParser.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ThemeService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/AnimationService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ContentUpdaterService.js"></script>
-    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/SpotifyStateService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>
+    
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/main.js"></script>
 
 </body>

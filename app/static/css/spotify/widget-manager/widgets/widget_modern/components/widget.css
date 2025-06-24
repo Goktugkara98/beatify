@@ -42,8 +42,8 @@ body {
     
     /* Konumlandırma */
     --player-controls-bottom: 40px;
-    --track-info-bottom: 190px;
-    --info-to-artist-gap: 70px;
+    --track-info-bottom: 150px;
+    --info-to-artist-gap: 10px;
     
     /* Geçişler */
     --transition-duration: 0.5s;

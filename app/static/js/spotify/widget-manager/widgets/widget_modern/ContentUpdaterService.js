@@ -24,13 +24,27 @@ class ContentUpdaterService {
         this._updateImage(`.AlbumArtBackgroundElement_${set}`, item.album.images[0]?.url);
     }
     
+    // YENİ METOT: Belirtilen setteki tüm görsel verileri temizler.
+    /**
+     * Belirtilen setteki şarkı bilgilerini temizler.
+     * @param {string} set - Temizlenecek UI seti.
+     */
+    clearAllForSet(set) {
+        console.log(`[ContentUpdater] Veriler temizleniyor: Set -> ${set}`);
+        this._updateText(`.TrackNameElement_${set}`, '');
+        this._updateText(`.ArtistNameElement_${set}`, '');
+        this._updateText(`.TotalTimeElement_${set}`, '0:00');
+        this._updateImage(`.CoverElement_${set}`, '');
+        this._updateImage(`.AlbumArtBackgroundElement_${set}`, '');
+    }
+
     /**
      * Zaman ve ilerleme çubuğunu günceller.
      * @param {object} data - Spotify verisi.
      * @param {string} set - Aktif UI seti.
      */
     startProgressUpdater(data, set) {
-        this.stopProgressUpdater(); // Önceki interval'i durdur
+        this.stopProgressUpdater();
         if (!data || !data.item || !data.is_playing) return;
 
         let progressMs = data.progress_ms;
@@ -47,7 +61,7 @@ class ContentUpdaterService {
             if (progressMs < durationMs) progressMs += 1000;
         };
         
-        update(); // Hemen bir kez çalıştır
+        update();
         this.progressInterval = setInterval(update, 1000);
     }
 
@@ -59,7 +73,7 @@ class ContentUpdaterService {
         const elem = this.widgetElement.querySelector(selector);
         if (elem) {
             elem.innerText = text;
-            elem.title = text; // Tooltip için
+            elem.title = text;
         }
     }
 
