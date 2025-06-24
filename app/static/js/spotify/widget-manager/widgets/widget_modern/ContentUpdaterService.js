@@ -24,7 +24,8 @@
  * 4.2. clearError: Görüntülenen hata mesajını temizler.
  *
  * BÖLÜM 5: ÖZEL YARDIMCI FONKSİYONLAR (PRIVATE HELPERS)
- * 5.1. _formatTime: Milisaniyeyi "dakika:saniye" formatına çevirir.
+ * 5.1. _handleTextOverflow: Metin taşmalarını kontrol eder ve kayan yazı animasyonunu uygular.
+ * 5.2. _formatTime: Milisaniyeyi "dakika:saniye" formatına çevirir.
  *
  * =================================================================================
  */
@@ -62,11 +63,15 @@ class ContentUpdaterService {
         if (trackNameElem) {
             trackNameElem.innerText = item.name;
             trackNameElem.title = item.name;
+            // YENİ: Metin taşmasını kontrol et
+            this._handleTextOverflow(trackNameElem);
         }
 
         const artistNameElem = query('.ArtistNameElement');
         if (artistNameElem) {
             artistNameElem.innerText = item.artists.map(a => a.name).join(', ');
+            // YENİ: Metin taşmasını kontrol et
+            this._handleTextOverflow(artistNameElem);
         }
 
         const coverElem = query('.CoverElement');
@@ -92,10 +97,17 @@ class ContentUpdaterService {
     reset(set) {
         const query = (selector) => this.widgetElement.querySelector(`${selector}[data-set="${set}"]`);
         
-        const textElements = [query('.TrackNameElement'), query('.ArtistNameElement'), query('.TotalTimeElement'), query('.CurrentTimeElement')];
+        const trackNameElem = query('.TrackNameElement');
+        const artistNameElem = query('.ArtistNameElement');
+
+        const textElements = [trackNameElem, artistNameElem, query('.TotalTimeElement'), query('.CurrentTimeElement')];
         textElements.forEach(el => {
             if (el) el.innerText = (el.classList.contains('CurrentTimeElement') || el.classList.contains('TotalTimeElement')) ? '0:00' : '';
         });
+
+        // YENİ: Marquee animasyonunu temizle
+        if (trackNameElem) this._handleTextOverflow(trackNameElem);
+        if (artistNameElem) this._handleTextOverflow(artistNameElem);
         
         const imageElements = [query('.CoverElement'), query('.AlbumArtBackgroundElement')];
         imageElements.forEach(el => {
@@ -181,9 +193,46 @@ class ContentUpdaterService {
     // =================================================================================
     // BÖLÜM 5: ÖZEL YARDIMCI FONKSİYONLAR (PRIVATE HELPERS)
     // =================================================================================
+    
+    /**
+     * 5.1. Bir elementin metin içeriğinin kapsayıcısını aşıp aşmadığını kontrol eder.
+     * Eğer aşıyorsa, kayan yazı (marquee) animasyonunu tetiklemek için bir CSS sınıfı uygular.
+     * @param {HTMLElement} element - Kontrol edilecek metin elementi.
+     * @private
+     */
+    _handleTextOverflow(element) {
+        if (!element) return;
+
+        // Tarayıcının yeni metni render etmesine ve boyutları hesaplamasına izin vermek için kısa bir gecikme kullanın.
+        requestAnimationFrame(() => {
+            const isOverflowing = element.scrollWidth > element.clientWidth;
+
+            if (isOverflowing) {
+                // Kaydırılacak mesafeyi hesapla.
+                const scrollDistance = element.scrollWidth - element.clientWidth;
+                // Tutarlı bir hız sağlamak için taşma miktarına göre dinamik bir süre hesapla.
+                // Saniyede 40 piksel hız varsayalım.
+                const scrollSpeed = 40; // pixels per second
+                // Animasyon süresi = (mesafe / hız) * (duraklamalar ve geri dönüş için çarpan)
+                const animationDuration = (scrollDistance / scrollSpeed) * 2.5; 
+
+                // Animasyon için CSS özel değişkenlerini ayarla.
+                element.style.setProperty('--marquee-scroll-distance', `-${scrollDistance}px`);
+                // Çok kısa animasyonları önlemek için minimum süre 10 saniye olsun.
+                element.style.setProperty('--marquee-animation-duration', `${Math.max(10, animationDuration)}s`);
+                
+                element.classList.add('marquee-scroll');
+            } else {
+                // Taşma yoksa, sınıfı ve özel değişkenleri kaldır.
+                element.classList.remove('marquee-scroll');
+                element.style.removeProperty('--marquee-scroll-distance');
+                element.style.removeProperty('--marquee-animation-duration');
+            }
+        });
+    }
 
     /**
-     * 5.1. Milisaniyeyi "dakika:saniye" formatına çevirir.
+     * 5.2. Milisaniyeyi "dakika:saniye" formatına çevirir.
      * @param {number} ms - Dönüştürülecek milisaniye.
      * @returns {string} Formatlanmış zaman metni.
      * @private

@@ -167,7 +167,6 @@
     left: 0;
     width: 100%;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
@@ -193,7 +192,6 @@
     left: 0;
     width: 100%;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
@@ -339,6 +337,38 @@
 }
 
 /* ==========================================================================
+   MARQUEE ANİMASYONU (NİHAİ VE ÖNCELİKLİ VERSİYON)
+   ========================================================================== */
+
+/* Keyframes for the scrolling text animation */
+@keyframes marquee-scroll-animation {
+    0%   { transform: translateX(0); }
+    /* Başlangıçta 2 saniye bekle */
+    15%  { transform: translateX(0); }
+    /* Metnin sonuna kadar kaydır */
+    50%  { transform: translateX(var(--marquee-scroll-distance)); }
+    /* Sonda 2 saniye bekle */
+    65%  { transform: translateX(var(--marquee-scroll-distance)); }
+    /* Başlangıca geri dön */
+    90%  { transform: translateX(0); }
+    100% { transform: translateX(0); }
+  }
+  
+  /*
+    Marquee animasyonunu uygulayan sınıf (ARTIRILMIŞ ÖNCELİK).
+    Bu seçici, orijinal 'text-overflow: ellipsis' kuralını ezecek kadar güçlüdür.
+  */
+  .WidgetContainer .TrackNameElement.marquee-scroll,
+  .WidgetContainer .ArtistNameElement.marquee-scroll {
+      /* Animasyon süresi JavaScript tarafından dinamik olarak ayarlanır */
+      animation: marquee-scroll-animation var(--marquee-animation-duration, 15s) linear infinite;
+      will-change: transform; /* Performans optimizasyonu */
+  
+      /* Elipsisi ('...') devre dışı bırakır ve metni keser. */
+      text-overflow: clip;
+  }
+
+/* ==========================================================================
    5. DURUM VE YARDIMCI SINIFLAR
    ========================================================================== */
 
@@ -373,4 +403,9 @@
     opacity: 0 !important;
     pointer-events: none !important;
     animation: none !important;
+}
+
+
+.dev-border {
+    border: 1px solid red;
 }

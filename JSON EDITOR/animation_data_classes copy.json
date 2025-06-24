@@ -61,12 +61,12 @@
             "delay": 200
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 0
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 1000,
             "delay": 0
         },
@@ -83,12 +83,12 @@
             "delay": 200
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 0
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 1000,
             "delay": 0
         },
@@ -105,12 +105,12 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 500,
             "delay": 0
         },
@@ -127,12 +127,12 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 500,
             "delay": 0
         },
@@ -149,12 +149,12 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 500,
             "delay": 0
         },
@@ -171,12 +171,12 @@
             "delay": 400
         },
         "transitionIn": {
-            "animation": "slide-in-from-right",
+            "animation": "fade-in",
             "duration": 1000,
             "delay": 500
         },
         "transitionOut": {
-            "animation": "slide-out-to-left",
+            "animation": "fade-out",
             "duration": 500,
             "delay": 0
         },
