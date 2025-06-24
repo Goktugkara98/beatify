@@ -1,0 +1,61 @@
+/* ==========================================================================
+   EFEKT KATMANLARI (GRADYAN)
+   ========================================================================== */
+
+/* Ana efekt konteyner - diğer içeriklerin üzerinde yer alır */
+.EffectsLayoutContainer,
+.EffectsLayoutContainer_a,
+.EffectsLayoutContainer_b {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 5;
+    contain: layout style;
+}
+
+/* Gradyan konteyner - içerik boyutuna uyumlu */
+.GradientOverlayLayoutContainer,
+.GradientOverlayLayoutContainer_a,
+.GradientOverlayLayoutContainer_b {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    contain: content;
+}
+
+/* Gradyan animasyon konteyner */
+.GradientOverlayAnimationContainer,
+.GradientOverlayAnimationContainer_a,
+.GradientOverlayAnimationContainer_b {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Gradyan efekt elemanı - okunabilirliği artırmak için */
+.GradientOverlayElement,
+.GradientOverlayElement_a,
+.GradientOverlayElement_b {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 75%);
+    pointer-events: none;
+}

@@ -1,107 +1,71 @@
 /**
- * =================================================================================
- * SpotifyStateService - İçindekiler
- * =================================================================================
- *
- * Spotify API'sinden veri çeker, durumu yönetir ve widget olaylarını tetikler.
- *
- * ---
- *
- * BÖLÜM 1: KURULUM VE BAŞLATMA (SETUP & INITIALIZATION)
- * 1.1. constructor: Servisi başlatır ve temel değişkenleri ayarlar.
- * 1.2. init: Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
- *
- * BÖLÜM 2: VERİ YÖNETİMİ (DATA MANAGEMENT)
- * 2.1. fetchData: Spotify API'sinden mevcut çalma durumunu çeker.
- * 2.2. _processData: API'den gelen veriyi işler ve duruma göre ilgili olayı tetikler.
- *
- * BÖLÜM 3: DURUM GÜNCELLEME (STATE UPDATE)
- * 3.1. finalizeTransition: Şarkı geçişi animasyonu sonrası durumu günceller.
- *
- * BÖLÜM 4: ÖZEL OLAY YAYINLAMA (PRIVATE EVENT DISPATCHING)
- * 4.1. _dispatchEvent: Widget elementinde özel bir olay tetikler.
- *
- * =================================================================================
+ * @file SpotifyStateService.js
+ * @description Spotify API'sinden veri çeker, durumu yönetir ve widget olaylarını tetikler.
+ * Bu servis, uygulamanın durum makinesi (state machine) olarak görev yapar.
  */
 class SpotifyStateService {
-    // =================================================================================
-    // BÖLÜM 1: KURULUM VE BAŞLATMA (SETUP & INITIALIZATION)
-    // =================================================================================
-
     /**
-     * 1.1. SpotifyStateService'in bir örneğini oluşturur.
-     * @param {HTMLElement} widgetElement - Widget'ın ana elementi.
+     * @param {HTMLElement} widgetElement - Ana widget elementi.
      */
     constructor(widgetElement) {
-        if (!widgetElement) {
-            throw new Error("SpotifyStateService için bir widget elementi sağlanmalıdır!");
-        }
-
         this.widgetElement = widgetElement;
-        this.token = widgetElement.dataset.token;
-        this.endpoint = widgetElement.dataset.endpointTemplate.replace('{TOKEN}', this.token);
+        const token = widgetElement.dataset.token;
+        const endpointTemplate = widgetElement.dataset.endpointTemplate;
+        this.endpoint = endpointTemplate.replace('{TOKEN}', token);
 
         this.currentTrackId = null;
         this.isPlaying = false;
         this.isInitialLoad = true;
         this.activeSet = 'a';
-        this.currentData = null;
-        this.pollInterval = null;
+        this.currentData = null; // En son gelen veriyi saklar
     }
 
     /**
-     * 1.2. Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
+     * Servisi başlatır ve periyodik veri çekme döngüsünü ayarlar.
      */
     init() {
-        this.fetchData();
-        this.pollInterval = setInterval(() => this.fetchData(), 5000);
+        this.fetchData(); // İlk veriyi hemen çek
+        setInterval(() => this.fetchData(), 1000); // Her saniye tekrarla
     }
 
-    // =================================================================================
-    // BÖLÜM 2: VERİ YÖNETİMİ (DATA MANAGEMENT)
-    // =================================================================================
-
     /**
-     * 2.1. Spotify API'sinden mevcut çalma durumunu çeker.
-     * @async
+     * Spotify API'sinden veriyi çeker ve işlemeye gönderir.
      */
     async fetchData() {
         try {
             const response = await fetch(this.endpoint);
-
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error || `Sunucu hatası: ${response.status}`;
-                this._dispatchEvent('widget:error', { message: errorMessage });
+                this._dispatchEvent('widget:error', { message: `API Hatası: ${response.status}` });
                 return;
             }
-
             const data = await response.json();
             this._processData(data);
         } catch (error) {
-            console.error("Fetch sırasında kritik hata:", error);
-            this._dispatchEvent('widget:error', { message: `Widget verisi alınamıyor.` });
+            console.error("Veri çekme hatası:", error);
+            this._dispatchEvent('widget:error', { message: 'Widget verisi alınamıyor.' });
         }
     }
 
     /**
-     * 2.2. API'den gelen veriyi işler ve duruma göre ilgili olayı tetikler.
+     * Gelen veriyi işler ve duruma göre uygun olayı tetikler.
      * @param {object} data - API'den gelen veri.
-     * @private
      */
     _processData(data) {
-        this._dispatchEvent('widget:clear-error');
+        this._dispatchEvent('widget:clear-error'); // Her başarılı istekte hatayı temizle
         this.currentData = data;
 
-        if (!data.is_playing) {
-            if (this.isPlaying) {
+        // Durum 1: Müzik çalmıyor
+        if (!data || !data.item || !data.is_playing) {
+            if (this.isPlaying) { // Eğer daha önce çalıyorsa, durduruldu demektir
                 this.isPlaying = false;
                 this.currentTrackId = null;
+                this.isInitialLoad = true; // Tekrar çalmaya başladığında intro animasyonu için
                 this._dispatchEvent('widget:outro', { activeSet: this.activeSet });
             }
             return;
         }
 
+        // Durum 2: İlk yükleme veya durduktan sonra yeniden başlama
         if (this.isInitialLoad) {
             this.isPlaying = true;
             this.isInitialLoad = false;
@@ -109,40 +73,34 @@ class SpotifyStateService {
             this._dispatchEvent('widget:intro', { set: this.activeSet, data: data });
             return;
         }
-
+        
+        // Durum 3: Şarkı değişti
         if (this.currentTrackId !== data.item.id) {
             this.isPlaying = true;
             const passiveSet = this.activeSet === 'a' ? 'b' : 'a';
+            // Geçiş olayını tetikle, animasyon yöneticisi bunu yakalayacak
             this._dispatchEvent('widget:transition', { activeSet: this.activeSet, passiveSet: passiveSet, data: data });
             return;
         }
-        
+
+        // Durum 4: Aynı şarkı çalıyor (sadece ilerleme güncellenecek)
         this._dispatchEvent('widget:sync', { data: data, set: this.activeSet });
     }
 
-    // =================================================================================
-    // BÖLÜM 3: DURUM GÜNCELLEME (STATE UPDATE)
-    // =================================================================================
-
     /**
-     * 3.1. Şarkı geçişi animasyonu tamamlandıktan sonra durumu günceller.
+     * Şarkı geçişi animasyonu tamamlandıktan sonra durumu sonlandırır.
+     * Bu metod WidgetDOMManager tarafından çağrılır.
      * @param {string} newActiveSet - Yeni aktif set ('a' veya 'b').
      */
     finalizeTransition(newActiveSet) {
         this.activeSet = newActiveSet;
         this.currentTrackId = this.currentData.item.id;
-        this._dispatchEvent('widget:sync', { data: this.currentData, set: this.activeSet });
     }
 
-    // =================================================================================
-    // BÖLÜM 4: ÖZEL OLAY YAYINLAMA (PRIVATE EVENT DISPATCHING)
-    // =================================================================================
-
     /**
-     * 4.1. Widget elementinde özel bir olay tetikler.
-     * @param {string} eventName - Tetiklenecek olayın adı.
+     * Widget genelinde özel bir olay yayınlar.
+     * @param {string} eventName - Olayın adı (örn: 'widget:intro').
      * @param {object} detail - Olayla birlikte gönderilecek veri.
-     * @private
      */
     _dispatchEvent(eventName, detail = {}) {
         const event = new CustomEvent(eventName, { detail });

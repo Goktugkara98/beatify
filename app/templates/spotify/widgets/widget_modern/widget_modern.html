@@ -3,169 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Müzik Widget - Yeniden Yapılandırılmış</title>
+    <title>Müzik Widget - Yinelenen Hiyerarşik Yapı</title>
 
-    <!--
-      NOT:
-      Bu HTML yapısı tamamen yeniden düzenlenmiştir.
-      CSS dosyalarınızdaki sınıf seçicilerini aşağıdaki yeni yapıya göre güncellemeniz gerekmektedir.
-      Örneğin, '.modern-track-name-container' artık '.TrackNameLayoutContainer' olmuştur.
-      Bu yapı, düzen, animasyon ve içeriği birbirinden ayırarak daha temiz bir kod tabanı sunar.
-    -->
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern.css"> 
     <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_modern/widget_modern_animations.css"> 
 </head>
 <body>
-    <!-- 
-      WidgetContainer:
-      Tüm widget'ın ana sarmalayıcısı. Genel konumlandırma ve boyutlandırma burada yapılır.
-    -->
-    <div id="spotifyWidgetModern" class="WidgetContainer widget-inactive"
+    <div id="spotifyWidgetModern" class="WidgetMasterContainer widget-inactive"
          data-token="j5Bp8lwM6iad"
          data-endpoint-template="/spotify/api/widget-data/{TOKEN}">
-
-
         
-        <!-- 
-          BackgroundLayoutContainer:
-          Arka plan elemanlarının (görsel, renk vb.) widget içindeki yerleşimini kontrol eder.
-        -->
-        <div class="BackgroundLayoutContainer ">
-            <!-- 
-              AlbumArtBackgroundLayoutContainer:
-              Arka plan albüm görselinin pozisyonunu belirler.
-            -->
-            <div class="AlbumArtBackgroundLayoutContainer" >
-                <!-- AlbumArtBackgroundAnimationContainer: Animasyonun başlangıç durumunu (opacity, transform vb.) tanımlar. -->
-                <div id = AlbumArtBackgroundAnimationContainer_a class="AlbumArtBackgroundAnimationContainer" data-set="a">
-                    <img id="AlbumArtBackgroundElement_a" class="AlbumArtBackgroundElement" data-set="a" src="" alt="Arka Plan A">
-                </div>
-                <div id = AlbumArtBackgroundAnimationContainer_b class="AlbumArtBackgroundAnimationContainer passive" data-set="b">
-                    <img id="AlbumArtBackgroundElement_b" class="AlbumArtBackgroundElement" data-set="b" src="" alt="Arka Plan B">
-                </div>
-            </div>
-            <!-- Renk Arka Planı için gelecekteki bir konteyner buraya eklenebilir. -->
-            <!--
-            <div class="ColorBackgroundLayoutContainer">
-                <div class="ColorBackgroundAnimationContainer" data-set="a">
-                    <div id="ColorBackgroundElement_a" class="ColorBackgroundElement" data-set="a"></div>
-                </div>
-                <div class="ColorBackgroundAnimationContainer passive" data-set="b">
-                    <div id="ColorBackgroundElement_b" class="ColorBackgroundElement passive" data-set="b"></div>
-                </div>
-            </div>
-            -->
-        </div>
-
-        <!-- 
-          EffectsLayoutContainer:
-          Gradyan, parçacık gibi görsel efektlerin yerleşimini kontrol eder.
-        -->
-        <div class="EffectsLayoutContainer ">
-            <div class="GradientOverlayLayoutContainer">
-                <div class="GradientOverlayAnimationContainer">
-                    <div class="GradientOverlayElement"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 
-          CoverLayoutContainer:
-          Ana albüm kapak görselinin widget içindeki yerleşimini kontrol eder.
-        -->
-        <div class="CoverLayoutContainer ">
-            <div id = CoverAnimationContainer_a class="CoverAnimationContainer" data-set="a">
-                <img id="CoverElement_a" class="CoverElement" data-set="a" src="" alt="Kapak A">
-            </div>
-            <div id = CoverAnimationContainer_b class="CoverAnimationContainer passive" data-set="b">
-                <img id="CoverElement_b" class="CoverElement" data-set="b" src="" alt="Kapak B">
-            </div>
-        </div>
-
-        <!-- 
-          ContentLayoutContainer:
-          Şarkı bilgileri, ilerleme çubuğu gibi tüm ana içeriğin yerleşimini kontrol eder.
-        -->
-        <div class="ContentLayoutContainer">
-
-            <!-- TrackInfoLayoutContainer: Şarkı ve sanatçı adını bir arada gruplar ve konumlandırır. -->
-            <div class="TrackInfoLayoutContainer">
-                <div class="TrackNameLayoutContainer">
-                    <div id = TrackNameAnimationContainer_a class="TrackNameAnimationContainer" data-set="a">
-                        <h3 id="TrackNameElement_a" class="TrackNameElement" data-set="a" title="Şarkı Adı Yükleniyor..."></h3>
-                    </div>
-                    <div id = TrackNameAnimationContainer_b class="TrackNameAnimationContainer passive" data-set="b">
-                        <h3 id="TrackNameElement_b" class="TrackNameElement" data-set="b" title=""></h3>
-                    </div>
-                </div>
-                <div class="ArtistNameLayoutContainer">
-                    <div id = ArtistNameAnimationContainer_a class="ArtistNameAnimationContainer" data-set="a">
-                        <p id="ArtistNameElement_a" class="ArtistNameElement" data-set="a"></p>
-                    </div>
-                    <div id = ArtistNameAnimationContainer_b class="ArtistNameAnimationContainer passive" data-set="b">
-                        <p id="ArtistNameElement_b" class="ArtistNameElement" data-set="b"></p>
+        <!-- WIDGET INSTANCE A (AKTİF) -->
+        <div class="WidgetContainer_a">
+            <div class="BackgroundLayoutContainer_a">
+                <div class="AlbumArtBackgroundLayoutContainer_a">
+                    <div class="AlbumArtBackgroundAnimationContainer_a">
+                        <img class="AlbumArtBackgroundElement_a" src="" alt="Arka Plan A">
                     </div>
                 </div>
             </div>
-
-            <!-- PlayerControlsLayoutContainer: İlerleme çubuğu ve zaman göstergelerini gruplar. -->
-            <div class="PlayerControlsLayoutContainer ">
-                <div class="ProgressBarLayoutContainer ">
-                    <div id = ProgressBarAnimationContainer_a class="ProgressBarAnimationContainer" data-set="a">
-                        <div id="ProgressBarElement_a" class="ProgressBarElement" style="width: 0%;" data-set="a"></div>
-                    </div>
-                    <div id = ProgressBarAnimationContainer_b class="ProgressBarAnimationContainer passive" data-set="b">
-                        <div id="ProgressBarElement_b" class="ProgressBarElement" style="width: 0%;" data-set="b"></div>
+            <div class="EffectsLayoutContainer_a">
+                <div class="GradientOverlayLayoutContainer_a">
+                    <div class="GradientOverlayAnimationContainer_a">
+                        <div class="GradientOverlayElement_a"></div>
                     </div>
                 </div>
-                <div class="TimeDisplayLayoutContainer">
-                    <div class="CurrentTimeLayoutContainer">
-                        <div id = CurrentTimeAnimationContainer_a class="CurrentTimeAnimationContainer" data-set="a">
-                            <span id="CurrentTimeElement_a" class="CurrentTimeElement" data-set="a">0:00</span>
-                        </div>
-                        <div id = CurrentTimeAnimationContainer_b class="CurrentTimeAnimationContainer passive" data-set="b">
-                             <span id="CurrentTimeElement_b" class="CurrentTimeElement" data-set="b">0:00</span>
+            </div>
+            <div class="CoverLayoutContainer_a">
+                <div class="CoverAnimationContainer_a">
+                    <img class="CoverElement_a" src="" alt="Kapak A">
+                </div>
+            </div>
+            <div class="ContentLayoutContainer_a">
+                <div class="TrackInfoLayoutContainer_a">
+                    <div class="TrackNameLayoutContainer_a">
+                        <div class="TrackNameAnimationContainer_a">
+                            <h3 class="TrackNameElement_a" title="Şarkı Adı Yükleniyor..."></h3>
                         </div>
                     </div>
-                    <div class="TotalTimeLayoutContainer">
-                        <div id = TotalTimeAnimationContainer_a class="TotalTimeAnimationContainer" data-set="a">
-                            <span id="TotalTimeElement_a" class="TotalTimeElement" data-set="a">0:00</span>
+                    <div class="ArtistNameLayoutContainer_a">
+                        <div class="ArtistNameAnimationContainer_a">
+                            <p class="ArtistNameElement_a"></p>
                         </div>
-                        <div id = TotalTimeAnimationContainer_b class="TotalTimeAnimationContainer passive" data-set="b">
-                            <span id="TotalTimeElement_b" class="TotalTimeElement" data-set="b">0:00</span>
+                    </div>
+                </div>
+                <div class="PlayerControlsLayoutContainer_a">
+                    <div class="ProgressBarLayoutContainer_a">
+                        <div class="ProgressBarAnimationContainer_a">
+                            <div class="ProgressBarElement_a" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="TimeDisplayLayoutContainer_a">
+                        <div class="CurrentTimeLayoutContainer_a">
+                            <div class="CurrentTimeAnimationContainer_a">
+                                <span class="CurrentTimeElement_a">0:00</span>
+                            </div>
+                        </div>
+                        <div class="TotalTimeLayoutContainer_a">
+                            <div class="TotalTimeAnimationContainer_a">
+                                <span class="TotalTimeElement_a">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="BadgeLayoutContainer_a">
+                    <div class="ProviderBadgeAnimationContainer_a">
+                        <div class="ProviderBadgeElement_a spotify">
+                            <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo_a">
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- ProviderBadgeLayoutContainer: Servis sağlayıcı logosunun yerleşimini kontrol eder. -->
-            <div class="BadgeLayoutContainer">
-                <div id = ProviderBadgeAnimationContainer_a class="ProviderBadgeAnimationContainer" data-set="a">
-                    <!-- 'spotify' gibi bir sınıf JS ile eklenerek logo değiştirilebilir -->
-                    <div id="ProviderBadgeElement_a" class="ProviderBadgeElement spotify" data-set="a">
-                        <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo">
+        <!-- WIDGET INSTANCE B (PASİF) -->
+        <div class="WidgetContainer_b passive">
+            <div class="BackgroundLayoutContainer_b passive">
+                <div class="AlbumArtBackgroundLayoutContainer_b passive">
+                    <div class="AlbumArtBackgroundAnimationContainer_b passive">
+                        <img class="AlbumArtBackgroundElement_b passive" src="" alt="Arka Plan B">
                     </div>
                 </div>
-                 <div id = ProviderBadgeAnimationContainer_b class="ProviderBadgeAnimationContainer passive" data-set="b">
-                    <div id="ProviderBadgeElement_b" class="ProviderBadgeElement spotify" data-set="b">
-                        <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo">
+            </div>
+            <div class="EffectsLayoutContainer_b passive">
+                <div class="GradientOverlayLayoutContainer_b passive">
+                    <div class="GradientOverlayAnimationContainer_b passive">
+                        <div class="GradientOverlayElement_b passive"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="CoverLayoutContainer_b passive">
+                <div class="CoverAnimationContainer_b passive">
+                    <img class="CoverElement_b passive" src="" alt="Kapak B">
+                </div>
+            </div>
+            <div class="ContentLayoutContainer_b passive">
+                <div class="TrackInfoLayoutContainer_b passive">
+                    <div class="TrackNameLayoutContainer_b passive">
+                        <div class="TrackNameAnimationContainer_b passive">
+                            <h3 class="TrackNameElement_b passive" title=""></h3>
+                        </div>
+                    </div>
+                    <div class="ArtistNameLayoutContainer_b passive">
+                        <div class="ArtistNameAnimationContainer_b passive">
+                            <p class="ArtistNameElement_b passive"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="PlayerControlsLayoutContainer_b passive">
+                    <div class="ProgressBarLayoutContainer_b passive">
+                        <div class="ProgressBarAnimationContainer_b passive">
+                            <div class="ProgressBarElement_b passive" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="TimeDisplayLayoutContainer_b passive">
+                        <div class="CurrentTimeLayoutContainer_b passive">
+                            <div class="CurrentTimeAnimationContainer_b passive">
+                                <span class="CurrentTimeElement_b passive">0:00</span>
+                            </div>
+                        </div>
+                        <div class="TotalTimeLayoutContainer_b passive">
+                            <div class="TotalTimeAnimationContainer_b passive">
+                                <span class="TotalTimeElement_b passive">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="BadgeLayoutContainer_b passive">
+                    <div class="ProviderBadgeAnimationContainer_b passive">
+                        <div class="ProviderBadgeElement_b spotify passive">
+                            <img src="/static/img/icons/Spotify/Full_Logo_Green_RGB.svg" alt="Spotify" class="ProviderLogo_b passive">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     
     <!-- Backend'den gelen konfigürasyon verileri -->
     <script>
         // Bu kısım sunucu tarafından render edildiğinde dinamik olarak doldurulur.
         window.configData = JSON.parse('{{ config|tojson|safe }}');
-        console.log('Backend config yüklendi:', window.configData);
     </script>
-    <!-- Gerekli JavaScript dosyaları -->
-    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ContentUpdaterService.js"></script>
+
+    <!-- Gerekli JavaScript dosyaları (Bu dosyaların içeriğinin de yeni yapıya göre güncellenmesi gerekecektir) -->
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/AnimationService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ContentUpdaterService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/SpotifyStateService.js"></script>
-    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>    
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/main.js"></script>
 
 </body>
