@@ -83,7 +83,7 @@ body {
     color: var(--widget-text-color);
     font-family: var(--widget-font-family);
     transform: var(--gpu-acceleration);
-    transition: opacity var(--transition-duration) var(--transition-timing);
+
     opacity: 1;
     contain: strict;
     will-change: transform, opacity;
@@ -101,8 +101,7 @@ body {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    transition: opacity var(--transition-duration) var(--transition-timing),
-                visibility 0s linear var(--transition-duration);
+    transition: visibility 0s linear var(--transition-duration);
 }
 
 /* Performans optimizasyonu için içerik dondurma */

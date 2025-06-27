@@ -118,97 +118,81 @@ class AnimationService {
             return;
         }
 
-        console.log(`[AnimationService] Geçiş başlıyor. Aktif: ${activeSet}, Pasif: ${passiveSet}`);
-        
-        // Önce mevcut aktif seti pasif yap
-        this._applyZIndexes(activeSet, 'passive');
-        
-        // Yeni aktif seti ayarla
-        this._applyZIndexes(passiveSet, 'active');
-        
+        console.log(`%c[AnimationService] Geçiş başlıyor. Aktif: ${activeSet}, Pasif: ${passiveSet}`, 'color: #FFA500; font-weight: bold;');
+
+        // HATA DÜZELTME: Aktif sete 'active' state'i, pasif sete 'passive' state'i uygulanmalı.
+        // Pasif setin (yeni gelen) z-index'i daha yüksek olmalı ki üstte görünsün.
+        this._applyZIndexes(passiveSet, 'passive');
+        this._applyZIndexes(activeSet, 'active');
+
         const activeContainer = this.widgetElement.querySelector(`.WidgetContainer_${activeSet}`);
         const passiveContainer = this.widgetElement.querySelector(`.WidgetContainer_${passiveSet}`);
-        
+
         if (!activeContainer || !passiveContainer) {
             console.error('Geçiş için gerekli containerlar bulunamadı');
             return;
         }
 
-        // CSS sınıflarını güncelle
+        console.log(`%c[Z-INDEX] ${passiveContainer.className} -> zIndex=2`, 'color: #8A2BE2;');
+        passiveContainer.style.zIndex = 2;
+        console.log(`%c[Z-INDEX] ${activeContainer.className} -> zIndex=1`, 'color: #8A2BE2;');
+        activeContainer.style.zIndex = 1;
+
         activeContainer.classList.add('passive');
         passiveContainer.classList.remove('passive');
-        
-        // Animasyonlar için gerekli stilleri uygula
+
         const animatedElements = [];
-        
-        // Aktif set için çıkış animasyonu
+
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, activeSet);
             const transitionOutAnim = setData?.animations?.transitionOut;
-            
             if (transitionOutAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
+                    console.log(`%c  -> [Out Animation] ${componentName} (${activeSet}) | Anim: ${transitionOutAnim.animation}`, 'color: #FF6347');
                     const initialStyle = this.cssParser.getInitialStyle(transitionOutAnim.animation);
-                    if (initialStyle) {
-                        Object.assign(element.style, initialStyle);
-                    }
-                    animatedElements.push({
-                        element,
-                        animation: transitionOutAnim,
-                        cleanup: true
-                    });
+                    if (initialStyle) Object.assign(element.style, initialStyle);
+                    animatedElements.push({ element, animation: transitionOutAnim, cleanup: true });
                 }
             }
         });
-        
-        // Pasif set için giriş animasyonu
+
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, passiveSet);
             const transitionInAnim = setData?.animations?.transitionIn;
-            
             if (transitionInAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
+                    console.log(`%c  -> [In Animation] ${componentName} (${passiveSet}) | Anim: ${transitionInAnim.animation}`, 'color: #32CD32');
                     const initialStyle = this.cssParser.getInitialStyle(transitionInAnim.animation);
-                    if (initialStyle) {
-                        Object.assign(element.style, initialStyle);
-                    }
-                    animatedElements.push({
-                        element,
-                        animation: transitionInAnim,
-                        cleanup: true
-                    });
+                    if (initialStyle) Object.assign(element.style, initialStyle);
+                    animatedElements.push({ element, animation: transitionInAnim, cleanup: true });
                 }
             }
         });
-        
-        // Animasyonları başlat
+
         await new Promise(resolve => requestAnimationFrame(resolve));
-        
+
         let maxDuration = 0;
-        animatedElements.forEach(({element, animation, cleanup}) => {
+        animatedElements.forEach(({ element, animation }) => {
             element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms forwards`;
-            
             const totalTime = (animation.delay || 0) + (animation.duration || 0);
-            if (totalTime > maxDuration) {
-                maxDuration = totalTime;
-            }
+            if (totalTime > maxDuration) maxDuration = totalTime;
         });
-        
-        // Animasyonlar bittiğinde temizlik yap
+
         if (maxDuration > 0) {
             await new Promise(resolve => setTimeout(resolve, maxDuration));
         }
-        
-        // Temizlik
-        animatedElements.forEach(({element, cleanup}) => {
-            if (cleanup) {
-                this._cleanupAnimationStyles(element);
-            }
+
+        animatedElements.forEach(({ element, cleanup }) => {
+            if (cleanup) this._cleanupAnimationStyles(element);
         });
-        
-        console.log('[AnimationService] Geçiş tamamlandı');
+
+        console.log(`%c[Z-INDEX] Temizleniyor: ${activeContainer.className} ve ${passiveContainer.className}`, 'color: #8A2BE2;');
+        activeContainer.style.zIndex = '';
+        passiveContainer.style.zIndex = '';
+
+        console.log('%c[AnimationService] Geçiş tamamlandı.', 'color: #FFA500; font-weight: bold;');
     }
 
     async playOutro() {

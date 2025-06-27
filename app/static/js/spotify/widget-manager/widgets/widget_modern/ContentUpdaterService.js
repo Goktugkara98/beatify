@@ -17,6 +17,8 @@ class ContentUpdaterService {
         const item = data.item;
         if (!item) return;
 
+        console.log(`%c[ContentUpdater] Set '${set}' için içerik güncelleniyor: ${item.name}`, 'color: #4CAF50');
+
         this._updateText(`.TrackNameElement_${set}`, item.name);
         this._updateText(`.ArtistNameElement_${set}`, item.artists.map(a => a.name).join(', '));
         this._updateText(`.TotalTimeElement_${set}`, this._formatTime(item.duration_ms));

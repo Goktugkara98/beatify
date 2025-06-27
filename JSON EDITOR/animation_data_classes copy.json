@@ -27,26 +27,26 @@
       ],
       "zIndex": {
         "active": {
-          "AlbumArtBackgroundElement": 1,
-          "CoverElement": 3,
-          "GradientOverlayElement": 5,
-          "TrackNameElement": 4,
-          "ArtistNameElement": 5,
-          "ProgressBarElement": 6,
-          "CurrentTimeElement": 7,
-          "TotalTimeElement": 8,
-          "ProviderLogo": 9
+          "AlbumArtBackgroundElement": 3,
+          "CoverElement": 4,
+          "GradientOverlayElement": 7,
+          "TrackNameElement": 9,
+          "ArtistNameElement": 11,
+          "ProgressBarElement": 13,
+          "CurrentTimeElement": 15,
+          "TotalTimeElement": 17,
+          "ProviderLogo": 19
         },
         "passive": {
-          "AlbumArtBackgroundElement": 2,
-          "GradientOverlayElement": 4,
+          "AlbumArtBackgroundElement": 5,
           "CoverElement": 6,
-          "TrackNameElement": 7,
-          "ArtistNameElement": 8,
-          "ProgressBarElement": 9,
-          "CurrentTimeElement": 10,
-          "TotalTimeElement": 80,
-          "ProviderLogo": 90
+          "GradientOverlayElement": 8,
+          "TrackNameElement": 10,
+          "ArtistNameElement": 12,
+          "ProgressBarElement": 14,
+          "CurrentTimeElement": 16,
+          "TotalTimeElement": 18,
+          "ProviderLogo": 20
         }
       }
     },
@@ -57,9 +57,9 @@
           "element": "AlbumArtBackgroundElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 0 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
-            "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
+            "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "none", "duration": 1000, "delay": 0 },
+            "outro": { "animation": "none", "duration": 1000, "delay": 0 }
           },
           "styles": {}
         },
@@ -68,9 +68,9 @@
           "element": "AlbumArtBackgroundElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 0 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
-            "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
+            "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "none", "duration": 1000, "delay": 0 },
+            "outro": { "animation": "none", "duration": 1000, "delay": 0 }
           },
           "styles": {}
         }
@@ -105,8 +105,8 @@
           "element": "CoverElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1000 },
-            "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "fade-out", "duration": 1000, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}
@@ -116,8 +116,8 @@
           "element": "CoverElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1000 },
-            "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "fade-out", "duration": 1000, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}

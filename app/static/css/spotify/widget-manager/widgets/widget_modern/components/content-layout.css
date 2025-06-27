@@ -89,7 +89,6 @@
     line-height: 1.2;
     text-shadow: var(--widget-text-shadow);
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
     max-width: 100%;
@@ -109,7 +108,6 @@
     color: rgba(255, 255, 255, 0.7);
     text-shadow: var(--widget-text-shadow);
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
     max-width: 100%;

@@ -36,6 +36,8 @@ class CSSAnimationParser {
                                 for (const prop of keyframe.style) {
                                     styles[prop] = keyframe.style.getPropertyValue(prop);
                                 }
+                                // TEŞHİS KODU: Hangi stillerin bulunduğunu konsola yazdır.
+                                console.log(`%c[CSSAnimationParser] Found initial styles for '${animationName}':`, 'color: #007bff;', JSON.stringify(styles));
                                 this.styleCache.set(animationName, styles); // Önbelleğe ekle
                                 return styles;
                             }

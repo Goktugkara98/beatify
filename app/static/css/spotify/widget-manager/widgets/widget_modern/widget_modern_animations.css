@@ -94,27 +94,6 @@
   }
 }
 
-@keyframes slide-out-to-right {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-}
-
-@keyframes slide-out-to-left {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-}
 
 @keyframes slide-in-from-left-opacity {
     from {

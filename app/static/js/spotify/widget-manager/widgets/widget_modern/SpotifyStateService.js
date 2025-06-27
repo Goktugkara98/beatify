@@ -60,53 +60,43 @@ class SpotifyStateService {
      * @param {object} data - API'den gelen veri.
      */
     _processData(data) {
-        // Her başarılı veri alımında hata mesajını temizle
         this._dispatchEvent('widget:clear-error');
         this.currentData = data;
 
         const isNowPlaying = data && data.item && data.is_playing;
         const newTrackId = isNowPlaying ? data.item.id : null;
+        // console.log(`%c[StateService] Veri işleniyor. isNowPlaying: ${isNowPlaying}, newTrackId: ${newTrackId}, currentTrackId: ${this.currentTrackId}, isInitialLoad: ${this.isInitialLoad}`, 'color: #9E9E9E');
 
-        // --- DURUM 1: MÜZİK ÇALMIYOR veya DURDURULDU ---
         if (!isNowPlaying) {
-            if (this.isPlaying) { // Eğer önceden çalıyorsa, şimdi durduruldu demektir.
-                console.log('%c[StateService] Olay: Şarkı Durduruldu', 'color: orange;');
+            if (this.isPlaying) {
+                console.log('%c[StateService] DURUM 1: Şarkı Durduruldu -> widget:outro tetikleniyor.', 'color: orange; font-weight: bold;');
                 this.isPlaying = false;
                 this.currentTrackId = null;
-                this.isInitialLoad = true; // Bir sonraki şarkı başlangıcı 'intro' olmalı.
+                this.isInitialLoad = true;
                 this._dispatchEvent('widget:outro', { activeSet: this.activeSet });
             }
-            // Zaten çalmıyorsa hiçbir şey yapma.
             return;
         }
 
-        // --- DURUM 2: İLK ŞARKI AÇILIYOR (INTRO) ---
-        // Widget'ın ilk yüklenmesi veya duraklatıldıktan sonra tekrar oynatılması durumu.
         if (this.isInitialLoad) {
-            console.log('%c[StateService] Olay: İlk Şarkı Açılıyor (Intro)', 'color: green;');
+            console.log('%c[StateService] DURUM 2: İlk Şarkı -> widget:intro tetikleniyor.', 'color: green; font-weight: bold;');
             this.isPlaying = true;
             this.isInitialLoad = false;
             this.currentTrackId = newTrackId;
             this._dispatchEvent('widget:intro', { set: this.activeSet, data: data });
             return;
         }
-        
-        // --- DURUM 3: ŞARKI DEĞİŞTİ (TRANSITION) ---
-        // Farklı bir şarkı ID'si tespit edildi.
+
         if (this.currentTrackId !== newTrackId) {
-            console.log(`%c[StateService] Olay: Şarkı Değişti`, 'color: cyan;', `\n  Eski ID: ${this.currentTrackId}\n  Yeni ID: ${newTrackId}`);
+            console.log(`%c[StateService] DURUM 3: Şarkı Değişti -> widget:transition tetikleniyor.`, 'color: cyan; font-weight: bold;', `\n  Eski ID: ${this.currentTrackId}\n  Yeni ID: ${newTrackId}`);
             this.isPlaying = true;
             const passiveSet = this.activeSet === 'a' ? 'b' : 'a';
-            // Geçiş olayını tetikle. DOM Yöneticisi animasyonu yönetecek.
             this._dispatchEvent('widget:transition', { activeSet: this.activeSet, passiveSet: passiveSet, data: data });
-            // Not: currentTrackId burada DEĞİŞMEZ. Değişim, animasyon bittikten sonra `finalizeTransition` ile yapılır.
             return;
         }
 
-        // --- DURUM 4: AYNI ŞARKI ÇALIYOR (SYNC) ---
-        // Hiçbir durum değişmedi, sadece ilerleme çubuğu güncellenmeli.
         if (this.isPlaying) {
-            // console.log('[StateService] Olay: Senkronizasyon (Aynı şarkı devam ediyor)'); // Bu log çok sık tekrarlanacağı için kapatıldı.
+            // console.log('[StateService] DURUM 4: Senkronizasyon');
             this._dispatchEvent('widget:sync', { data: data, set: this.activeSet });
         }
     }

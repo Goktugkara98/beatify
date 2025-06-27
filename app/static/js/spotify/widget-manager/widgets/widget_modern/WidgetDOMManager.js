@@ -36,46 +36,46 @@ class WidgetDOMManager {
     }
 
     async _handleIntro(detail) {
-        console.log(`[DOMManager] İLK AÇILIŞ BAŞLADI (Set: ${detail.set})`);
-        
+        console.log(`%c[DOMManager] Event: widget:intro | Set: ${detail.set}`, 'color: #00BCD4; font-weight: bold;');
+        console.log(`[DOMManager] Adım 1: İçerik güncelleniyor -> ${detail.set}`);
         this.contentUpdater.updateAllForSet(detail.set, detail.data);
-        
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-        console.log('%c[DOMManager _handleIntro] KULLANILAN animationService:', 'color: red; font-weight: bold;', this.animationService);
+        console.log(`[DOMManager] Adım 2: Animasyon başlatılıyor...`);
         this.animationService.playIntro();
-        
+        console.log(`[DOMManager] Adım 3: Progress updater başlatılıyor...`);
         this.contentUpdater.startProgressUpdater(detail.data, detail.set);
     }
     
     _handleOutro() {
+        console.log('%c[DOMManager] Event: widget:outro', 'color: #00BCD4; font-weight: bold;');
         this.animationService.playOutro();
         this.contentUpdater.stopProgressUpdater();
     }
 
     async _handleTransition(detail) {
-        console.log(`[DOMManager] ŞARKI GEÇİŞİ BAŞLADI (Aktif: ${detail.activeSet}, Pasif: ${detail.passiveSet})`);
-    
-        // 1. ADIM: Yeni (pasif) setin içeriğini animasyon başlamadan önce güncelle.
-        // Bu olmadan, 'b' seti boş bir şekilde ekrana gelirdi.
+        console.log(`%c[DOMManager] Event: widget:transition | Aktif: ${detail.activeSet}, Pasif: ${detail.passiveSet}`, 'color: #00BCD4; font-weight: bold;');
+
+        console.log(`[DOMManager] Adım 1: İçerik güncelleniyor -> ${detail.passiveSet}`);
         this.contentUpdater.updateAllForSet(detail.passiveSet, detail.data);
-    
-        // 2. ADIM: Geçiş animasyonunu başlat ve tamamlanmasını bekle.
-        // 'await' olmadan, aşağıdaki kod animasyon bitmeden anında çalışırdı.
+
+        console.log(`[DOMManager] Adım 2: Animasyon başlatılıyor...`);
         await this.animationService.playTransition(detail);
-    
-        // 3. ADIM: Animasyon bittikten sonra StateService'e haber ver.
-        // Bu, mevcut şarkı ID'sini güncelleyerek sonsuz döngüyü engeller.
+        console.log(`[DOMManager] Adım 2: Animasyon tamamlandı.`);
+
+        console.log(`[DOMManager] Adım 3: State sonlandırılıyor -> yeni aktif set: ${detail.passiveSet}`);
         this.stateService.finalizeTransition(detail.passiveSet);
-        
-        console.log(`[DOMManager] ŞARKI GEÇİŞİ TAMAMLANDI. Yeni aktif set: ${detail.passiveSet}`);
+
+        console.log(`%c[DOMManager] ŞARKI GEÇİŞİ TAMAMLANDI.`, 'color: #00BCD4; font-weight: bold;');
     }
 
     _handleSync({ data, set }) {
+        // Bu log çok sık tekrarlanacağı için kapalı
+        // console.log(`[DOMManager] Event: widget:sync | Set: ${set}`);
         this.contentUpdater.startProgressUpdater(data, set);
     }
     
     _handleError({ message }) {
+        console.log('%c[DOMManager] Event: widget:error', 'color: #00BCD4; font-weight: bold;');
         if(this.errorContainer) {
             this.errorContainer.innerText = message;
             this.errorContainer.style.display = 'block';
