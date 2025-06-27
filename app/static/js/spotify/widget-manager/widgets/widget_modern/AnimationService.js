@@ -117,82 +117,94 @@ class AnimationService {
             console.error('Theme servisi veya verisi bulunamadı');
             return;
         }
-
+    
         console.log(`%c[AnimationService] Geçiş başlıyor. Aktif: ${activeSet}, Pasif: ${passiveSet}`, 'color: #FFA500; font-weight: bold;');
-
-        // HATA DÜZELTME: Aktif sete 'active' state'i, pasif sete 'passive' state'i uygulanmalı.
-        // Pasif setin (yeni gelen) z-index'i daha yüksek olmalı ki üstte görünsün.
-        this._applyZIndexes(passiveSet, 'passive');
-        this._applyZIndexes(activeSet, 'active');
-
+    
         const activeContainer = this.widgetElement.querySelector(`.WidgetContainer_${activeSet}`);
         const passiveContainer = this.widgetElement.querySelector(`.WidgetContainer_${passiveSet}`);
-
+    
         if (!activeContainer || !passiveContainer) {
             console.error('Geçiş için gerekli containerlar bulunamadı');
             return;
         }
-
-        console.log(`%c[Z-INDEX] ${passiveContainer.className} -> zIndex=2`, 'color: #8A2BE2;');
-        passiveContainer.style.zIndex = 2;
-        console.log(`%c[Z-INDEX] ${activeContainer.className} -> zIndex=1`, 'color: #8A2BE2;');
-        activeContainer.style.zIndex = 1;
-
-        activeContainer.classList.add('passive');
+    
+        // 1. ADIM: Z-index yapılandırmasını uygula. Gelecek olan (passiveSet) üstte olmalı.
+        this._applyZIndexes(passiveSet, 'passive'); // 'passive' state'i daha yüksek z-index'e sahip olmalı
+        this._applyZIndexes(activeSet, 'active');
+    
+        // 2. ADIM: Gelecek olan konteyneri görünür kıl (henüz animasyon başlamadı).
         passiveContainer.classList.remove('passive');
-
+        
+        // Konteynerların z-index'lerini manuel olarak da ayarlayarak üste çıkmayı garantile.
+        passiveContainer.style.zIndex = 2;
+        activeContainer.style.zIndex = 1;
+    
         const animatedElements = [];
-
+        const animationPromises = [];
+    
+        // 3. ADIM: Tüm çıkış ve giriş animasyonlarını ve başlangıç stillerini hazırla.
+        // Çıkış Animasyonları (activeSet)
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, activeSet);
             const transitionOutAnim = setData?.animations?.transitionOut;
             if (transitionOutAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
-                    console.log(`%c  -> [Out Animation] ${componentName} (${activeSet}) | Anim: ${transitionOutAnim.animation}`, 'color: #FF6347');
+                    console.log(`%c  -> [Out Animation Hazırlanıyor] ${componentName} (${activeSet})`, 'color: #FF6347');
                     const initialStyle = this.cssParser.getInitialStyle(transitionOutAnim.animation);
                     if (initialStyle) Object.assign(element.style, initialStyle);
                     animatedElements.push({ element, animation: transitionOutAnim, cleanup: true });
                 }
             }
         });
-
+    
+        // Giriş Animasyonları (passiveSet)
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, passiveSet);
             const transitionInAnim = setData?.animations?.transitionIn;
             if (transitionInAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
-                    console.log(`%c  -> [In Animation] ${componentName} (${passiveSet}) | Anim: ${transitionInAnim.animation}`, 'color: #32CD32');
+                    console.log(`%c  -> [In Animation Hazırlanıyor] ${componentName} (${passiveSet})`, 'color: #32CD32');
                     const initialStyle = this.cssParser.getInitialStyle(transitionInAnim.animation);
                     if (initialStyle) Object.assign(element.style, initialStyle);
                     animatedElements.push({ element, animation: transitionInAnim, cleanup: true });
                 }
             }
         });
-
+    
+        // 4. ADIM: Tarayıcının stilleri uyguladığından emin olmak için bir sonraki frame'i bekle.
         await new Promise(resolve => requestAnimationFrame(resolve));
-
+    
+        // 5. ADIM: Tüm animasyonları aynı anda başlat.
+        console.log('[AnimationService] Animasyonlar başlatılıyor...');
         let maxDuration = 0;
         animatedElements.forEach(({ element, animation }) => {
             element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms forwards`;
             const totalTime = (animation.delay || 0) + (animation.duration || 0);
             if (totalTime > maxDuration) maxDuration = totalTime;
         });
-
+    
+        // 6. ADIM: En uzun animasyonun bitmesini bekle.
         if (maxDuration > 0) {
             await new Promise(resolve => setTimeout(resolve, maxDuration));
         }
-
+        console.log('[AnimationService] Tüm animasyonlar tamamlandı.');
+    
+        // 7. ADIM: Animasyonlar bittikten sonra gerekli temizliği yap.
+        // Giden konteyneri ARTIK gizle.
+        activeContainer.classList.add('passive');
+    
+        // Elementlere eklenen animasyon ve stil bilgilerini temizle.
         animatedElements.forEach(({ element, cleanup }) => {
             if (cleanup) this._cleanupAnimationStyles(element);
         });
-
-        console.log(`%c[Z-INDEX] Temizleniyor: ${activeContainer.className} ve ${passiveContainer.className}`, 'color: #8A2BE2;');
+    
+        // Z-index'leri sıfırla.
         activeContainer.style.zIndex = '';
         passiveContainer.style.zIndex = '';
-
-        console.log('%c[AnimationService] Geçiş tamamlandı.', 'color: #FFA500; font-weight: bold;');
+    
+        console.log('%c[AnimationService] Geçiş tamamlandı ve temizlik yapıldı.', 'color: #FFA500; font-weight: bold;');
     }
 
     async playOutro() {

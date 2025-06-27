@@ -56,10 +56,10 @@
           "animationContainer": "AlbumArtBackgroundAnimationContainer_a",
           "element": "AlbumArtBackgroundElement_a",
           "animations": {
-            "intro": { "animation": "fade-in", "duration": 2000, "delay": 0 },
+            "intro": { "animation": "fade-in", "duration": 1000, "delay": 0 },
             "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
             "transitionOut": { "animation": "none", "duration": 1000, "delay": 0 },
-            "outro": { "animation": "none", "duration": 1000, "delay": 0 }
+            "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}
         },
@@ -67,10 +67,10 @@
           "animationContainer": "AlbumArtBackgroundAnimationContainer_b",
           "element": "AlbumArtBackgroundElement_b",
           "animations": {
-            "intro": { "animation": "fade-in", "duration": 2000, "delay": 0 },
+            "intro": { "animation": "fade-in", "duration": 1000, "delay": 0 },
             "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
             "transitionOut": { "animation": "none", "duration": 1000, "delay": 0 },
-            "outro": { "animation": "none", "duration": 1000, "delay": 0 }
+            "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}
         }
@@ -91,7 +91,7 @@
           "animationContainer": "GradientOverlayAnimationContainer_b",
           "element": "GradientOverlayElement_b",
           "animations": {
-            "intro": { "animation": "fade-in", "duration": 2000, "delay": 500 },
+            "intro": { "animation": "fade-in", "duration": 1000, "delay": 500 },
             "transitionIn": { "animation": "fade-in", "duration": 1000, "delay": 0 },
             "transitionOut": { "animation": "none", "duration": 1000, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
@@ -104,9 +104,9 @@
           "animationContainer": "CoverAnimationContainer_a",
           "element": "CoverElement_a",
           "animations": {
-            "intro": { "animation": "fade-in", "duration": 2000, "delay": 1000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
+            "intro": { "animation": "fade-in", "duration": 1000, "delay": 500 },
+            "transitionIn": { "animation": "slide-in-from-top", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "slide-out-to-bottom", "duration": 1000, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}
@@ -115,9 +115,9 @@
           "animationContainer": "CoverAnimationContainer_b",
           "element": "CoverElement_b",
           "animations": {
-            "intro": { "animation": "fade-in", "duration": 2000, "delay": 1000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 1000, "delay": 0 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 1000, "delay": 0 },
+            "intro": { "animation": "fade-in", "duration": 1000, "delay": 500 },
+            "transitionIn": { "animation": "slide-in-from-top", "duration": 1000, "delay": 0 },
+            "transitionOut": { "animation": "slide-out-to-bottom", "duration": 1000, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": {}
@@ -129,8 +129,8 @@
           "element": "TrackNameElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-left", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-right", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -140,8 +140,8 @@
           "element": "TrackNameElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-left", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-right", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -153,8 +153,8 @@
           "element": "ArtistNameElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-right", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-left", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -164,8 +164,8 @@
           "element": "ArtistNameElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 1500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-right", "duration": 800, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-left", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -177,8 +177,8 @@
           "element": "ProgressBarElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -188,8 +188,8 @@
           "element": "ProgressBarElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -201,8 +201,8 @@
           "element": "CurrentTimeElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -212,8 +212,8 @@
           "element": "CurrentTimeElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -225,8 +225,8 @@
           "element": "TotalTimeElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -236,8 +236,8 @@
           "element": "TotalTimeElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2000 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-bottom", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-top", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -249,8 +249,8 @@
           "element": "ProviderBadgeElement_a",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-top", "duration": 1000, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-bottom", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }
@@ -260,8 +260,8 @@
           "element": "ProviderBadgeElement_b",
           "animations": {
             "intro": { "animation": "fade-in", "duration": 2000, "delay": 2500 },
-            "transitionIn": { "animation": "slide-in-from-left-opacity", "duration": 800, "delay": 400 },
-            "transitionOut": { "animation": "slide-out-to-right-opacity", "duration": 600, "delay": 0 },
+            "transitionIn": { "animation": "slide-in-from-top", "duration": 800, "delay": 400 },
+            "transitionOut": { "animation": "slide-out-to-bottom", "duration": 600, "delay": 0 },
             "outro": { "animation": "fade-out", "duration": 1000, "delay": 0 }
           },
           "styles": { "colors": { "playing": "#FFFFFF" } }

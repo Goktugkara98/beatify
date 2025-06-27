@@ -53,19 +53,30 @@ class WidgetDOMManager {
     }
 
     async _handleTransition(detail) {
-        console.log(`%c[DOMManager] Event: widget:transition | Aktif: ${detail.activeSet}, Pasif: ${detail.passiveSet}`, 'color: #00BCD4; font-weight: bold;');
-
-        console.log(`[DOMManager] Adım 1: İçerik güncelleniyor -> ${detail.passiveSet}`);
+        console.log(`%c[DOMManager] Event: widget:transition | Giden: ${detail.activeSet}, Gelen: ${detail.passiveSet}`, 'color: #00BCD4; font-weight: bold;');
+    
+        // ADIM 1: YENİ şarkının bilgilerini ilgili (pasif) sete yükle.
+        console.log(`[DOMManager] Adım 1: Yeni içerik güncelleniyor -> ${detail.passiveSet}`);
         this.contentUpdater.updateAllForSet(detail.passiveSet, detail.data);
-
-        console.log(`[DOMManager] Adım 2: Animasyon başlatılıyor...`);
+    
+        // Tarayıcının yeni içeriği (özellikle resimleri) işlemesi için kısa bir bekleme.
+        // Bu, resimlerin animasyon sırasında yüklenmemiş olma riskini azaltır.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    
+        // ADIM 2: Animasyonu başlat ve bitmesini bekle.
+        console.log(`[DOMManager] Adım 2: Geçiş animasyonu başlatılıyor...`);
         await this.animationService.playTransition(detail);
-        console.log(`[DOMManager] Adım 2: Animasyon tamamlandı.`);
-
+        console.log(`[DOMManager] Adım 2: Geçiş animasyonu tamamlandı.`);
+    
+        // ADIM 3: StateService'e geçişin bittiğini bildir ve yeni aktif seti ayarla.
         console.log(`[DOMManager] Adım 3: State sonlandırılıyor -> yeni aktif set: ${detail.passiveSet}`);
         this.stateService.finalizeTransition(detail.passiveSet);
-
-        console.log(`%c[DOMManager] ŞARKI GEÇİŞİ TAMAMLANDI.`, 'color: #00BCD4; font-weight: bold;');
+        
+        // YENİ ADIM 4: Artık görünür olmayan ESKİ setin içeriğini temizle.
+        console.log(`[DOMManager] Adım 4: Eski setin içeriği temizleniyor -> ${detail.activeSet}`);
+        this.contentUpdater.clearAllForSet(detail.activeSet);
+    
+        console.log(`%c[DOMManager] ŞARKI GEÇİŞİ SÜRECİ TAMAMLANDI.`, 'color: #00BCD4; font-weight: bold;');
     }
 
     _handleSync({ data, set }) {
