@@ -111,3 +111,8 @@ body {
     transform: var(--gpu-acceleration);
     contain: strict;
 }
+
+.dev-hidden {
+    visibility: hidden !important;
+}
+

@@ -115,3 +115,20 @@
     transform: translateX(-100%);
   }
 }
+
+@keyframes slide-in-from-left-opacity {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+@keyframes slide-out-to-right-opacity {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
