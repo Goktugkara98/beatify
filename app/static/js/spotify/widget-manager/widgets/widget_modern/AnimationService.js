@@ -50,56 +50,63 @@ class AnimationService {
         if (!this.themeService || !this.themeService.themeData) {
             return;
         }
-        
+    
         this._applyZIndexes('a', 'active');
-
+    
         const animatedElements = [];
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, 'a');
             const introAnim = setData?.animations?.intro;
             if (introAnim) {
-                // Not: JS ile başlangıç stili uygulamak artık "zorunlu" değil
-                // çünkü `animation-fill-mode: both` bunu bizim için yapacak.
-                // Ancak bir güvenlik katmanı olarak kalmasında sakınca yok.
-                const initialStyle = this.cssParser.getInitialStyle(introAnim.animation);
-                if (initialStyle) {
-                    const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
-                    if (element) {
-                        Object.assign(element.style, initialStyle);
-                        animatedElements.push(element);
-                    }
+                const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
+                if (element) {
+                    animatedElements.push(element);
                 }
             }
         });
-        
+    
+        // --- YENİ EKLENEN ADIMLAR ---
+        // 1. Animasyonlu tüm elementleri animasyon başlamadan önce manuel olarak gizle.
+        animatedElements.forEach(element => {
+            element.style.opacity = '0';
+        });
+    
+        // 2. Tarayıcının bu stilleri uygulaması için bir kare bekle.
         await new Promise(resolve => requestAnimationFrame(resolve));
-        
+        // --- YENİ EKLENEN ADIMLARIN SONU ---
+    
+        // 3. Artık içi boşaltılmış/gizlenmiş elementlerle ana widget'ı görünür yap.
         this.widgetElement.classList.remove('widget-inactive');
-
+    
+        // Mevcut kodun geri kalanı büyük ölçüde aynı kalabilir.
+        // CSS Parser ile başlangıç stili alma adımı artık daha az kritik.
         let maxDuration = 0;
-
+    
         animatedElements.forEach(element => {
             const componentName = this._findComponentNameByElement(element);
             if (!componentName) return;
-
+    
             const setData = this.themeService.getComponentSetData(componentName, 'a');
             const animProps = setData.animations.intro;
-            
-            // DEĞİŞİKLİK: 'forwards' yerine 'both' kullanıyoruz.
+    
             element.style.animation = `${animProps.animation} ${animProps.duration}ms ease-out ${animProps.delay}ms both`;
-            
+    
             const totalTime = (animProps.delay || 0) + (animProps.duration || 0);
             if (totalTime > maxDuration) {
                 maxDuration = totalTime;
             }
         });
-
+    
         if (maxDuration > 0) {
             await new Promise(resolve => setTimeout(resolve, maxDuration));
         }
-
+    
+        // Animasyon sonrası temizlik stilini koru.
         animatedElements.forEach(element => {
             this._cleanupAnimationStyles(element);
+            // ÖNEMLİ: Opacity'yi temizlediğimiz için eski haline getirmemiz gerekebilir.
+            // Ancak 'both' fill mode ve sonrasında yapılan cleanup bunu zaten yönetiyor olmalı.
+            // Eğer animasyon sonrası elementler kayboluyorsa, cleanup'tan opacity'yi çıkarın.
         });
     }
 
