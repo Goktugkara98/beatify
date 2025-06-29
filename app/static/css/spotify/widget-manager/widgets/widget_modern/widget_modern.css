@@ -1,10 +1,432 @@
-/* Import component styles */
-@import url('./components/album-art-background.css');
-@import url('./components/album-art-cover.css');
-@import url('./components/badge.css');
-@import url('./components/content-layout.css');
-@import url('./components/gradient-overlay.css');
-@import url('./components/progress-bar.css');
-@import url('./components/widget.css');
+/* ==========================================================================
+   WIDGET MODERN - YENİDEN DÜZENLENMİŞ STİLLER (MANUEL YERLEŞİM)
+   ========================================================================== */
 
+/*
+  YAPI FELSEFESİ:
 
+  Her bir görsel bileşen üç temel katmandan oluşur:
+
+  1. **LayoutContainer (*LayoutContainer):**
+     - GÖREVİ: Sadece ve sadece konumlandırma ve boyutlandırma. Bir elemanın widget içindeki yerini ve kaplayacağı alanı belirler.
+     - CSS ÖZELLİKLERİ: `position: absolute`, `top`, `left`, `width`, `height`.
+     - KULLANIM: Bir elemanı yeniden konumlandırmak için sadece bu container'ın stillerini (veya inline style) değiştirin.
+
+  2. **AnimationContainer (*AnimationContainer):**
+     - GÖREVİ: Sadece ve sadece animasyonlar. Elemanın nasıl hareket edeceği, görünüp kaybolacağı gibi davranışları yönetir.
+     - CSS ÖZELLİKLERİ: `transform`, `opacity`, `transition`, `animation`.
+     - KULLANIM: Genellikle LayoutContainer'ı %100 doldurur ve içindeki Element'i hareket ettirir.
+
+  3. **Element (*Element):**
+     - GÖREVİ: Elemanın kendi içsel görünümü. Rengi, yazı tipi, arkaplanı, gölgesi, filtresi gibi görsel özelliklerini barındırır.
+     - CSS ÖZELLİKLERİ: `background`, `color`, `font-size`, `border-radius`, `filter`, `object-fit` vb.
+     - KULLANIM: Elemanın "neye benzediğini" tanımlar.
+
+  NOT: Her sınıfın _a ve _b varyantları vardır (örneğin .WidgetContainer_a, .WidgetContainer_b)
+*/
+
+/* ==========================================================================
+   GENEL SAYFA VE DEĞİŞKENLER
+   ========================================================================== */
+   html,
+   body {
+       margin: 0;
+       padding: 0;
+       width: 100%;
+       height: 100%;
+       font-family: var(--widget-font-family, 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+       background-color: transparent;
+       overflow: hidden;
+       -webkit-font-smoothing: antialiased;
+       -moz-osx-font-smoothing: grayscale;
+   }
+   
+   :root {
+       /* Boyut ve boşluklar */
+       --widget-width: 600px;
+       --widget-height: 600px;
+       --widget-border-radius: 24px;
+       --widget-padding-horizontal: 40px;
+   
+       /* Tipografi */
+       --widget-font-family: 'Inter', sans-serif;
+       --widget-text-color: #ffffff;
+       --widget-text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+   
+       /* Geçişler */
+       --transition-duration: 0.5s;
+       --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+   }
+   
+   /* ==========================================================================
+      ANA YAPI VE YARDIMCI SINIFLAR
+      ========================================================================== */
+   .WidgetMasterContainer {
+       position: relative;
+       width: var(--widget-width);
+       height: var(--widget-height);
+       contain: strict;
+   }
+   
+   .WidgetContainer,
+   .WidgetContainer_a,
+   .WidgetContainer_b {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       border-radius: var(--widget-border-radius);
+       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+       overflow: hidden;
+       color: var(--widget-text-color);
+       font-family: var(--widget-font-family);
+       will-change: transform, opacity;
+       backface-visibility: hidden;
+   }
+   
+   .passive,
+   .widget-inactive {
+       opacity: 0 !important;
+       visibility: hidden !important;
+       pointer-events: none !important;
+   }
+   
+   /* ==========================================================================
+      ALBÜM KAPAĞI ARKA PLANI (BLURLU)
+      ========================================================================== */
+   /* 1. Layout: Tüm widget alanını kaplar. */
+   .AlbumArtBackgroundLayoutContainer,
+   .AlbumArtBackgroundLayoutContainer_a,
+   .AlbumArtBackgroundLayoutContainer_b {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+   }
+   
+   /* 2. Animation: Layout'u doldurur, animasyonları bekler. */
+   .AlbumArtBackgroundAnimationContainer,
+   .AlbumArtBackgroundAnimationContainer_a,
+   .AlbumArtBackgroundAnimationContainer_b {
+       width: 100%;
+       height: 100%;
+       transition: transform var(--transition-duration) var(--transition-timing), opacity var(--transition-duration) var(--transition-timing);
+   }
+   
+   /* 3. Element: Kendi görsel stilini (blur, parlaklık) uygular. */
+   .AlbumArtBackgroundElement,
+   .AlbumArtBackgroundElement_a,
+   .AlbumArtBackgroundElement_b {
+       display: block;
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+       filter: blur(12px) brightness(0.7);
+       transform: scale(1.15); /* Kenarlarda boşluk kalmaması için */
+   }
+   
+   /* ==========================================================================
+      GRADYAN EFEKTİ
+      ========================================================================== */
+   /* 1. Layout: Tüm widget alanını kaplar. */
+   .GradientOverlayLayoutContainer,
+   .GradientOverlayLayoutContainer_a,
+   .GradientOverlayLayoutContainer_b {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       pointer-events: none; /* Tıklamayı engellememesi için */
+   }
+   
+   /* 2. Animation: Layout'u doldurur, animasyonları bekler. */
+   .GradientOverlayAnimationContainer,
+   .GradientOverlayAnimationContainer_a,
+   .GradientOverlayAnimationContainer_b {
+       width: 100%;
+       height: 100%;
+       transition: opacity var(--transition-duration) var(--transition-timing);
+   }
+   
+   /* 3. Element: Gradyan'ın kendisi. */
+   .GradientOverlayElement,
+   .GradientOverlayElement_a,
+   .GradientOverlayElement_b {
+       width: 100%;
+       height: 100%;
+       background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 75%);
+   }
+   
+   /* ==========================================================================
+      ALBÜM KAPAĞI (ÖN PLAN)
+      ========================================================================== */
+   /* 1. Layout: Konum ve boyut manuel olarak ayarlanacak. */
+   .CoverLayoutContainer,
+   .CoverLayoutContainer_a,
+   .CoverLayoutContainer_b {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%; 
+   }
+   
+   /* 2. Animation: Layout'u doldurur, animasyonları bekler. */
+   .CoverAnimationContainer,
+   .CoverAnimationContainer_a,
+   .CoverAnimationContainer_b {
+       width: 100%;
+       height: 100%;
+       transition: transform var(--transition-duration) var(--transition-timing), opacity var(--transition-duration) var(--transition-timing);
+   }
+   
+   /* 3. Element: Kapak resmi ve maskesi. */
+   .CoverElement,
+   .CoverElement_a,
+   .CoverElement_b {
+       display: block;
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+       object-position: center;
+       mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
+       -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
+   }
+   
+   /* ==========================================================================
+      İÇERİK (ŞARKI/SANATÇI BİLGİSİ, KONTROLLER)
+      ========================================================================== */
+   /* Bu ana container, diğer içerik Layout'larının pozisyon alacağı referans alandır. */
+   .ContentLayoutContainer,
+   .ContentLayoutContainer_a,
+   .ContentLayoutContainer_b {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       padding: 0 var(--widget-padding-horizontal);
+       box-sizing: border-box;
+       pointer-events: none; /* Çocukları tıklanabilir yapar */
+   }
+   
+   /* 1. Layout: Şarkı ve Sanatçı grubunun konumu. */
+   .TrackInfoLayoutContainer,
+   .TrackInfoLayoutContainer_a,
+   .TrackInfoLayoutContainer_b {
+       position: absolute;
+       bottom: 150px;
+       left: var(--widget-padding-horizontal);
+       right: var(--widget-padding-horizontal);
+       pointer-events: auto;
+   }
+   
+   /* 1. Layout: Player kontrollerinin konumu. */
+   .PlayerControlsLayoutContainer,
+   .PlayerControlsLayoutContainer_a,
+   .PlayerControlsLayoutContainer_b {
+       position: absolute;
+       bottom: 40px;
+       left: var(--widget-padding-horizontal);
+       right: var(--widget-padding-horizontal);
+       pointer-events: auto;
+   }
+   
+   /* ==========================================================================
+      ŞARKI VE SANATÇI ADI
+      ========================================================================== */
+   .TrackNameLayoutContainer,
+   .TrackNameLayoutContainer_a,
+   .TrackNameLayoutContainer_b,
+   .ArtistNameLayoutContainer,
+   .ArtistNameLayoutContainer_a,
+   .ArtistNameLayoutContainer_b {
+       width: 100%; /* Layout container'ın genişliğine yayılır */
+   }
+   
+   .TrackNameLayoutContainer,
+   .TrackNameLayoutContainer_a,
+   .TrackNameLayoutContainer_b {
+       margin-bottom: 10px; /* Sanatçı adı ile arasındaki boşluk */
+   }
+   
+   .TrackNameAnimationContainer,
+   .TrackNameAnimationContainer_a,
+   .TrackNameAnimationContainer_b,
+   .ArtistNameAnimationContainer,
+   .ArtistNameAnimationContainer_a,
+   .ArtistNameAnimationContainer_b {
+       overflow: hidden; /* Marquee (kayan yazı) için taşan kısmı gizler */
+       width: 100%;
+       display: flex;
+   }
+   
+   .TrackNameElement,
+   .TrackNameElement_a,
+   .TrackNameElement_b,
+   .ArtistNameElement,
+   .ArtistNameElement_a,
+   .ArtistNameElement_b {
+        /* Bu satırlar zaten sizde mevcut olmalı */
+        display: inline-block;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+        line-height: 1.3;
+        text-shadow: var(--widget-text-shadow);
+
+        /* --- YENİ EKLENECEK ÖZELLİKLER --- */
+        /* Elementin, konteynerin onu sıkıştırmasına izin vermesini sağlar. */
+        min-width: 0; 
+}
+   
+   .TrackNameElement,
+   .TrackNameElement_a,
+   .TrackNameElement_b {
+       font-size: 56px;
+       font-weight: 700;
+   }
+   
+   .ArtistNameElement,
+   .ArtistNameElement_a,
+   .ArtistNameElement_b {
+       font-size: 44.8px;
+       font-weight: 500;
+       color: rgba(255, 255, 255, 0.7);
+   }
+   
+   /* Marquee (Kayan Yazı) Animasyonu */
+   .marquee,
+   .marquee_a,
+   .marquee_b {
+       display: inline-block;
+       white-space: nowrap;
+       position: relative;
+       animation: marquee-ping-pong 10s linear infinite alternate;
+       animation-play-state: running;
+       padding-right: 2rem; /* Prevent text from being cut off at the end */
+   }
+   
+   @keyframes marquee-ping-pong {
+       0% {
+           transform: translateX(0);
+       }
+       30% {
+           transform: translateX(0);
+       }
+       100% {
+           transform: translateX(var(--scroll-end, -100%));
+       }
+   }
+   
+   /* ==========================================================================
+      İLERLEME ÇUBUĞU VE ZAMAN
+      ========================================================================== */
+   .ProgressBarLayoutContainer,
+   .ProgressBarLayoutContainer_a,
+   .ProgressBarLayoutContainer_b {
+       width: 100%;
+       margin-bottom: 36px; /* Zaman göstergesi ile arasındaki boşluk */
+   }
+   
+   .ProgressBarAnimationContainer,
+   .ProgressBarAnimationContainer_a,
+   .ProgressBarAnimationContainer_b {
+       width: 100%;
+       height: 8px; /* Elementin yüksekliğini animation container'a taşıdık */
+       background-color: rgba(255, 255, 255, 0.25);
+       border-radius: 4px;
+       overflow: hidden; /* İçindeki elementin köşelerini yuvarlak tutar */
+   }
+   
+   .ProgressBarElement,
+   .ProgressBarElement_a,
+   .ProgressBarElement_b {
+       height: 100%;
+       background-color: #ffffff;
+       border-radius: 4px;
+       transition: width 0.2s linear; /* Genişlik değişimini yumuşatır */
+   }
+   
+   .TimeDisplayLayoutContainer,
+   .TimeDisplayLayoutContainer_a,
+   .TimeDisplayLayoutContainer_b {
+       display: flex;
+       justify-content: space-between;
+       width: 100%;
+   }
+   
+   .CurrentTimeLayoutContainer,
+   .CurrentTimeLayoutContainer_a,
+   .CurrentTimeLayoutContainer_b,
+   .TotalTimeLayoutContainer,
+   .TotalTimeLayoutContainer_a,
+   .TotalTimeLayoutContainer_b {
+       /* Container stilleri buraya */
+   }
+   
+   .CurrentTimeAnimationContainer,
+   .CurrentTimeAnimationContainer_a,
+   .CurrentTimeAnimationContainer_b,
+   .TotalTimeAnimationContainer,
+   .TotalTimeAnimationContainer_a,
+   .TotalTimeAnimationContainer_b {
+       /* Animation container stilleri buraya */
+   }
+   
+   .CurrentTimeElement,
+   .CurrentTimeElement_a,
+   .CurrentTimeElement_b,
+   .TotalTimeElement,
+   .TotalTimeElement_a,
+   .TotalTimeElement_b {
+       font-size: 40px; /* Daha okunaklı bir boyut */
+       font-weight: 500;
+       color: rgba(255, 255, 255, 0.75);
+       line-height: 1;
+   }
+   
+   /* ==========================================================================
+      SAĞLAYICI ROZETİ (SPOTIFY LOGOSU)
+      ========================================================================== */
+   /* 1. Layout: Rozetin konumu. */
+   .BadgeLayoutContainer,
+   .BadgeLayoutContainer_a,
+   .BadgeLayoutContainer_b {
+       position: absolute;
+       top: 30px;
+       left: 30px;
+       pointer-events: auto;
+   }
+   
+   /* 2. Animation: Animasyonları bekler. */
+   .ProviderBadgeAnimationContainer,
+   .ProviderBadgeAnimationContainer_a,
+   .ProviderBadgeAnimationContainer_b {
+       transition: transform 0.3s ease, opacity 0.3s ease;
+   }
+   
+   /* 3. Element: Rozetin kendi stili. */
+   .ProviderBadgeElement,
+   .ProviderBadgeElement_a,
+   .ProviderBadgeElement_b {
+       display: inline-flex;
+       align-items: center;
+       padding: 6px 12px;
+       background: rgba(30, 30, 30, 0.5);
+       backdrop-filter: blur(10px);
+       -webkit-backdrop-filter: blur(10px);
+       border-radius: 16px;
+       border: 1px solid rgba(255, 255, 255, 0.1);
+   }
+   
+   .ProviderLogo,
+   .ProviderLogo_a,
+   .ProviderLogo_b {
+       display: block;
+       height: 46px; 
+       width: auto;
+   }

@@ -1,7 +1,3 @@
-/**
- * @file AnimationService.js
- * @description Widget için CSS animasyonlarını ve z-index'i yönetir.
- */
 class AnimationService {
     constructor(widgetElement, themeService, cssParser) {
         this.widgetElement = widgetElement;
@@ -9,23 +5,18 @@ class AnimationService {
         this.cssParser = cssParser;
     }
 
-    // YARDIMCI METOT: z-index'leri uygular
     _applyZIndexes(set, state) {
         const zIndexConfig = this.themeService.themeData.definitions?.zIndex;
         if (!zIndexConfig) {
-            console.warn('Z-Index konfigürasyonu bulunamadı.');
             return;
         }
 
         const zIndexStateData = zIndexConfig[state];
         if (!zIndexStateData) {
-            console.warn(`Z-Index state verisi bulunamadı: ${state}`);
             return;
         }
 
-        // Tüm elementleri dolaş
         Object.keys(zIndexStateData).forEach(elementBaseName => {
-            // Element adını set bilgisine göre güncelle (örn: 'CoverElement' -> 'CoverElement_a')
             const elementClassName = `${elementBaseName}_${set}`;
             const zIndexValue = zIndexStateData[elementBaseName];
             
@@ -33,22 +24,17 @@ class AnimationService {
                 const element = this.widgetElement.querySelector(`.${elementClassName}`);
                 if (element) {
                     element.style.zIndex = zIndexValue;
-                    console.log(`[Z-Index] ${elementClassName} (${state}): ${zIndexValue}`);
-                } else {
-                    console.warn(`[Z-Index] Element bulunamadı: ${elementClassName}`);
                 }
             }
         });
     }
 
-    // YARDIMCI METOT: Sadece animasyonla ilgili stilleri temizler
     _cleanupAnimationStyles(element) {
         element.style.animation = '';
         element.style.opacity = '';
         element.style.transform = '';
     }
     
-    // YARDIMCI METOT: Element'ten bileşen adını bulur
     _findComponentNameByElement(element) {
         const components = this.themeService.themeData.components;
         for (const componentName in components) {
@@ -60,13 +46,10 @@ class AnimationService {
         return null;
     }
 
-    playIntro() {
+    async playIntro() {
         if (!this.themeService || !this.themeService.themeData) {
-            console.error("HATA: AnimationService içinde themeService veya themeData bulunamadı!");
             return;
         }
-
-        console.log('%c[AnimationService] playIntro tetiklendi.', 'color: green; font-weight: bold;');
         
         this._applyZIndexes('a', 'active');
 
@@ -75,6 +58,9 @@ class AnimationService {
             const setData = this.themeService.getComponentSetData(componentName, 'a');
             const introAnim = setData?.animations?.intro;
             if (introAnim) {
+                // Not: JS ile başlangıç stili uygulamak artık "zorunlu" değil
+                // çünkü `animation-fill-mode: both` bunu bizim için yapacak.
+                // Ancak bir güvenlik katmanı olarak kalmasında sakınca yok.
                 const initialStyle = this.cssParser.getInitialStyle(introAnim.animation);
                 if (initialStyle) {
                     const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
@@ -86,71 +72,65 @@ class AnimationService {
             }
         });
         
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        
         this.widgetElement.classList.remove('widget-inactive');
+
         let maxDuration = 0;
 
-        requestAnimationFrame(() => {
-            animatedElements.forEach(element => {
-                const componentName = this._findComponentNameByElement(element);
-                if (!componentName) return;
+        animatedElements.forEach(element => {
+            const componentName = this._findComponentNameByElement(element);
+            if (!componentName) return;
 
-                const setData = this.themeService.getComponentSetData(componentName, 'a');
-                const animProps = setData.animations.intro;
-                element.style.animation = `${animProps.animation} ${animProps.duration}ms ease-out ${animProps.delay}ms forwards`;
-                
-                const totalTime = (animProps.delay || 0) + (animProps.duration || 0);
-                if (totalTime > maxDuration) {
-                    maxDuration = totalTime;
-                }
-            });
+            const setData = this.themeService.getComponentSetData(componentName, 'a');
+            const animProps = setData.animations.intro;
+            
+            // DEĞİŞİKLİK: 'forwards' yerine 'both' kullanıyoruz.
+            element.style.animation = `${animProps.animation} ${animProps.duration}ms ease-out ${animProps.delay}ms both`;
+            
+            const totalTime = (animProps.delay || 0) + (animProps.duration || 0);
+            if (totalTime > maxDuration) {
+                maxDuration = totalTime;
+            }
+        });
 
-            setTimeout(() => {
-                animatedElements.forEach(element => {
-                    this._cleanupAnimationStyles(element);
-                });
-            }, maxDuration);
+        if (maxDuration > 0) {
+            await new Promise(resolve => setTimeout(resolve, maxDuration));
+        }
+
+        animatedElements.forEach(element => {
+            this._cleanupAnimationStyles(element);
         });
     }
 
     async playTransition({ activeSet, passiveSet }) {
         if (!this.themeService?.themeData) {
-            console.error('Theme servisi veya verisi bulunamadı');
             return;
         }
-    
-        console.log(`%c[AnimationService] Geçiş başlıyor. Aktif: ${activeSet}, Pasif: ${passiveSet}`, 'color: #FFA500; font-weight: bold;');
     
         const activeContainer = this.widgetElement.querySelector(`.WidgetContainer_${activeSet}`);
         const passiveContainer = this.widgetElement.querySelector(`.WidgetContainer_${passiveSet}`);
     
         if (!activeContainer || !passiveContainer) {
-            console.error('Geçiş için gerekli containerlar bulunamadı');
             return;
         }
     
-        // 1. ADIM: Z-index yapılandırmasını uygula. Gelecek olan (passiveSet) üstte olmalı.
-        this._applyZIndexes(passiveSet, 'passive'); // 'passive' state'i daha yüksek z-index'e sahip olmalı
+        this._applyZIndexes(passiveSet, 'passive');
         this._applyZIndexes(activeSet, 'active');
     
-        // 2. ADIM: Gelecek olan konteyneri görünür kıl (henüz animasyon başlamadı).
         passiveContainer.classList.remove('passive');
-        
-        // Konteynerların z-index'lerini manuel olarak da ayarlayarak üste çıkmayı garantile.
         passiveContainer.style.zIndex = 2;
         activeContainer.style.zIndex = 1;
     
         const animatedElements = [];
         const animationPromises = [];
     
-        // 3. ADIM: Tüm çıkış ve giriş animasyonlarını ve başlangıç stillerini hazırla.
-        // Çıkış Animasyonları (activeSet)
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, activeSet);
             const transitionOutAnim = setData?.animations?.transitionOut;
             if (transitionOutAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
-                    console.log(`%c  -> [Out Animation Hazırlanıyor] ${componentName} (${activeSet})`, 'color: #FF6347');
                     const initialStyle = this.cssParser.getInitialStyle(transitionOutAnim.animation);
                     if (initialStyle) Object.assign(element.style, initialStyle);
                     animatedElements.push({ element, animation: transitionOutAnim, cleanup: true });
@@ -158,14 +138,12 @@ class AnimationService {
             }
         });
     
-        // Giriş Animasyonları (passiveSet)
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, passiveSet);
             const transitionInAnim = setData?.animations?.transitionIn;
             if (transitionInAnim?.animation !== 'none') {
                 const element = this.widgetElement.querySelector(`.${setData.animationContainer}`);
                 if (element) {
-                    console.log(`%c  -> [In Animation Hazırlanıyor] ${componentName} (${passiveSet})`, 'color: #32CD32');
                     const initialStyle = this.cssParser.getInitialStyle(transitionInAnim.animation);
                     if (initialStyle) Object.assign(element.style, initialStyle);
                     animatedElements.push({ element, animation: transitionInAnim, cleanup: true });
@@ -173,53 +151,38 @@ class AnimationService {
             }
         });
     
-        // 4. ADIM: Tarayıcının stilleri uyguladığından emin olmak için bir sonraki frame'i bekle.
         await new Promise(resolve => requestAnimationFrame(resolve));
     
-        // 5. ADIM: Tüm animasyonları aynı anda başlat.
-        console.log('[AnimationService] Animasyonlar başlatılıyor...');
         let maxDuration = 0;
         animatedElements.forEach(({ element, animation }) => {
-            element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms forwards`;
+            // DEĞİŞİKLİK: 'forwards' yerine 'both' kullanıyoruz.
+            element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms both`;
             const totalTime = (animation.delay || 0) + (animation.duration || 0);
             if (totalTime > maxDuration) maxDuration = totalTime;
         });
     
-        // 6. ADIM: En uzun animasyonun bitmesini bekle.
         if (maxDuration > 0) {
             await new Promise(resolve => setTimeout(resolve, maxDuration));
         }
-        console.log('[AnimationService] Tüm animasyonlar tamamlandı.');
     
-        // 7. ADIM: Animasyonlar bittikten sonra gerekli temizliği yap.
-        // Giden konteyneri ARTIK gizle.
         activeContainer.classList.add('passive');
     
-        // Elementlere eklenen animasyon ve stil bilgilerini temizle.
         animatedElements.forEach(({ element, cleanup }) => {
             if (cleanup) this._cleanupAnimationStyles(element);
         });
     
-        // Z-index'leri sıfırla.
         activeContainer.style.zIndex = '';
         passiveContainer.style.zIndex = '';
-    
-        console.log('%c[AnimationService] Geçiş tamamlandı ve temizlik yapıldı.', 'color: #FFA500; font-weight: bold;');
     }
 
     async playOutro() {
         if (!this.themeService?.themeData) {
-            console.error('Theme servisi veya verisi bulunamadı');
             return;
         }
         
-        console.log('[AnimationService] Çıkış animasyonu başlatılıyor...');
-        
-        // Tüm setler için çıkış animasyonlarını topla
         const animatedElements = [];
         const activeSet = this.widgetElement.querySelector('.WidgetContainer_a.passive') ? 'b' : 'a';
         
-        // Aktif set için çıkış animasyonlarını uygula
         Object.keys(this.themeService.themeData.components).forEach(componentName => {
             const setData = this.themeService.getComponentSetData(componentName, activeSet);
             const outroAnim = setData?.animations?.outro;
@@ -238,15 +201,14 @@ class AnimationService {
             }
         });
         
-        // Widget'ı görünmez yap
         this.widgetElement.classList.add('widget-inactive');
         
-        // Animasyonları başlat
         await new Promise(resolve => requestAnimationFrame(resolve));
         
         let maxDuration = 0;
         animatedElements.forEach(({element, animation}) => {
-            element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms forwards`;
+            // DEĞİŞİKLİK: 'forwards' yerine 'both' kullanıyoruz.
+            element.style.animation = `${animation.animation} ${animation.duration}ms ease-out ${animation.delay}ms both`;
             
             const totalTime = (animation.delay || 0) + (animation.duration || 0);
             if (totalTime > maxDuration) {
@@ -254,18 +216,14 @@ class AnimationService {
             }
         });
         
-        // Animasyonların bitmesini bekle
         if (maxDuration > 0) {
             await new Promise(resolve => setTimeout(resolve, maxDuration));
         }
         
-        // Temizlik
         animatedElements.forEach(({element, cleanup}) => {
             if (cleanup) {
                 this._cleanupAnimationStyles(element);
             }
         });
-        
-        console.log('[AnimationService] Çıkış animasyonu tamamlandı');
     }
 }

@@ -1,38 +1,30 @@
-/**
- * @file ContentUpdaterService.js
- * @description Gelen veriye göre arayüzdeki içerikleri (metin, resim vb.) günceller.
- */
 class ContentUpdaterService {
     constructor(widgetElement) {
         this.widgetElement = widgetElement;
-        this.progressInterval = null;
+        this.progressIntervals = {
+            a: null,
+            b: null
+        };
     }
 
-    /**
-     * Belirtilen set ('a' veya 'b') için tüm bilgileri günceller.
-     * @param {string} set - Güncellenecek UI seti.
-     * @param {object} data - Spotify'dan gelen veri.
-     */
-    updateAllForSet(set, data) {
+    async updateAllForSet(set, data) { // <-- "async" eklendi
         const item = data.item;
         if (!item) return;
-
-        console.log(`%c[ContentUpdater] Set '${set}' için içerik güncelleniyor: ${item.name}`, 'color: #4CAF50');
 
         this._updateText(`.TrackNameElement_${set}`, item.name);
         this._updateText(`.ArtistNameElement_${set}`, item.artists.map(a => a.name).join(', '));
         this._updateText(`.TotalTimeElement_${set}`, this._formatTime(item.duration_ms));
-        this._updateImage(`.CoverElement_${set}`, item.album.images[0]?.url);
-        this._updateImage(`.AlbumArtBackgroundElement_${set}`, item.album.images[0]?.url);
+
+        // Arka plan ve ön plan görsellerinin yüklenmesini bekle.
+        // En kritik olan CoverElement olduğu için onu bekliyoruz.
+        // İkisini aynı anda yükleyip bitmelerini beklemek için Promise.all kullanılır.
+        await Promise.all([
+            this._updateImage(`.CoverElement_${set}`, item.album.images[0]?.url),
+            this._updateImage(`.AlbumArtBackgroundElement_${set}`, item.album.images[0]?.url)
+        ]);
     }
-    
-    // YENİ METOT: Belirtilen setteki tüm görsel verileri temizler.
-    /**
-     * Belirtilen setteki şarkı bilgilerini temizler.
-     * @param {string} set - Temizlenecek UI seti.
-     */
+
     clearAllForSet(set) {
-        console.log(`[ContentUpdater] Veriler temizleniyor: Set -> ${set}`);
         this._updateText(`.TrackNameElement_${set}`, '');
         this._updateText(`.ArtistNameElement_${set}`, '');
         this._updateText(`.TotalTimeElement_${set}`, '0:00');
@@ -40,48 +32,110 @@ class ContentUpdaterService {
         this._updateImage(`.AlbumArtBackgroundElement_${set}`, '');
     }
 
-    /**
-     * Zaman ve ilerleme çubuğunu günceller.
-     * @param {object} data - Spotify verisi.
-     * @param {string} set - Aktif UI seti.
-     */
     startProgressUpdater(data, set) {
-        this.stopProgressUpdater();
+        this.stopProgressUpdater(set); 
         if (!data || !data.item || !data.is_playing) return;
 
         let progressMs = data.progress_ms;
         const durationMs = data.item.duration_ms;
         const currentTimeElem = this.widgetElement.querySelector(`.CurrentTimeElement_${set}`);
         const progressBarElem = this.widgetElement.querySelector(`.ProgressBarElement_${set}`);
+        
+        if (!currentTimeElem || !progressBarElem) return;
 
         const update = () => {
-            if (currentTimeElem) currentTimeElem.innerText = this._formatTime(progressMs);
-            if (progressBarElem) {
-                const percentage = durationMs > 0 ? (progressMs / durationMs) * 100 : 0;
-                progressBarElem.style.width = `${Math.min(percentage, 100)}%`;
+            currentTimeElem.innerText = this._formatTime(progressMs);
+            const percentage = durationMs > 0 ? (progressMs / durationMs) * 100 : 0;
+            progressBarElem.style.width = `${Math.min(percentage, 100)}%`;
+            
+            if (progressMs < durationMs) {
+                progressMs += 1000;
+            } else {
+                progressMs = durationMs;
+                this.stopProgressUpdater(set);
             }
-            if (progressMs < durationMs) progressMs += 1000;
         };
         
         update();
-        this.progressInterval = setInterval(update, 1000);
+        this.progressIntervals[set] = setInterval(update, 1000);
     }
 
-    stopProgressUpdater() {
-        if (this.progressInterval) clearInterval(this.progressInterval);
+    stopProgressUpdater(set) {
+        if (this.progressIntervals[set]) {
+            clearInterval(this.progressIntervals[set]);
+            this.progressIntervals[set] = null;
+        }
+    }
+
+    stopAllProgressUpdaters() {
+        this.stopProgressUpdater('a');
+        this.stopProgressUpdater('b');
     }
 
     _updateText(selector, text) {
         const elem = this.widgetElement.querySelector(selector);
-        if (elem) {
-            elem.innerText = text;
-            elem.title = text;
+        if (!elem) {
+            console.error(`Element bulunamadı: ${selector}`);
+            return;
         }
+    
+        // 1. Önceki animasyonları ve marquee sınıflarını tamamen temizle.
+        elem.classList.remove('marquee', 'marquee_a', 'marquee_b');
+        elem.style.animation = 'none';
+    
+        // 2. Metin içeriğini ve başlığını güncelle.
+        elem.textContent = text;
+        elem.title = text;
+    
+        // 3. Tarayıcının metni yerleştirmesi ve boyutları hesaplaması için bekle.
+        requestAnimationFrame(() => {
+            const clientWidth = elem.clientWidth;
+            const scrollWidth = elem.scrollWidth;
+            const isOverflowing = scrollWidth > clientWidth;
+    
+            if (isOverflowing) {
+                
+                const buffer = 20;
+                const overflowAmount = scrollWidth - clientWidth + buffer;
+                
+                elem.style.setProperty('--scroll-end', `-${overflowAmount}px`);
+                
+                if (elem.classList.contains('TrackNameElement_a') || elem.classList.contains('ArtistNameElement_a')) {
+                    elem.classList.add('marquee_a');
+                } else if (elem.classList.contains('TrackNameElement_b') || elem.classList.contains('ArtistNameElement_b')) {
+                    elem.classList.add('marquee_b');
+                } else {
+                    elem.classList.add('marquee');
+                }
+                
+                elem.style.animation = '';
+            } 
+        });
     }
+    
 
     _updateImage(selector, src) {
-        const elem = this.widgetElement.querySelector(selector);
-        if (elem && elem.src !== src) elem.src = src || '';
+        return new Promise((resolve) => {
+            const elem = this.widgetElement.querySelector(selector);
+            if (!elem || !src || elem.src === src) {
+                // Element yoksa, kaynak boşsa veya zaten aynıysa bekleme yapma.
+                return resolve();
+            }
+
+            // Görseli arka planda yüklemek için yeni bir Image nesnesi oluştur.
+            const img = new Image();
+            img.src = src;
+
+            const onImageLoad = () => {
+                // Yüklenme tamamlandığında asıl elementin src'sini değiştir.
+                elem.src = src;
+                resolve();
+            };
+
+            // Yüklenme başarılı olursa veya hata alınırsa her şekilde devam et.
+            img.onload = onImageLoad;
+            img.onerror = onImageLoad; // Hata durumunda da akışın devam etmesi için.
+        });
     }
 
     _formatTime(ms) {
