@@ -47,6 +47,8 @@ class SpotifyStateService {
                 this.isPlaying = false;
                 this.currentTrackId = null;
                 this.isInitialLoad = true;
+                this.widgetElement.classList.add('widget-inactive');
+                this.widgetElement.classList.remove('widget-active');
                 this._dispatchEvent('widget:outro', { activeSet: this.activeSet });
             }
             return;
@@ -56,14 +58,24 @@ class SpotifyStateService {
             this.isPlaying = true;
             this.isInitialLoad = false;
             this.currentTrackId = newTrackId;
+            this.widgetElement.classList.remove('widget-inactive');
+            this.widgetElement.classList.add('widget-active');
             this._dispatchEvent('widget:intro', { set: this.activeSet, data: data });
             return;
         }
 
         if (this.currentTrackId !== newTrackId) {
             this.isPlaying = true;
-            const passiveSet = this.activeSet === 'a' ? 'b' : 'a';
-            this._dispatchEvent('widget:transition', { activeSet: this.activeSet, passiveSet: passiveSet, data: data });
+            this.currentTrackId = newTrackId;
+            this.widgetElement.classList.remove('widget-inactive');
+            this.widgetElement.classList.add('widget-active');
+            const nextSet = this.activeSet === 'a' ? 'b' : 'a';
+            this._dispatchEvent('widget:transition', {
+                activeSet: this.activeSet,
+                passiveSet: nextSet,
+                data: data
+            });
+            this.activeSet = nextSet;
             return;
         }
 

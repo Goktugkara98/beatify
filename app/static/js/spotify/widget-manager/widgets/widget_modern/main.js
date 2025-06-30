@@ -9,9 +9,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await themeService.load();
 
         const stateService = new SpotifyStateService(widgetElement);
-        const cssParser = new CSSAnimationParser();
         const contentUpdater = new ContentUpdaterService(widgetElement);
-        const animationService = new AnimationService(widgetElement, themeService, cssParser);
+        const animationService = new GSAPAnimationService(widgetElement, themeService);
 
         new WidgetDOMManager(widgetElement, {
             stateService,
