@@ -116,7 +116,6 @@
    .AlbumArtBackgroundAnimationContainer_b {
        width: 100%;
        height: 100%;
-       /*transition: transform var(--transition-duration) var(--transition-timing), opacity var(--transition-duration) var(--transition-timing);*/
    }
    
    /* 3. Element: Kendi görsel stilini (blur, parlaklık) uygular. */
@@ -152,7 +151,6 @@
    .GradientOverlayAnimationContainer_b {
        width: 100%;
        height: 100%;
-       transition: opacity var(--transition-duration) var(--transition-timing);
    }
    
    /* 3. Element: Gradyan'ın kendisi. */
@@ -184,7 +182,6 @@
    .CoverAnimationContainer_b {
        width: 100%;
        height: 100%;
-       transition: transform var(--transition-duration) var(--transition-timing), opacity var(--transition-duration) var(--transition-timing);
    }
    
    /* 3. Element: Kapak resmi ve maskesi. */
@@ -353,7 +350,6 @@
        background-color: #00ff2a;
        border: 1px solid #00ff2a;
        border-radius: 4px;
-       transition: width 0.2s linear; /* Genişlik değişimini yumuşatır */
    }
    
    .TimeDisplayLayoutContainer,
@@ -411,7 +407,6 @@
    .ProviderBadgeAnimationContainer,
    .ProviderBadgeAnimationContainer_a,
    .ProviderBadgeAnimationContainer_b {
-       transition: transform 0.3s ease, opacity 0.3s ease;
    }
    
    /* 3. Element: Rozetin kendi stili. */

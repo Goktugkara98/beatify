@@ -62,22 +62,36 @@ class WidgetDOMManager {
 
     async _handleTransition(detail) {
         try {
+            // --- YENİ LOG 1 ---
+            console.log(`[DOM Manager] Geçiş başlıyor. Giden: ${detail.activeSet}, Gelen: ${detail.passiveSet}`);
+    
             await this.contentUpdater.updateAllForSet(detail.passiveSet, detail.data);
             this.contentUpdater.startProgressUpdater(detail.data, detail.passiveSet);
-
+    
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
+    
+            // --- YENİ LOG 2 ---
+            console.log(`[DOM Manager] Animasyon servisi çağrılıyor...`);
+    
             const transitionAnimation = await this.animationService.playTransition({
                 activeSet: detail.activeSet,
                 passiveSet: detail.passiveSet
             });
             this.activeAnimations.push(transitionAnimation);
-
+            
+            // --- YENİ LOG 3 ---
+            // EĞER SORUN TAHMİN ETTİĞİMİZ GİBİYSE, BU LOG ANINDA GÖRÜNECEK
+            console.log(`[DOM Manager] Animasyon servisinden yanıt alındı (await tamamlandı).`);
+    
             this.contentUpdater.stopProgressUpdater(detail.activeSet);
             this.stateService.finalizeTransition(detail.passiveSet);
+    
+            // --- YENİ LOG 4 ---
+            console.log(`[DOM Manager] Giden setin içeriği temizleniyor: ${detail.activeSet}`);
             this.contentUpdater.clearAllForSet(detail.activeSet);
+    
         } catch (error) {
-            // Error handling
+            console.error("[DOM Manager] _handleTransition sırasında hata:", error);
         }
     }
 

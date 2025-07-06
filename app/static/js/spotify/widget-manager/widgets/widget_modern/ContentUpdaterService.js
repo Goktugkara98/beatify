@@ -22,6 +22,9 @@ class ContentUpdaterService {
     }
 
     clearAllForSet(set) {
+        // --- YENİ LOG 5 ---
+        console.log(`%c[Content Updater] clearAllForSet çağrıldı. SET: ${set} temizleniyor.`, 'color: orange;');
+    
         this._updateText(`.TrackNameElement_${set}`, '');
         this._updateText(`.ArtistNameElement_${set}`, '');
         this._updateText(`.TotalTimeElement_${set}`, '0:00');
