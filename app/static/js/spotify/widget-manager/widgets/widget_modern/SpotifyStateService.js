@@ -35,6 +35,13 @@ class SpotifyStateService {
         }
     }
 
+    finalizeTransition(newActiveSet) {
+        this.activeSet = newActiveSet;
+        if (this.currentData && this.currentData.item) {
+            this.currentTrackId = this.currentData.item.id;
+        }
+    }
+
     _processData(data) {
         this._dispatchEvent('widget:clear-error');
         this.currentData = data;
@@ -58,8 +65,6 @@ class SpotifyStateService {
             this.isPlaying = true;
             this.isInitialLoad = false;
             this.currentTrackId = newTrackId;
-            this.widgetElement.classList.remove('widget-inactive');
-            this.widgetElement.classList.add('widget-active');
             this._dispatchEvent('widget:intro', { set: this.activeSet, data: data });
             return;
         }
@@ -81,13 +86,6 @@ class SpotifyStateService {
 
         if (this.isPlaying) {
             this._dispatchEvent('widget:sync', { data: data, set: this.activeSet });
-        }
-    }
-
-    finalizeTransition(newActiveSet) {
-        this.activeSet = newActiveSet;
-        if (this.currentData && this.currentData.item) {
-            this.currentTrackId = this.currentData.item.id;
         }
     }
 

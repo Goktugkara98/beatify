@@ -7,7 +7,7 @@ class ContentUpdaterService {
         };
     }
 
-    async updateAllForSet(set, data) { // <-- "async" eklendi
+    async updateAllForSet(set, data) {
         const item = data.item;
         if (!item) return;
 
@@ -15,9 +15,6 @@ class ContentUpdaterService {
         this._updateText(`.ArtistNameElement_${set}`, item.artists.map(a => a.name).join(', '));
         this._updateText(`.TotalTimeElement_${set}`, this._formatTime(item.duration_ms));
 
-        // Arka plan ve ön plan görsellerinin yüklenmesini bekle.
-        // En kritik olan CoverElement olduğu için onu bekliyoruz.
-        // İkisini aynı anda yükleyip bitmelerini beklemek için Promise.all kullanılır.
         await Promise.all([
             this._updateImage(`.CoverElement_${set}`, item.album.images[0]?.url),
             this._updateImage(`.AlbumArtBackgroundElement_${set}`, item.album.images[0]?.url)
@@ -33,21 +30,21 @@ class ContentUpdaterService {
     }
 
     startProgressUpdater(data, set) {
-        this.stopProgressUpdater(set); 
+        this.stopProgressUpdater(set);
         if (!data || !data.item || !data.is_playing) return;
 
         let progressMs = data.progress_ms;
         const durationMs = data.item.duration_ms;
         const currentTimeElem = this.widgetElement.querySelector(`.CurrentTimeElement_${set}`);
         const progressBarElem = this.widgetElement.querySelector(`.ProgressBarElement_${set}`);
-        
+
         if (!currentTimeElem || !progressBarElem) return;
 
         const update = () => {
             currentTimeElem.innerText = this._formatTime(progressMs);
             const percentage = durationMs > 0 ? (progressMs / durationMs) * 100 : 0;
             progressBarElem.style.width = `${Math.min(percentage, 100)}%`;
-            
+
             if (progressMs < durationMs) {
                 progressMs += 1000;
             } else {
@@ -55,7 +52,7 @@ class ContentUpdaterService {
                 this.stopProgressUpdater(set);
             }
         };
-        
+
         update();
         this.progressIntervals[set] = setInterval(update, 1000);
     }
@@ -75,31 +72,26 @@ class ContentUpdaterService {
     _updateText(selector, text) {
         const elem = this.widgetElement.querySelector(selector);
         if (!elem) {
-            console.error(`Element bulunamadı: ${selector}`);
             return;
         }
-    
-        // 1. Önceki animasyonları ve marquee sınıflarını tamamen temizle.
+
         elem.classList.remove('marquee', 'marquee_a', 'marquee_b');
         elem.style.animation = 'none';
-    
-        // 2. Metin içeriğini ve başlığını güncelle.
+
         elem.textContent = text;
         elem.title = text;
-    
-        // 3. Tarayıcının metni yerleştirmesi ve boyutları hesaplaması için bekle.
+
         requestAnimationFrame(() => {
             const clientWidth = elem.clientWidth;
             const scrollWidth = elem.scrollWidth;
             const isOverflowing = scrollWidth > clientWidth;
-    
+
             if (isOverflowing) {
-                
                 const buffer = 20;
                 const overflowAmount = scrollWidth - clientWidth + buffer;
-                
+
                 elem.style.setProperty('--scroll-end', `-${overflowAmount}px`);
-                
+
                 if (elem.classList.contains('TrackNameElement_a') || elem.classList.contains('ArtistNameElement_a')) {
                     elem.classList.add('marquee_a');
                 } else if (elem.classList.contains('TrackNameElement_b') || elem.classList.contains('ArtistNameElement_b')) {
@@ -107,34 +99,29 @@ class ContentUpdaterService {
                 } else {
                     elem.classList.add('marquee');
                 }
-                
+
                 elem.style.animation = '';
-            } 
+            }
         });
     }
-    
 
     _updateImage(selector, src) {
         return new Promise((resolve) => {
             const elem = this.widgetElement.querySelector(selector);
             if (!elem || !src || elem.src === src) {
-                // Element yoksa, kaynak boşsa veya zaten aynıysa bekleme yapma.
                 return resolve();
             }
 
-            // Görseli arka planda yüklemek için yeni bir Image nesnesi oluştur.
             const img = new Image();
             img.src = src;
 
             const onImageLoad = () => {
-                // Yüklenme tamamlandığında asıl elementin src'sini değiştir.
                 elem.src = src;
                 resolve();
             };
 
-            // Yüklenme başarılı olursa veya hata alınırsa her şekilde devam et.
             img.onload = onImageLoad;
-            img.onerror = onImageLoad; // Hata durumunda da akışın devam etmesi için.
+            img.onerror = onImageLoad;
         });
     }
 

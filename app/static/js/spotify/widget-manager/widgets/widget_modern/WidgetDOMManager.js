@@ -5,11 +5,18 @@ class WidgetDOMManager {
         this.animationService = services.animationService;
         this.contentUpdater = services.contentUpdater;
         this.errorContainer = widgetElement.querySelector('.WidgetErrorContainer');
-
-        // Track active animations for cleanup
         this.activeAnimations = [];
-        
         this._bindEvents();
+    }
+
+
+    destroy() {
+        this.activeAnimations.forEach(animation => {
+            if (animation && typeof animation.kill === 'function') {
+                animation.kill();
+            }
+        });
+        this.activeAnimations = [];
     }
 
     _bindEvents() {
@@ -23,86 +30,73 @@ class WidgetDOMManager {
 
     async _handleIntro(detail) {
         try {
-            // 1. Wait for all content to be updated
+            // 1. ADIM: İçeriği doldur. Elementler zaten CSS yüzünden görünmez durumda.
             await this.contentUpdater.updateAllForSet(detail.set, detail.data);
-
-            // 2. Let the browser render the new content
+    
+            // 2. ADIM: Tarayıcının bir sonraki çizime hazırlanmasını bekle.
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-            // 3. Play the intro animation and wait for it to complete
+    
+            // 3. ADIM: Ana widget kapsayıcısını görünür yap.
+            this.widgetElement.classList.remove('widget-inactive');
+            this.widgetElement.classList.add('widget-active');
+    
+            // 4. ADIM: Animasyonu başlat. GSAP, CSS'teki 'opacity: 0' kuralını
+            // geçersiz kılarak animasyonu başlatacaktır.
             const introAnimation = await this.animationService.playIntro({ set: detail.set });
             this.activeAnimations.push(introAnimation);
-            
-            // 4. Start the progress bar after the intro animation
             this.contentUpdater.startProgressUpdater(detail.data, detail.set);
         } catch (error) {
-            console.error('Error in _handleIntro:', error);
+            // Hata yönetimi
         }
     }
-    
+
     async _handleOutro(detail) {
         try {
             const outroAnimation = await this.animationService.playOutro();
             this.activeAnimations.push(outroAnimation);
             this.contentUpdater.stopAllProgressUpdaters();
         } catch (error) {
-            console.error('Error in _handleOutro:', error);
+            // Error handling
         }
     }
 
     async _handleTransition(detail) {
         try {
-            // Update content for the passive set
             await this.contentUpdater.updateAllForSet(detail.passiveSet, detail.data);
             this.contentUpdater.startProgressUpdater(detail.data, detail.passiveSet);
 
-            // Let the browser render the new content
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        
-            // Play the transition animation and wait for it to complete
+
             const transitionAnimation = await this.animationService.playTransition({
                 activeSet: detail.activeSet,
                 passiveSet: detail.passiveSet
             });
             this.activeAnimations.push(transitionAnimation);
-            
-            // Clean up the old active set
+
             this.contentUpdater.stopProgressUpdater(detail.activeSet);
             this.stateService.finalizeTransition(detail.passiveSet);
             this.contentUpdater.clearAllForSet(detail.activeSet);
         } catch (error) {
-            console.error('Error in _handleTransition:', error);
+            // Error handling
         }
     }
 
     _handleSync({ data, set }) {
         this.contentUpdater.startProgressUpdater(data, set);
     }
-    
+
     _handleError({ message }) {
         if (this.errorContainer) {
             this.errorContainer.innerText = message;
             this.errorContainer.style.display = 'block';
         }
-        
-        // Play outro animation on error
         this._handleOutro();
         this.contentUpdater.stopAllProgressUpdaters();
     }
-    
+
     _handleClearError() {
         if (this.errorContainer && this.errorContainer.style.display !== 'none') {
             this.errorContainer.style.display = 'none';
         }
-    }
-    
-    // Clean up any active animations when the widget is destroyed
-    destroy() {
-        this.activeAnimations.forEach(animation => {
-            if (animation && typeof animation.kill === 'function') {
-                animation.kill();
-            }
-        });
-        this.activeAnimations = [];
     }
 }
