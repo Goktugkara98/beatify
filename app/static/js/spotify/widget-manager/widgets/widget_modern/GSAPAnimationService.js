@@ -228,10 +228,6 @@ class GSAPAnimationService {
             ease = 'power1.out' // Varsayılan 'power1.out'
         } = animConfig;
 
-        // --- LOGLAMA KODU ---
-        console.log(`[Animation Log] Component: ${componentName} | Ease: ${ease}`);
-        // --------------------
-
         const durationSec = duration / 1000;
         const delaySec = delay / 1000;
 
