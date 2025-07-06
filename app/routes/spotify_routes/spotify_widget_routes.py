@@ -113,17 +113,46 @@ def get_widget_list() -> Tuple[Dict[str, Any], int]:
 @spotify_widget_bp.route('/api/widget-data/<string:widget_token>', methods=['GET'])
 def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
     """Widget için gerekli verileri (örn: şu an çalan parça) JSON formatında sağlar."""
+    # Token'ı doğrula
     is_valid, payload = widget_token_service.validate_widget_token(widget_token)
-    if not is_valid or not (username := payload.get('beatify_username')):
+    
+    # Token geçerli değilse veya kullanıcı adı yoksa hata döndür
+    if not is_valid:
         logger.warning(f"Geçersiz widget token ile veri talebi: {widget_token}")
-        return jsonify({"error": "Geçersiz widget token"}), 401
+        return jsonify({
+            "error": "Geçersiz widget token",
+            "details": "Lütfen widget token'ınızı kontrol edin veya yeni bir token oluşturun."
+        }), 401
+        
+    username = payload.get('beatify_username')
+    if not username:
+        logger.error(f"Token geçerli ancak kullanıcı adı eksik: {widget_token}")
+        return jsonify({
+            "error": "Widget yapılandırmasında hata",
+            "details": "Widget yapılandırmasında kullanıcı bilgisi bulunamadı."
+        }), 500
     
     try:
+        # Kullanıcının çalma durumunu al
         data = _get_widget_playback_data(username)
+        if not data or 'error' in data:
+            logger.warning(f"Kullanıcı için çalma durumu alınamadı: {username}")
+            return jsonify({
+                "is_playing": False,
+                "error": data.get('error', 'Çalma durumu alınamadı'),
+                "details": "Spotify'da aktif bir çalma işlemi bulunamadı veya bağlantı hatası oluştu."
+            }), 200
+            
+        logger.info(f"Widget verisi başarıyla döndürüldü (Kullanıcı: {username}, Token: {widget_token[:8]}...)")
         return jsonify(data), 200
+        
     except Exception as e:
-        logger.error(f"Widget verisi alınırken hata (Token: {widget_token}): {e}", exc_info=True)
-        return jsonify({"error": "Widget verisi alınırken sunucu hatası oluştu."}), 500
+        logger.error(f"Widget verisi alınırken beklenmeyen hata (Token: {widget_token}): {e}", exc_info=True)
+        return jsonify({
+            "is_playing": False,
+            "error": "Beklenmeyen bir hata oluştu",
+            "details": str(e)
+        }), 500
 
 # =============================================================================
 # 5.0 ROTA KAYDI (ROUTE REGISTRATION)

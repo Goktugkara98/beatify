@@ -41,9 +41,13 @@
 import secrets
 import string
 import json
+import logging
 from typing import Dict, Any, Optional, Tuple
 from app.database.spotify_user_repository import SpotifyUserRepository
 from app.database.spotify_widget_repository import SpotifyWidgetRepository
+
+# Logger kurulumu
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # 2.0 WIDGET TOKEN SERVİS SINIFI (WidgetTokenService)
@@ -81,7 +85,7 @@ class WidgetTokenService:
         2.2.2. Belirtilen kullanıcı için mevcut widget token'ını veritabanından alır.
         """
         db = SpotifyWidgetRepository()
-        return db.spotify_get_widget_token(username)
+        return db.get_widget_token_by_username(username)
 
     def generate_and_insert_widget_token(self, username: str) -> Optional[str]:
         """
@@ -100,7 +104,7 @@ class WidgetTokenService:
                 "spotify_user_id": spotify_user_id
             }
             
-            SpotifyWidgetRepository().spotify_store_widget_token(token_data)
+            SpotifyWidgetRepository().store_widget_config(token_data)
             return token
         except (KeyError, TypeError):
             # spotify_get_user_data veya sonucu None/hatalı ise
@@ -153,9 +157,24 @@ class WidgetTokenService:
         2.3.3. Verilen token'ı veritabanında doğrular. Varsa, token ile ilişkili tüm veriyi döndürür.
         """
         if not token:
+            logger.warning("Boş token ile doğrulama denemesi yapıldı.")
             return False, None
-        db = SpotifyWidgetRepository()
-        token_data = db.get_data_by_widget_token(token)
-        if token_data:
+            
+        try:
+            db = SpotifyWidgetRepository()
+            token_data = db.get_data_by_widget_token(token)
+            
+            if not token_data:
+                logger.warning(f"Token bulunamadı: {token}")
+                return False, None
+                
+            if not token_data.get('beatify_username'):
+                logger.error(f"Token geçerli ancak kullanıcı adı eksik: {token}")
+                return False, None
+                
+            logger.info(f"Token başarıyla doğrulandı: {token[:8]}... (Kullanıcı: {token_data['beatify_username']})")
             return True, token_data
-        return False, None
+            
+        except Exception as e:
+            logger.error(f"Token doğrulanırken beklenmeyen hata (Token: {token}): {e}", exc_info=True)
+            return False, None

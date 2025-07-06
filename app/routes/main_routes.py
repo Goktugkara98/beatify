@@ -153,7 +153,7 @@ def handle_profile_post_request(username: str) -> Response:
         return redirect(url_for('.profile'))
 
     spotify_repo = SpotifyUserRepository()
-    success = spotify_repo.spotify_insert_or_update_client_info(username, client_id, client_secret)
+    success = spotify_repo.store_client_info(username, client_id, client_secret)
 
     if success:
         flash('Spotify Client ID ve Secret bilgileri başarıyla güncellendi.', 'success')

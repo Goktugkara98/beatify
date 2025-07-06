@@ -81,7 +81,7 @@ def _handle_register_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
         auth_service.beatify_register(username, email, password)
         flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
         logger.info(f"Kullanıcı '{username}' başarıyla kaydedildi.")
-        return redirect(url_for('auth_bp.login'))
+        return redirect(url_for('login'))
     except ValueError as ve:
         logger.warning(f"Kayıt hatası (ValueError): Kullanıcı='{username}', Hata: {ve}")
         flash(str(ve), 'danger')
@@ -115,7 +115,7 @@ def _handle_login_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
         if response:
             return response
         
-        return redirect(url_for('main_bp.homepage'))
+        return redirect(url_for('homepage'))
 
     except ValueError as ve:
         logger.warning(f"Giriş hatası (ValueError): Kullanıcı='{username}', Hata: {ve}")

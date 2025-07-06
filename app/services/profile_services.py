@@ -70,7 +70,7 @@ def handle_get_request(username: str) -> Tuple[Dict[str, Any], Dict[str, Any], D
 
         # 2. Spotify kimlik bilgilerini (Client ID/Secret) al
         spotify_repo = SpotifyUserRepository()
-        spotify_credentials = spotify_repo.spotify_get_user_data(username) or {}
+        spotify_credentials = spotify_repo.get_spotify_user_data(username) or {}
         
         # 3. Spotify bağlantı durumuna göre görüntülenecek veriyi hazırla
         is_oauth_connected = bool(spotify_credentials.get('refresh_token'))

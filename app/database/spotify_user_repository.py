@@ -163,6 +163,10 @@ class SpotifyUserRepository:
         Returns:
             İşlem başarılı olursa True, aksi takdirde False döner.
         """
+        logger.info(f"[DEBUG] update_user_connection called for user: {username}")
+        logger.info(f"[DEBUG] Spotify User ID: {spotify_user_id}")
+        logger.info(f"[DEBUG] Refresh token: {refresh_token[:10]}..." if refresh_token else "[DEBUG] No refresh token")
+        
         self._ensure_connection()
         try:
             # `spotify_users` tablosunu güncelle
@@ -172,22 +176,40 @@ class SpotifyUserRepository:
                 ON DUPLICATE KEY UPDATE spotify_user_id = VALUES(spotify_user_id),
                                         refresh_token = VALUES(refresh_token)
             """
+            logger.info("[DEBUG] Executing SQL query to update spotify_users table")
+            logger.info(f"[DEBUG] Query: {spotify_query}")
+            logger.info(f"[DEBUG] Params: username={username}, spotify_user_id={spotify_user_id}, refresh_token={'[HIDDEN]' if refresh_token else 'None'}")
+            
             self.db.cursor.execute(spotify_query, (username, spotify_user_id, refresh_token))
+            logger.info(f"[DEBUG] Rows affected: {self.db.cursor.rowcount}")
 
             # `beatify_users` tablosundaki bağlantı durumunu güncelle
+            logger.info("[DEBUG] Updating beatify_users table...")
             user_repo = BeatifyUserRepository(db_connection=self.db)
-            user_repo.beatify_update_spotify_connection_status(username, True)
+            update_result = user_repo.update_spotify_connection_status(username, True)
+            logger.info(f"[DEBUG] Update beatify_users result: {update_result}")
 
             self.db.connection.commit()
-            logger.info(f"Kullanıcı '{username}' için Spotify bağlantısı kuruldu/güncellendi.")
+            logger.info("[DEBUG] Database changes committed successfully")
+            logger.info(f"[DEBUG] Successfully updated Spotify connection for user: {username}")
             return True
         except MySQLError as e:
-            logger.error(f"Kullanıcı bağlantısı güncellenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
+            error_msg = f"[ERROR] Database error in update_user_connection (User: {username}): {str(e)}"
+            logger.error(error_msg, exc_info=True)
             if self.db.connection and self.db.connection.is_connected():
+                logger.info("[DEBUG] Rolling back database changes due to error")
+                self.db.connection.rollback()
+            return False
+        except Exception as e:
+            error_msg = f"[ERROR] Unexpected error in update_user_connection (User: {username}): {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            if self.db.connection and self.db.connection.is_connected():
+                logger.info("[DEBUG] Rolling back database changes due to error")
                 self.db.connection.rollback()
             return False
         finally:
             # `_close_if_owned` user_repo'nun işi bittikten sonra çağrılmalı
+            logger.info("[DEBUG] Cleaning up database connection")
             self._close_if_owned()
 
     def update_refresh_token(self, username: str, new_refresh_token: str) -> bool:
@@ -241,7 +263,7 @@ class SpotifyUserRepository:
 
             # `beatify_users` tablosundaki bağlantı durumunu güncelle
             user_repo = BeatifyUserRepository(db_connection=self.db)
-            user_repo.beatify_update_spotify_connection_status(username, False)
+            user_repo.update_spotify_connection_status(username, False)
 
             self.db.connection.commit()
             logger.info(f"Kullanıcı '{username}' için Spotify hesap bağlantısı kaldırıldı.")

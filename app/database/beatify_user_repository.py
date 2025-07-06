@@ -17,6 +17,7 @@
 #           - get_user_data(username)
 #           - get_user_by_username_or_email(username, email)
 #           - get_password_hash(username)
+#           - beatify_get_username_or_email_data(username, email)
 #      2.3. Kullanıcı Verisi Yönetimi (Write Operations)
 #           - create_new_user(username, email, password_hash)
 #           - update_spotify_connection_status(username, status)
@@ -131,6 +132,23 @@ class BeatifyUserRepository:
             return None
         except MySQLError as e:
             logger.error(f"Şifre hash'i alınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
+            return None
+        finally:
+            self._close_if_owned()
+
+    
+    def beatify_get_username_or_email_data(self, username: str, email: str) -> Optional[Dict[str, Any]]:
+        """Kullanıcı adı veya e-posta adresine göre kullanıcı arar."""
+        self._ensure_connection()
+        try:
+            query = "SELECT id, username, email FROM beatify_users WHERE username = %s OR email = %s"
+            self.db.cursor.execute(query, (username, email))
+            user = self.db.cursor.fetchone()
+            if user:
+                logger.debug(f"Kullanıcı adı '{username}' veya email '{email}' ile eşleşen kayıt bulundu.")
+            return user
+        except MySQLError as e:
+            logger.error(f"Kullanıcı adı/email kontrolü sırasında hata: {e}", exc_info=True)
             return None
         finally:
             self._close_if_owned()

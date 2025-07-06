@@ -45,6 +45,9 @@
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
 import base64
+import json
+import logging
+import os
 import requests
 from datetime import datetime, timedelta
 from flask import session
@@ -206,32 +209,57 @@ class SpotifyAuthService:
         """
         2.4.1. Spotify kullanıcı ID'sini alır ve token bilgilerini veritabanına kaydeder/günceller.
         """
+        logger = logging.getLogger(__name__)
+        logger.info(f"[DEBUG] save_spotify_user_info called for user: {username}")
+        logger.info(f"[DEBUG] Access token: {'Exists' if access_token else 'Missing'}")
+        logger.info(f"[DEBUG] Refresh token provided: {'Yes' if refresh_token_to_save else 'No'}")
+        
         try:
+            logger.info("[DEBUG] Getting Spotify user ID from token...")
             spotify_user_id = self.get_spotify_user_id_from_token(access_token)
+            logger.info(f"[DEBUG] Spotify user ID: {spotify_user_id}")
+            
             if not spotify_user_id:
+                logger.error("[DEBUG] Failed to get Spotify user ID from token")
                 return None
 
             final_refresh_token = refresh_token_to_save
             if not final_refresh_token:
+                logger.info("[DEBUG] No refresh token provided, checking existing data...")
                 existing_data = self.spotify_repo.get_spotify_user_data(username)
                 if existing_data:
                     final_refresh_token = existing_data.get('refresh_token')
+                    logger.info(f"[DEBUG] Found existing refresh token: {bool(final_refresh_token)}")
             
             if not final_refresh_token:
+                logger.error("[DEBUG] No refresh token available")
                 return None
 
-            success = self.spotify_repo.spotify_update_user_connection_info(
+            logger.info("[DEBUG] Updating user connection in database...")
+            logger.info(f"[DEBUG] Username: {username}")
+            logger.info(f"[DEBUG] Spotify User ID: {spotify_user_id}")
+            logger.info(f"[DEBUG] Using refresh token: {final_refresh_token[:10]}..." if final_refresh_token else "[DEBUG] No refresh token")
+            
+            success = self.spotify_repo.update_user_connection(
                 username=username,
                 spotify_user_id=spotify_user_id,
                 refresh_token=final_refresh_token
             )
+            
+            logger.info(f"[DEBUG] Update user connection result: {success}")
+            
             if not success:
+                logger.error("[DEBUG] Failed to update user connection in database")
                 return None
             
+            logger.info("[DEBUG] Updating session data...")
             session['spotify_refresh_token'] = final_refresh_token
             session['spotify_user_id'] = spotify_user_id
+            logger.info("[DEBUG] Session data updated successfully")
+            
             return spotify_user_id
-        except Exception:
+        except Exception as e:
+            logger.error(f"[DEBUG] Error in save_spotify_user_info: {str(e)}", exc_info=True)
             return None
 
     def unlink_spotify_account(self, username: str) -> bool:

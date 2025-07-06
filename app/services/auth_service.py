@@ -89,7 +89,7 @@ def beatify_register(username: str, email: str, password: str) -> None:
             raise ValueError('Bu e-posta adresi zaten kullanılıyor.')
 
     hashed_password = generate_password_hash(password)
-    user_repo.beatify_insert_new_user_data(username, email, hashed_password)
+    user_repo.create_new_user(username, email, hashed_password)
     logger.info(f"Yeni kullanıcı '{username}' başarıyla kaydedildi.")
 
 
