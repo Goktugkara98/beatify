@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Widget - Improved</title>
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_classic_horizontal/widget_classic_horizontal.css">
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/widget_animations.css">
+    <link rel="stylesheet" href="/static/css/spotify/widget-manager/widgets/spotify_widget_core.css">
+</head>
+<body>
+    <div id="spotifyWidgetModern" class="WidgetMasterContainer widget-inactive"
+         data-token="j5Bp8lwM6iaf"
+         data-endpoint-template="/spotify/api/widget-data/{TOKEN}"
+         data-type="WidgetMasterContainer">
+        
+        <!-- WIDGET INSTANCE A (AKTİF) -->
+        <div class="WidgetContainer_a">
+            <div class="BackgroundLayoutContainer_a">
+                <div class="AlbumArtBackgroundLayoutContainer_a">
+                    <div class="AlbumArtBackgroundAnimationContainer_a">
+                        <img class="AlbumArtBackgroundElement_a" src="" alt="Arka Plan A">
+                    </div>
+                </div>
+            </div>
+            <div class="EffectsLayoutContainer_a">
+                <div class="GradientOverlayLayoutContainer_a">
+                    <div class="GradientOverlayAnimationContainer_a">
+                        <div class="GradientOverlayElement_a"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="CoverLayoutContainer_a">
+                <div class="CoverAnimationContainer_a">
+                    <img class="CoverElement_a" src="" alt="Kapak A">
+                </div>
+            </div>
+            <div class="ContentLayoutContainer_a">
+                <div class="TrackInfoLayoutContainer_a">
+                    <div class="TrackNameLayoutContainer_a">
+                        <div class="TrackNameAnimationContainer_a">
+                            <h3 class="TrackNameElement_a" title="Şarkı Adı Yükleniyor..."></h3>
+                        </div>
+                    </div>
+                    <div class="ArtistNameLayoutContainer_a">
+                        <div class="ArtistNameAnimationContainer_a">
+                            <p class="ArtistNameElement_a"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="PlayerControlsLayoutContainer_a">
+                    <div class="ProgressBarLayoutContainer_a">
+                        <div class="ProgressBarAnimationContainer_a">
+                            <div class="ProgressBarElement_a" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="TimeDisplayLayoutContainer_a">
+                        <div class="CurrentTimeLayoutContainer_a">
+                            <div class="CurrentTimeAnimationContainer_a">
+                                <span class="CurrentTimeElement_a">0:00</span>
+                            </div>
+                        </div>
+                        <div class="TotalTimeLayoutContainer_a">
+                            <div class="TotalTimeAnimationContainer_a">
+                                <span class="TotalTimeElement_a">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="BadgeLayoutContainer_a" data-type="BadgeLayoutContainer">
+                    <div class="ProviderBadgeAnimationContainer_a" data-type="ProviderBadgeAnimationContainer">
+                        <div class="ProviderBadgeElement_a spotify" data-type="ProviderBadgeElement">
+                            <img src="{{ url_for('static', filename='img/icons/Spotify/Full_Logo_Green_RGB.svg') }}" alt="Spotify" class="ProviderLogo_a">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WIDGET INSTANCE B (PASİF) -->
+        <div class="WidgetContainer_b passive" data-type="WidgetContainer">
+            <div class="BackgroundLayoutContainer_b" data-type="BackgroundLayoutContainer">
+                <div class="AlbumArtBackgroundLayoutContainer_b" data-type="AlbumArtBackgroundLayoutContainer">
+                    <div class="AlbumArtBackgroundAnimationContainer_b" data-type="AlbumArtBackgroundAnimationContainer">
+                        <img class="AlbumArtBackgroundElement_b" data-type="AlbumArtBackgroundElement" src="" alt="Arka Plan B">
+                    </div>
+                </div>
+            </div>
+            <div class="EffectsLayoutContainer_b" data-type="EffectsLayoutContainer">
+                <div class="GradientOverlayLayoutContainer_b" data-type="GradientOverlayLayoutContainer">
+                    <div class="GradientOverlayAnimationContainer_b" data-type="GradientOverlayAnimationContainer">
+                        <div class="GradientOverlayElement_b" data-type="GradientOverlayElement"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="CoverLayoutContainer_b" data-type="CoverLayoutContainer">
+                <div class="CoverAnimationContainer_b" data-type="CoverAnimationContainer">
+                    <img class="CoverElement_b" data-type="CoverElement" src="" alt="Kapak B">
+                </div>
+            </div>
+            <div class="ContentLayoutContainer_b" data-type="ContentLayoutContainer">
+                <div class="TrackInfoLayoutContainer_b" data-type="TrackInfoLayoutContainer">
+                    <div class="TrackNameLayoutContainer_b" data-type="TrackNameLayoutContainer">
+                        <div class="TrackNameAnimationContainer_b" data-type="TrackNameAnimationContainer">
+                            <h3 class="TrackNameElement_b" data-type="TrackNameElement" title=""></h3>
+                        </div>
+                    </div>
+                    <div class="ArtistNameLayoutContainer_b">
+                        <div class="ArtistNameAnimationContainer_b">
+                            <p class="ArtistNameElement_b"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="PlayerControlsLayoutContainer_b">
+                    <div class="ProgressBarLayoutContainer_b">
+                        <div class="ProgressBarAnimationContainer_b">
+                            <div class="ProgressBarElement_b" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="TimeDisplayLayoutContainer_b">
+                        <div class="CurrentTimeLayoutContainer_b">
+                            <div class="CurrentTimeAnimationContainer_b">
+                                <span class="CurrentTimeElement_b">0:00</span>
+                            </div>
+                        </div>
+                        <div class="TotalTimeLayoutContainer_b">
+                            <div class="TotalTimeAnimationContainer_b">
+                                <span class="TotalTimeElement_b">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="BadgeLayoutContainer_b">
+                    <div class="ProviderBadgeAnimationContainer_b">
+                        <div class="ProviderBadgeElement_b spotify">
+                            <img src="{{ url_for('static', filename='img/icons/Spotify/Full_Logo_Green_RGB.svg') }}" alt="Spotify" class="ProviderLogo_b">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mock theme configuration for testing -->
+    <script type="application/json" id="themeConfig">
+    {
+        "components": {
+            "AlbumArtBackground": {
+                "set_a": {
+                    "animationContainer": "AlbumArtBackgroundAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "outro": { "type": "none", "duration": 1000, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "none", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "AlbumArtBackgroundAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "outro": { "type": "none", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "none", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "GradientOverlay": {
+                "set_a": {
+                    "animationContainer": "GradientOverlayAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "fade-in", "duration": 500, "delay": 500, "ease": "none" },
+                        "outro": { "type": "none", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "none", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "GradientOverlayAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "fade-in", "duration": 500, "delay": 500, "ease": "none" },
+                        "outro": { "type": "none", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "fade-in", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "none", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "Cover": {
+                "set_a": {
+                    "animationContainer": "CoverAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "CoverAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-right", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-left-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "TrackName": {
+                "set_a": {
+                    "animationContainer": "TrackNameAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 1000, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "TrackNameAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 1000, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "ArtistName": {
+                "set_a": {
+                    "animationContainer": "ArtistNameAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-right", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "transitionIn": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-left-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "ArtistNameAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-right", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "transitionIn": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-left-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "ProgressBar": {
+                "set_a": {
+                    "animationContainer": "ProgressBarAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "ProgressBarAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "TimeDisplay": {
+                "set_a": {
+                    "animationContainer": "TimeDisplayLayoutContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "TimeDisplayLayoutContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            },
+            "ProviderBadge": {
+                "set_a": {
+                    "animationContainer": "ProviderBadgeAnimationContainer_a",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                },
+                "set_b": {
+                    "animationContainer": "ProviderBadgeAnimationContainer_b",
+                    "animations": {
+                        "intro": { "type": "slide-left", "duration": 500, "delay": 1000, "ease": "none" },
+                        "outro": { "type": "slide-right", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionIn": { "type": "slide-left", "duration": 500, "delay": 0, "ease": "none" },
+                        "transitionOut": { "type": "slide-right-out", "duration": 500, "delay": 0, "ease": "none" }
+                    }
+                }
+            }
+        }
+    }
+    </script>
+    
+    <script>
+        // Parse the JSON from the script tag
+        window.themeConfig = JSON.parse(document.getElementById('themeConfig').textContent);
+    </script>
+    
+    <!-- Load GSAP library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Load our improved services -->
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ThemeService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/GSAPAnimationService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ContentUpdaterService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/SpotifyStateService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/main.js"></script>
+    
+    <!-- Load demo controller for testing -->
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/demo_data.js"></script>
+
+</body>
+</html>
+
