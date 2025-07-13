@@ -8,8 +8,6 @@
 # 2.0 YAPILANDIRMA SINIFI (CONFIGURATION CLASS - SpotifyConfig)
 #     2.1. API ENDPOINT'LERİ (API Endpoints)
 #     2.2. OAUTH AYARLARI (OAuth Settings)
-#     2.3. WIDGET AYARLARI (Widget Settings)
-#     2.4. YARDIMCI METOD (HELPER METHOD)
 # 3.0 YAPILANDIRMA NESNESİ (CONFIGURATION INSTANCE)
 # =============================================================================
 
@@ -49,47 +47,6 @@ class SpotifyConfig:
         "playlist-modify-private",
         "playlist-modify-public",
     ])
-
-    # 2.3. WIDGET AYARLARI (Widget Settings)
-    # -----------------------------------------------------------------------------
-    WIDGET_TOKEN_EXPIRY_DAYS: int = 30
-    WIDGET_TYPES: Dict[str, Dict[str, str]] = {
-        "now-playing": {
-            "name": "Şu An Çalınan (Now Playing)",
-            "description": "Spotify'da o anda çalmakta olan parçayı gösterir."
-        },
-        "recently-played": {
-            "name": "Son Çalınanlar (Recently Played)",
-            "description": "Spotify'da son dinlenen parçaları listeler."
-        }
-    }
-    WIDGET_SIZES: Dict[str, Dict[str, int]] = {
-        "small": {"width": 300, "height": 80},
-        "medium": {"width": 400, "height": 120},
-        "large": {"width": 500, "height": 160}
-    }
-    WIDGET_THEMES: Dict[str, Dict[str, str]] = {
-        "dark": {
-            "background": "#121212",
-            "text": "#FFFFFF",
-            "accent": "#1DB954"
-        },
-        "light": {
-            "background": "#FFFFFF",
-            "text": "#121212",
-            "accent": "#1DB954"
-        }
-    }
-
-    # 2.4. YARDIMCI METOD (HELPER METHOD)
-    # -----------------------------------------------------------------------------
-    @classmethod
-    def get_widget_config(cls) -> Dict[str, Any]:
-        return {
-            "types": cls.WIDGET_TYPES,
-            "sizes": cls.WIDGET_SIZES,
-            "themes": cls.WIDGET_THEMES
-        }
 
 # 3.0 YAPILANDIRMA NESNESİ (CONFIGURATION INSTANCE)
 # =============================================================================

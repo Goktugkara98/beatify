@@ -17,7 +17,6 @@
 #           - get_user_data(username)
 #           - get_user_by_username_or_email(username, email)
 #           - get_password_hash(username)
-#           - beatify_get_username_or_email_data(username, email)
 #      2.3. Kullanıcı Verisi Yönetimi (Write Operations)
 #           - create_new_user(username, email, password_hash)
 #           - update_spotify_connection_status(username, status)
