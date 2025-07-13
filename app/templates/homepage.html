@@ -1,0 +1,18 @@
+{% extends 'spotify/base.html' %}
+
+{% block title %}Beatify - Homepage{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome to Beatify</h1>
+    <p>Your music experience starts here</p>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
+{% endblock %}

@@ -49,7 +49,7 @@ from app.database.migrations_repository import MigrationsRepository # Veritaban�
 from app.routes import main_routes, auth_routes # Blueprint'ler veya rota modülleri
 from app.routes.spotify_routes import spotify_routes # Spotify rotaları için ana başlatıcı
 # Uygulama yapılandırma değerleri
-from app.config.general_config import DEBUG, SECRET_KEY, SSL_CONFIG # SSL_CONFIG eklendi (yorumlu kısım için)
+from app.config.config import DEBUG, SECRET_KEY, SSL_CONFIG # SSL_CONFIG eklendi (yorumlu kısım için)
 from typing import Any, Optional # Tip ipuçları için
 
 # Logger kurulumu (modül seviyesinde)

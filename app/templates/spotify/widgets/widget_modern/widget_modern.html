@@ -327,7 +327,84 @@
     
     <!-- Load demo controller for testing -->
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/demo_data.js"></script>
+    
+    <!-- Export Panel -->
+    <div id="export-panel" style="position: fixed; bottom: 10px; right: 10px; background: #282828; padding: 15px; border-radius: 8px; z-index: 1000; color: white; font-family: sans-serif;">
+        <h4>Elementleri Dışa Aktar</h4>
+        <div id="element-list" style="margin-bottom: 10px;">
+            <!-- Checkboxlar buraya eklenecek -->
+        </div>
+        <button id="export-btn" style="width: 100%; padding: 8px; background-color: #1DB954; border: none; color: white; border-radius: 5px; cursor: pointer;">Seçilenleri Dışa Aktar</button>
+    </div>
 
+    <!-- html2canvas kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const exportPanel = document.getElementById('export-panel');
+        const elementList = document.getElementById('element-list');
+        const exportBtn = document.getElementById('export-btn');
+        const widget = document.getElementById('spotifyWidgetModern');
+
+        // Sadece 'a' setine ait layout container'ları bul ve listele
+        const exportableElements = widget.querySelectorAll('[class$="LayoutContainer_a"]');
+        const uniqueElements = new Map();
+
+        exportableElements.forEach(el => {
+            // Sadece görünür elemanları al
+            if (el.offsetParent !== null) {
+                const className = el.className.split(' ')[0]; // Ana class'ı al
+                if (!uniqueElements.has(className)) {
+                    uniqueElements.set(className, el);
+                }
+            }
+        });
+
+        uniqueElements.forEach((el, className) => {
+            const checkboxContainer = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `cb-${className}`;
+            checkbox.value = className;
+            checkbox.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = `cb-${className}`;
+            label.textContent = className;
+            label.style.marginLeft = '5px';
+
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(label);
+            elementList.appendChild(checkboxContainer);
+        });
+
+        // Dışa Aktar butonuna tıklama olayı
+        exportBtn.addEventListener('click', () => {
+            const selectedCheckboxes = elementList.querySelectorAll('input[type="checkbox"]:checked');
+            if (selectedCheckboxes.length === 0) {
+                alert('Lütfen en az bir eleman seçin.');
+                return;
+            }
+
+            selectedCheckboxes.forEach(checkbox => {
+                const className = checkbox.value;
+                const elementToCapture = uniqueElements.get(className);
+
+                if (elementToCapture) {
+                    html2canvas(elementToCapture, {
+                        backgroundColor: null, // Arka planı transparan yapar
+                        useCORS: true // Cross-origin resimler için
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = `${className}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    });
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
-

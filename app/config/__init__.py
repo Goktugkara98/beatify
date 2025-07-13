@@ -10,7 +10,7 @@
 # 1. Imports
 # -----------------------------------------------------------------------------
 from app.config.spotify_config import SPOTIFY_CONFIG
-from app.config.general_config import (
+from app.config.config import (
     DEBUG, SECRET_KEY, 
     COOKIE_SECURE, COOKIE_HTTPONLY, COOKIE_SAMESITE, COOKIE_MAX_AGE,
     DB_CONFIG, SSL_CONFIG
