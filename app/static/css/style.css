@@ -43,103 +43,12 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Navbar --- */
-.navbar {
-    padding: 0.8rem 0;
-    background-color: white;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: var(--box-shadow);
-    transition: all var(--transition-speed) ease;
-}
-
-/* Navbar scroll efekti */
-.navbar-scrolled {
-    padding: 0.5rem 0;
-    background-color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-}
-
-.navbar-brand {
-    font-family: var(--font-header);
-    font-weight: 700;
-    font-size: 1.4rem;
-    letter-spacing: 1px;
-    color: var(--primary-color);
-    transition: all var(--transition-speed) ease;
-}
-
-.navbar-brand:hover {
-    color: var(--accent-color);
-}
-
-.nav-link {
-    font-family: var(--font-header);
-    font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    color: black;
-    padding: 0.7rem 1.2rem !important;
-    margin: 0 0.2rem;
-    transition: all var(--transition-speed) ease;
-}
-
-.nav-link:hover {
-    color: var(--primary-color);
-}
-
-.nav-link.active {
-    color: var(--primary-color);
-    font-weight: 700;
-}
-
-/* Giriş Yap Butonu */
-.login-item .login-link {
-    color: var(--primary-color);
-    border: 1.5px solid rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    padding: 0.5rem 1.2rem !important;
-    transition: all 0.25s ease;
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.login-item .login-link:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
-    border-color: rgba(0, 0, 0, 0.15);
-}
-
-.login-item .login-link::after {
-    display: none;
-}
-
-/* Sağ taraf elementleri */
-.navbar-right-elements {
-    margin-left: auto;
-}
-
 /* Yeni Tema Değiştirme Düğmesi */
 .theme-switch-wrapper {
     display: flex;
     align-items: center;
     position: relative;
     margin-top: 2px;
-}
-
-/* Mobil görünüm için responsive ayarlar */
-@media (max-width: 991px) {
-    .navbar-right-elements {
-        margin-top: 15px;
-    }
-    
-    .login-item {
-        margin-right: 15px;
-    }
 }
 
 /* Yeni tema değiştirme düğmesi stilleri */
@@ -194,48 +103,6 @@ body.dark-theme {
     color: var(--dark-text);
 }
 
-.dark-theme .navbar {
-    background-color: var(--dark-bg);
-    box-shadow: var(--dark-box-shadow);
-}
-
-.dark-theme .navbar-scrolled {
-    background-color: var(--dark-bg);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.dark-theme .navbar-brand {
-    color: var(--dark-text);
-}
-
-.dark-theme .navbar-brand:hover {
-    color: #ffffff;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-}
-
-.dark-theme .nav-link {
-    color: var(--dark-text);
-}
-
-.dark-theme .nav-link:hover, .dark-theme .nav-link.active {
-    color: #ffffff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-/* Koyu tema için giriş butonu */
-.dark-theme .login-item .login-link {
-    color: var(--dark-text);
-    border-color: rgba(255, 255, 255, 0.1);
-    background-color: rgba(18, 18, 18, 0.7);
-}
-
-.dark-theme .login-item .login-link:hover {
-    background-color: rgba(30, 30, 30, 0.9);
-    color: var(--dark-text);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
 /* Koyu tema için yeni tema değiştirme düğmesi */
 .dark-theme #night {
     background: #224f6d;
@@ -244,45 +111,5 @@ body.dark-theme {
 
 .dark-theme #background {
     background-color: #0d1f2b;
-}
-
-.dark-theme .navbar-toggler {
-    border-color: rgba(255,255,255,0.1);
-}
-
-.dark-theme .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-
-/* --- HERO SECTION (Navbar ile uyumlu hale getirme) --- */
-.hero {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: calc(100vh - var(--navbar-height));
-    text-align: center;
-}
-
-.hero h1 {
-    font-family: var(--font-header);
-    font-size: 3.5rem;
-    font-weight: 600;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    max-width: 600px;
-    margin: 20px auto 30px auto;
-}
-
-/* --- FOOTER (Basit) --- */
-.site-footer {
-    text-align: center;
-    padding: 2rem 0;
-    border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-.dark-theme .site-footer {
-    border-top: 1px solid rgba(255,255,255,0.08);
 }
 

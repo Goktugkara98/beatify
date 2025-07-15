@@ -1,0 +1,10 @@
+/* --- FOOTER (Basit) --- */
+.site-footer {
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.dark-theme .site-footer {
+    border-top: 1px solid rgba(255,255,255,0.08);
+}

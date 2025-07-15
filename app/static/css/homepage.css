@@ -1,0 +1,20 @@
+/* --- HERO SECTION (Navbar ile uyumlu hale getirme) --- */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - var(--navbar-height));
+    text-align: center;
+}
+
+.hero h1 {
+    font-family: var(--font-header);
+    font-size: 3.5rem;
+    font-weight: 600;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 20px auto 30px auto;
+}
