@@ -2,17 +2,29 @@
 
 {% block head_content %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/preloader.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="container">
-        <h1>Müziğin Ritmini Yeniden Keşfet</h1>
-        <p>Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.</p>
-        <a href="#" class="btn btn-primary">Hemen Başla</a>
-    </div>
-</section>
+<!-- Preloader Bölümü -->
+<div id="preloader">
+    <canvas id="preloader-canvas"></canvas>
+</div>
+
+<div class="content-wrapper">
+    <section class="hero">
+        <div class="container">
+            <h1>Müziğin Ritmini Yeniden Keşfet</h1>
+            <p>Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.</p>
+            <a href="#" class="btn btn-primary">Hemen Başla</a>
+        </div>
+    </section>
+</div>
 {% endblock %}
 
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/preloader.js') }}"></script>
+{% endblock %}
