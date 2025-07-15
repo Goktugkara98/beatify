@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beatify Preloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Genel sayfa ve preloader stilleri */
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #f0f0f0; /* Ana sayfa içeriğinin arka planı */
+            font-family: sans-serif;
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a; /* Preloader arka plan rengi */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            /* Çıkış animasyonu için yumuşak geçiş */
+            transition: opacity 1s ease-out;
+        }
+
+        #preloader-canvas {
+            display: block;
+        }
+
+        /* Ana içerik başlangıçta gizli */
+        #main-content {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader Bölümü -->
+    <div id="preloader">
+        <canvas id="preloader-canvas"></canvas>
+    </div>
+
+    <!-- Web Sitenizin Ana İçeriği -->
+    <main id="main-content">
+        <h1>Ana Sayfa</h1>
+        <p>Web sitenizin içeriği buraya gelecek.</p>
+    </main>
+
+    <script>
+        // Rastgele sayı üreten yardımcı fonksiyon
+        const rand = (min, max) => {
+            return Math.random() * (max - min) + min;
+        };
+
+        // Her bir pikseli temsil eden sınıf
+        class Pixel {
+            constructor(x, y, color, speed, delay, delayHide, step, boundSize) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speed = rand(0.1, 0.9) * speed;
+                this.size = 0;
+                this.sizeStep = rand(0.1, 0.4);
+                this.minSize = 0.5;
+                this.maxSizeAvailable = boundSize || 2;
+                this.maxSize = rand(this.minSize, this.maxSizeAvailable);
+                this.sizeDirection = 1;
+                this.delay = delay;
+                this.delayHide = delayHide;
+                this.counter = 0;
+                this.counterHide = 0;
+                this.counterStep = step;
+                this.isHidden = false;
+                this.isFlicking = false;
+            }
+
+            // Pikseli canvas'a çizme
+            draw(ctx) {
+                const centerOffset = this.maxSizeAvailable * 0.5 - this.size * 0.5;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x + centerOffset, this.y + centerOffset, this.size, this.size);
+            }
+
+            // Pikseli gösterme animasyonu
+            show() {
+                this.isHidden = false;
+                this.counterHide = 0;
+                if (this.counter <= this.delay) {
+                    this.counter += this.counterStep;
+                    return;
+                }
+                if (this.size >= this.maxSize) {
+                    this.isFlicking = true;
+                }
+                if (this.isFlicking) {
+                    this.flicking();
+                } else {
+                    this.size += this.sizeStep;
+                }
+            }
+
+            // Pikseli gizleme animasyonu
+            hide() {
+                this.counter = 0;
+                if (this.counterHide <= this.delayHide) {
+                    this.counterHide += this.counterStep;
+                    if (this.isFlicking) {
+                        this.flicking();
+                    }
+                    return;
+                }
+                this.isFlicking = false;
+                if (this.size <= 0) {
+                    this.size = 0;
+                    this.isHidden = true;
+                } else {
+                    this.size -= 0.1; // Daha hızlı kaybolma
+                }
+            }
+
+            // Ekranda kaldığı sürece titreşme efekti
+            flicking() {
+                if (this.size >= this.maxSize) this.sizeDirection = -1;
+                else if (this.size <= this.minSize) this.sizeDirection = 1;
+                this.size += this.sizeDirection * this.speed;
+            }
+        }
+
+        // --- ANA KURULUM ---
+        const canvas = document.getElementById("preloader-canvas");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        const interval = 1000 / 60; // 60 FPS
+
+        let width;
+        let height;
+        let pixels = [];
+        let request;
+        let lastTime;
+        let startTime = performance.now();
+
+        // Piksel gecikmesini pozisyona göre hesaplama (dalga efekti için)
+        const getDelay = (x, y) => {
+            const dx = x - width * 0.5;
+            const dy = y - height * 0.5;
+            return Math.sqrt(dx ** 2 + dy ** 2);
+        };
+
+        // "beatify" yazısından pikselleri oluşturma
+        const initTextPixels = () => {
+            const text = "beatify";
+            const fontName = "'Press Start 2P'";
+            const fontSize = Math.min(width, height) * 0.2; // Yazı boyutunu ekrana göre ayarla
+            
+            ctx.font = `${fontSize}px ${fontName}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Yazıyı canvas'ın ortasına çiz
+            ctx.fillText(text, width / 2, height / 2);
+
+            // Canvas'taki piksellerin verisini al
+            const imageData = ctx.getImageData(0, 0, width, height).data;
+            ctx.clearRect(0, 0, width, height); // Yazıyı temizle
+
+            // Ana renk tonunu rastgele ata (0-360 arası)
+            const h = Math.random() * 360; 
+            const colors = [
+                `hsl(${h}, 100%, 70%)`,
+                `hsl(${h + 10}, 100%, 75%)`,
+                `hsl(${h + 20}, 100%, 80%)`,
+                `hsl(${h - 10}, 100%, 65%)`
+            ];
+
+            const gap = 4; // Pikseller arasındaki boşluk
+            const step = (width + height) * 0.005;
+            const speed = rand(0.008, 0.25);
+            const maxSize = gap * 0.9;
+
+            pixels = [];
+            // Görüntü verisini tara ve yazıya ait pikselleri bul
+            for (let y = 0; y < height; y += gap) {
+                for (let x = 0; x < width; x += gap) {
+                    const index = (y * width + x) * 4;
+                    const alpha = imageData[index + 3]; // Pikselin alpha (görünürlük) değeri
+
+                    // Eğer piksel görünürse (yazının bir parçasıysa)
+                    if (alpha > 128) {
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const delay = getDelay(x, y);
+                        const delayHide = 0; // Çıkışta gecikme olmasın
+                        pixels.push(new Pixel(x, y, color, speed, delay, delayHide, step, maxSize));
+                    }
+                }
+            }
+        };
+
+        // Ana animasyon döngüsü
+        const animate = () => {
+            request = requestAnimationFrame(animate);
+
+            const now = performance.now();
+            const diff = now - (lastTime || 0);
+            if (diff < interval) return;
+            lastTime = now - diff % interval;
+
+            const elapsedTime = (now - startTime) / 1000; // Geçen süre (saniye)
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Animasyonun 5 saniyelik yaşam döngüsü
+            pixels.forEach(pixel => {
+                // 1sn giriş + 3sn bekleme = ilk 4 saniye
+                if (elapsedTime < 4) {
+                    pixel.show();
+                } 
+                // 1sn çıkış
+                else {
+                    pixel.hide();
+                }
+                pixel.draw(ctx);
+            });
+
+            // 5 saniye dolduğunda preloader'ı kaldır
+            if (elapsedTime > 5) {
+                cancelAnimationFrame(request); // Animasyon döngüsünü durdur
+                const preloader = document.getElementById('preloader');
+                const mainContent = document.getElementById('main-content');
+                
+                preloader.style.opacity = '0'; // Preloader'ı yavaşça yok et
+                
+                // CSS geçişi bittikten sonra preloader'ı tamamen kaldır ve ana içeriği göster
+                preloader.addEventListener('transitionend', () => {
+                    preloader.style.display = 'none';
+                    mainContent.style.display = 'block';
+                }, { once: true }); // Olay dinleyicisini bir kez çalıştır
+            }
+        };
+
+        // Canvas boyutunu ayarlama ve animasyonu başlatma
+        const setup = () => {
+            const preloaderDiv = document.getElementById('preloader');
+            const rect = preloaderDiv.getBoundingClientRect();
+            width = canvas.width = Math.floor(rect.width);
+            height = canvas.height = Math.floor(rect.height);
+            
+            initTextPixels();
+            animate();
+        };
+        
+        // Pencere yüklendiğinde kurulumu çalıştır
+        window.onload = setup;
+        // Pencere yeniden boyutlandırıldığında animasyonu yeniden başlat (opsiyonel)
+        window.onresize = setup;
+
+    </script>
+</body>
+</html>
