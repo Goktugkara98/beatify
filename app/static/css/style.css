@@ -1,125 +1,297 @@
-/* Global Variables */
 :root {
-    /* Colors */
-    --primary-color: #1DB954;    /* Spotify Green */
-    --secondary-color: #191414;  /* Spotify Black */
-    --text-color: #FFFFFF;       /* White */
-    --background-color: #121212; /* Dark Background */
-    --accent-color: #1ED760;     /* Bright Green */
-    --error-color: #E61E32;      /* Red */
-    
-    /* Typography */
-    --font-family-primary: 'Circular', 'Helvetica Neue', Arial, sans-serif;
-    --font-size-small: 0.875rem;  /* 14px */
-    --font-size-medium: 1rem;     /* 16px */
-    --font-size-large: 1.25rem;   /* 20px */
-    --font-size-xlarge: 1.5rem;   /* 24px */
-    --font-size-xxlarge: 2rem;    /* 32px */
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;   /* 4px */
-    --spacing-sm: 0.5rem;    /* 8px */
-    --spacing-md: 1rem;      /* 16px */
-    --spacing-lg: 1.5rem;    /* 24px */
-    --spacing-xl: 2rem;      /* 32px */
-    
-    /* Border Radius */
-    --border-radius-sm: 4px;
-    --border-radius-md: 8px;
-    --border-radius-lg: 16px;
-    --border-radius-circle: 50%;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-    
-    /* Transitions */
-    --transition-fast: 0.2s ease;
-    --transition-normal: 0.3s ease;
-    --transition-slow: 0.5s ease;
+    /* Tema Renkleri ve Değişkenler */
+    --primary-color: #333333;
+    --secondary-color: #555555;
+    --accent-color: #777777;
+    --light-bg: #ffffff;
+    --light-text: #333333;
+    --light-text-muted: #666666;
+    --dark-bg: #121212;
+    --dark-text: #e9ecef;
+    --dark-text-muted: #adb5bd;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --dark-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --transition-speed: 0.3s;
+    --font-header: 'Montserrat', sans-serif;
+    --font-body: 'Inter', sans-serif;
 }
 
-/* Reset and Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body {
+    font-family: var(--font-body);
+    padding-top: var(--navbar-height); /* Sabit navbar için boşluk */
+    background-color: var(--light-bg);
+    color: var(--light-text);
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
-html, body {
-    font-family: var(--font-family-primary);
-    font-size: var(--font-size-medium);
-    color: var(--text-color);
-    background-color: var(--background-color);
-    line-height: 1.5;
-}
-
-/* Container */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-md);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-    margin-bottom: var(--spacing-md);
-    font-weight: 700;
-}
-
-h1 {
-    font-size: var(--font-size-xxlarge);
-}
-
-h2 {
-    font-size: var(--font-size-xlarge);
-}
-
-p {
-    margin-bottom: var(--spacing-md);
-}
-
-a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: var(--transition-fast);
-}
-
-a:hover {
-    color: var(--accent-color);
-}
-
-/* Buttons */
+/* --- Genel Stiller --- */
 .btn {
-    display: inline-block;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    background-color: var(--primary-color);
-    color: var(--text-color);
+    border-radius: 50px;
+    padding: 10px 25px;
+    font-weight: 600;
     border: none;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-weight: 700;
-    text-align: center;
-    transition: var(--transition-fast);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 .btn:hover {
-    background-color: var(--accent-color);
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Header & Navigation */
-header {
-    padding: var(--spacing-md) 0;
-    background-color: var(--secondary-color);
+/* --- Navbar --- */
+.navbar {
+    padding: 0.8rem 0;
+    background-color: white;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--box-shadow);
+    transition: all var(--transition-speed) ease;
 }
 
-/* Footer */
-footer {
-    padding: var(--spacing-lg) 0;
-    background-color: var(--secondary-color);
+/* Navbar scroll efekti */
+.navbar-scrolled {
+    padding: 0.5rem 0;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-brand {
+    font-family: var(--font-header);
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.navbar-brand:hover {
+    color: var(--accent-color);
+}
+
+.nav-link {
+    font-family: var(--font-header);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    color: black;
+    padding: 0.7rem 1.2rem !important;
+    margin: 0 0.2rem;
+    transition: all var(--transition-speed) ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Giriş Yap Butonu */
+.login-item .login-link {
+    color: var(--primary-color);
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 0.5rem 1.2rem !important;
+    transition: all 0.25s ease;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.login-item .login-link:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.login-item .login-link::after {
+    display: none;
+}
+
+/* Sağ taraf elementleri */
+.navbar-right-elements {
+    margin-left: auto;
+}
+
+/* Tema Değiştirme Düğmesi */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+/* Mobil görünüm için responsive ayarlar */
+@media (max-width: 991px) {
+    .navbar-right-elements {
+        margin-top: 15px;
+    }
+    
+    .login-item {
+        margin-right: 15px;
+    }
+}
+
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: rotate(15deg) translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-icon {
+    position: absolute;
+    transition: all 0.3s ease;
+    width: 20px;
+    height: 20px;
+}
+
+.light-icon {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dark-icon {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* --- KOYU TEMA --- */
+body.dark-theme {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.dark-theme .navbar {
+    background-color: var(--dark-bg);
+    box-shadow: var(--dark-box-shadow);
+}
+
+.dark-theme .navbar-scrolled {
+    background-color: var(--dark-bg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .navbar-brand {
+    color: var(--dark-text);
+}
+
+.dark-theme .navbar-brand:hover {
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme .nav-link {
+    color: var(--dark-text);
+}
+
+.dark-theme .nav-link:hover, .dark-theme .nav-link.active {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Koyu tema için giriş butonu */
+.dark-theme .login-item .login-link {
+    color: var(--dark-text);
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(18, 18, 18, 0.7);
+}
+
+.dark-theme .login-item .login-link:hover {
+    background-color: rgba(30, 30, 30, 0.9);
+    color: var(--dark-text);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Koyu tema için tema değiştirme düğmesi */
+.dark-theme .theme-toggle-btn {
+    color: var(--dark-text);
+    background-color: rgba(30, 30, 30, 0.7);
+    border-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .theme-toggle-btn:hover {
+    background-color: rgba(40, 40, 40, 0.9);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .light-icon {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.dark-theme .dark-icon {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dark-theme .navbar-toggler {
+    border-color: rgba(255,255,255,0.1);
+}
+
+.dark-theme .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* --- HERO SECTION (Navbar ile uyumlu hale getirme) --- */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - var(--navbar-height));
     text-align: center;
-    margin-top: var(--spacing-xl);
 }
+
+.hero h1 {
+    font-family: var(--font-header);
+    font-size: 3.5rem;
+    font-weight: 600;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 20px auto 30px auto;
+}
+
+/* --- FOOTER (Basit) --- */
+.site-footer {
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.dark-theme .site-footer {
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+

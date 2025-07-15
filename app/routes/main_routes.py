@@ -72,8 +72,8 @@ def init_main_routes(app: Flask) -> None:
         Uygulamanın kök URL'si (`/`). Ana sayfaya yönlendirir veya doğrudan
         ana sayfayı render eder.
         """
-        logger.info("Ana sayfa (index) render ediliyor.")
-        return render_template('homepage.html', title="Ana Sayfa")
+        logger.info("Yeni ana sayfa (index.html) render ediliyor.")
+        return render_template('index.html', title="Ana Sayfa")
 
     @app.route('/homepage', methods=['GET'])
     def homepage() -> str:
