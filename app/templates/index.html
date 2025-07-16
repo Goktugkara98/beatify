@@ -10,18 +10,26 @@
 
 {% block content %}
 <!-- Preloader Bölümü -->
-<div id="preloader">
+<!---<div id="preloader">
     <canvas id="preloader-canvas"></canvas>
-</div>
+</div>-->
 
 <div class="content-wrapper">
-    <section class="hero">
-        <div class="container">
-            <h1>Müziğin Ritmini Yeniden Keşfet</h1>
-            <p>Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.</p>
-            <a href="#" class="btn btn-primary">Hemen Başla</a>
+    <div class="banner-container d-flex vh-100 text-center text-white">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column justify-content-center align-items-center">
+            <main class="px-3">
+                <h1 class="display-4 fw-bold">Müziğin Ritmini Yeniden Keşfet</h1>
+                <p class="lead col-lg-8 mx-auto">
+                    Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.
+                </p>
+                <div class="button-wrapper">
+                    <a href="{{ url_for('login') }}" class="particle-button" data-colors="#1DB954,#1ED760,#FFFFFF">
+                        <span class="particle-button-text">Hemen Başla</span>
+                    </a>
+                </div>
+            </main>
         </div>
-    </section>
+    </div>
 </div>
 {% endblock %}
 

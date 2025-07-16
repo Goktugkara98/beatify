@@ -1,360 +1,184 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Preloader sadece index sayfasında çalışsın
-    if (!document.querySelector('.hero')) {
-        return;
-    }
-
-    // Preloader elementi var mı kontrol et
+    // --- 1. Gerekli Elementleri ve Koşulları Kontrol Et ---
     const preloaderElement = document.getElementById('preloader');
-    if (!preloaderElement) {
-        return;
-    }
-    
-    // Canvas elementi al
     const canvasElement = document.getElementById('preloader-canvas');
-    if (!canvasElement) {
+
+    if (!document.querySelector('.banner-container') || !preloaderElement || !canvasElement) {
+        if (preloaderElement) preloaderElement.remove();
+        document.body.classList.remove('preloader-active');
         return;
     }
 
-    // Font'u önceden yükle
-    const font = new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFd2JQEk.woff2)');
-    
-    document.body.classList.add('preloader-active');
-    
-    // Rastgele sayı üreten yardımcı fonksiyon
-    const rand = (min, max) => {
-        return Math.random() * (max - min) + min;
+    // --- 2. Değişkenler ve Ayarlar ---
+    const ctx = canvasElement.getContext("2d");
+    let width, height, pixels = [], animationFrameId;
+
+    const transitionWidth = 120;
+    const showTime = 1000;
+    const holdTime = 1000;
+    const hideTime = 1000;
+    const totalDuration = showTime + holdTime + hideTime;
+
+    let startTime;
+    let activeColors = [];
+    let isEnding = false;
+
+    // --- 3. Pixel Sınıfı ve Yardımcı Fonksiyonlar ---
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const hexToRgba = (hex, alpha = 1) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
 
-    // Her bir pikseli temsil eden sınıf
     class Pixel {
-        constructor(x, y, color, speed, delay, delayHide, step, boundSize) {
+        constructor(x, y, color, size) {
             this.x = x;
             this.y = y;
-            this.color = color;
-            this.speed = rand(0.1, 0.9) * speed;
-            this.size = 0;
-            this.sizeStep = rand(0.1, 0.4);
-            this.minSize = 0.5;
-            this.maxSizeAvailable = boundSize || 2;
-            this.maxSize = rand(this.minSize, this.maxSizeAvailable);
+            this.hexColor = color;
+            this.baseSize = rand(0.8, size);
+            this.size = this.baseSize;
+            this.speed = rand(0.05, 0.2);
             this.sizeDirection = 1;
-            this.delay = delay;
-            this.delayHide = delayHide;
-            this.counter = 0;
-            this.counterHide = 0;
-            this.counterStep = step;
-            this.isHidden = false;
-            this.isFlicking = false;
-            this.centerX = width / 2;
-            this.centerY = height / 2;
         }
-
-        // Pikseli canvas'a çizme
-        draw(ctx) {
-            const centerOffset = this.maxSizeAvailable * 0.5 - this.size * 0.5;
-            ctx.fillStyle = this.color;
+        flicker() {
+            if (this.size >= this.baseSize) this.sizeDirection = -1;
+            else if (this.size <= 0.8) this.sizeDirection = 1;
+            this.size += this.sizeDirection * this.speed;
+        }
+        draw(opacity = 1) {
+            this.flicker();
+            if (opacity <= 0) return;
+            ctx.fillStyle = hexToRgba(this.hexColor, opacity);
+            const centerOffset = this.baseSize * 0.5 - this.size * 0.5;
             ctx.fillRect(this.x + centerOffset, this.y + centerOffset, this.size, this.size);
-        }
-
-        // Pikseli gösterme animasyonu
-        show() {
-            this.isHidden = false;
-            this.counterHide = 0;
-            if (this.counter <= this.delay) {
-                this.counter += this.counterStep;
-                // Giriş animasyonu sırasında da titreşme efekti uygula
-                if (this.isFlicking && this.size > 0) {
-                    this.flicking();
-                }
-                return;
-            }
-            if (this.size >= this.maxSize) {
-                this.isFlicking = true;
-            }
-            if (this.isFlicking) {
-                this.flicking();
-            } else {
-                this.size += this.sizeStep;
-            }
-        }
-
-        // Pikseli gizleme animasyonu - dıştan ortaya doğru kaybolma efekti
-        hide() {
-            this.counter = 0;
-            
-            // Merkezden uzaklığı hesapla
-            const dx = this.x - this.centerX;
-            const dy = this.y - this.centerY;
-            const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
-            
-            // Maksimum mesafeye göre normalize et (0-1 aralığında)
-            const maxDistance = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2));
-            const normalizedDistance = distanceToCenter / maxDistance;
-            
-            // Dıştan içe doğru kaybolma efekti için gecikme hesapla
-            // Merkeze uzak olanlar daha önce kaybolmaya başlasın
-            const hideDelay = (1 - normalizedDistance) * 0.8; // 0.8 saniye maksimum gecikme
-            
-            if (this.counterHide <= this.delayHide + hideDelay) {
-                this.counterHide += this.counterStep;
-                // Çıkış animasyonu sırasında da titreşme efekti devam etsin
-                this.flicking();
-                return;
-            }
-            
-            // Pikselin konumuna göre kaybolma hızını ayarla
-            // Dıştaki pikseller daha hızlı kaybolsun
-            const speedMultiplier = normalizedDistance * 0.5 + 1.5; // 1.5 - 2.0 arası hız çarpanı (daha hızlı)
-            this.size -= 0.3 * speedMultiplier; // Daha hızlı kaybolma
-            
-            // Boyut küçüldükçe titreşme hızını azalt
-            if (this.size > 0.5) {
-                this.flicking();
-            }
-            
-            // Boyut çok küçükse tamamen gizle
-            if (this.size <= 0.1) {
-                this.size = 0;
-                this.isHidden = true;
-            }
-        }
-
-        // Ekranda kaldığı sürece titreşme efekti
-        flicking() {
-            // Boyut 0'dan büyükse titreşme efekti uygula
-            if (this.size > 0) {
-                if (this.size >= this.maxSize) this.sizeDirection = -1;
-                else if (this.size <= this.minSize) this.sizeDirection = 1;
-                this.size += this.sizeDirection * this.speed;
-            }
         }
     }
 
-    // Bu fonksiyon artık kullanılmıyor çünkü preloader HTML'de zaten var
-    // const createPreloader = () => { ... };
-
-    const ctx = canvasElement.getContext("2d", { willReadFrequently: true });
-    const interval = 1000 / 60; // 60 FPS
-
-    let width;
-    let height;
-    let pixels = [];
-    let request;
-    let lastTime;
-    let startTime;
-
-    // Piksel gecikmesini pozisyona göre hesaplama (dalga efekti için)
-    const getDelay = (x, y, isClosing = false) => {
-        const dx = x - width * 0.5;
-        const dy = y - height * 0.5;
-        const distance = Math.sqrt(dx ** 2 + dy ** 2);
-        
-        // Açılışta merkeze yakın olanlar önce, uzak olanlar sonra görünür
-        // Kapanışta tam tersi: uzak olanlar önce, merkeze yakın olanlar sonra kaybolur
-        if (isClosing) {
-            // Maksimum mesafeye göre normalize et
-            const maxDistance = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2));
-            // Uzaklığı tersine çevir - uzak olanlar küçük değer, yakın olanlar büyük değer alır
-            return maxDistance - distance;
-        }
-        
-        // Normal açılış için mesafeyi doğrudan döndür
-        return distance;
-    };
-
-    // "beatify" yazısından pikselleri oluşturma
-    const initTextPixels = () => {
-        const text = "Beatify";  // Baş harfi büyük yap, daha şık görünüm
+    // --- 4. Ana Preloader Mantığı ---
+    const createTextPixels = () => {
+        const colorPalettes = [
+            // Mor-Mavi-Yeşil Palette (Genişletilmiş)
+            ['#7c4dff', '#536dfe', '#448aff', '#03a9f4', '#1db954', '#651fff', '#304ffe', '#2979ff', '#00b0ff', '#00e676'],
+            // Kırmızı-Turuncu-Sarı Palette (Genişletilmiş)
+            ['#ff1744', '#ff5252', '#ff9100', '#ffab40', '#ffd740', '#d50000', '#ff3d00', '#ff6d00', '#ffab00', '#ffc400'],
+            // Yeşil-Turkuaz Palette (Genişletilmiş)
+            ['#00c853', '#69f0ae', '#00e5ff', '#18ffff', '#64ffda', '#00e676', '#1de9b6', '#00b8d4', '#00e5ff', '#1de9b6'],
+            // Mor-Pembe Palette (Genişletilmiş)
+            ['#d500f9', '#e040fb', '#ff4081', '#ff80ab', '#b388ff', '#aa00ff', '#c51162', '#f50057', '#ff4081', '#ea80fc'],
+            // Yeni: Mavi-Yeşil Palette
+            ['#0288d1', '#26c6da', '#00acc1', '#00bcd4', '#4dd0e1', '#00838f', '#006064', '#0097a7', '#80deea', '#26a69a'],
+            // Yeni: Turuncu-Sarı-Yeşil Palette
+            ['#ff6f00', '#ffab00', '#ffc400', '#ffea00', '#c0ca33', '#afb42b', '#827717', '#fdd835', '#ffee58', '#fff176'],
+            // Yeni: Kırmızı-Mor Palette
+            ['#c62828', '#d32f2f', '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#5e35b1', '#512da8', '#d81b60', '#ad1457']
+        ];
+        activeColors = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+        const text = "Beatify";
         const fontName = "'Poppins', sans-serif";
-        const fontSize = Math.min(width, height) * 0.15; // Yazı boyutunu daha küçük ayarla
-        
-        ctx.font = `${fontSize}px ${fontName}`;
+        const fontSize = Math.min(width, height) * 0.18;
+        ctx.font = `bold ${fontSize}px ${fontName}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
-        // Yazıyı canvas'ın ortasına çiz
         ctx.fillText(text, width / 2, height / 2);
-
-        // Canvas'taki piksellerin verisini al
         const imageData = ctx.getImageData(0, 0, width, height).data;
-        ctx.clearRect(0, 0, width, height); // Yazıyı temizle
-
-        // Farklı renk paletleri oluştur
-        const colorPalettes = [
-            // Mor-Mavi Paleti (Gece)
-            [
-                '#7c4dff', // Mor
-                '#536dfe', // İndigo
-                '#448aff', // Mavi
-                '#03a9f4', // Açık mavi
-                '#1db954'  // Spotify yeşili
-            ],
-            // Kırmızı-Turuncu Paleti (Gündüz)
-            [
-                '#ff1744', // Kırmızı
-                '#ff5252', // Açık kırmızı
-                '#ff9100', // Turuncu
-                '#ffab40', // Açık turuncu
-                '#ffd740'  // Amber
-            ],
-            // Yeşil-Turkuaz Paleti (Bahar)
-            [
-                '#00c853', // Yeşil
-                '#69f0ae', // Açık yeşil
-                '#00e5ff', // Açık turkuaz
-                '#18ffff', // Açık cyan
-                '#64ffda'  // Teal
-            ],
-            // Pembe-Mor Paleti (Günbatımı)
-            [
-                '#d500f9', // Mor
-                '#e040fb', // Açık mor
-                '#ff4081', // Pembe
-                '#ff80ab', // Açık pembe
-                '#b388ff'  // Açık mor
-            ],
-            // Sarı-Altın Paleti (Güneş)
-            [
-                '#ffd600', // Sarı
-                '#ffea00', // Açık sarı
-                '#ffab00', // Amber
-                '#ff6d00', // Turuncu
-                '#ffcc80'  // Açık turuncu
-            ]
-        ];
-        
-        // Zamanı kullanarak renk paletini seç
-        const now = new Date();
-        const timeValue = now.getHours() + now.getMinutes() + now.getSeconds() + now.getMilliseconds();
-        const paletteIndex = timeValue % colorPalettes.length;
-        
-        // Seçilen renk paleti
-        const colors = colorPalettes[paletteIndex];
-        
-        // Arka plan her zaman siyah kalsın, sadece piksellerin renkleri değişsin
-
-        const gap = 3; // Pikseller arasındaki boşluğu azalt (daha yoğun görünüm)
-        const step = (width + height) * 0.006; // Biraz daha hızlı animasyon
-        const speed = rand(0.01, 0.2); // Daha dengeli hız aralığı
-        const maxSize = gap * 0.85; // Biraz daha küçük pikseller
-
+        ctx.clearRect(0, 0, width, height);
+        const gap = 3;
+        const pixelSize = gap * 0.95;
         pixels = [];
-        // Görüntü verisini tara ve yazıya ait pikselleri bul
         for (let y = 0; y < height; y += gap) {
             for (let x = 0; x < width; x += gap) {
-                const index = (y * width + x) * 4;
-                const alpha = imageData[index + 3]; // Pikselin alpha (görünürlük) değeri
-
-                // Eğer piksel görünürse (yazının bir parçasıysa)
-                if (alpha > 128) {
-                    const color = colors[Math.floor(Math.random() * colors.length)];
-                    const delay = getDelay(x, y);
-                    const delayHide = 0; // Çıkışta gecikme olmasın
-                    pixels.push(new Pixel(x, y, color, speed, delay, delayHide, step, maxSize));
+                if (imageData[(y * width + x) * 4 + 3] > 128) {
+                    const color = activeColors[Math.floor(Math.random() * activeColors.length)];
+                    pixels.push(new Pixel(x, y, color, pixelSize));
                 }
             }
         }
     };
 
-    // Ana animasyon döngüsü
-    const animate = () => {
-        request = requestAnimationFrame(animate);
+    const endPreloader = () => {
+        cancelAnimationFrame(animationFrameId);
+        preloaderElement.style.transition = 'opacity 0.5s ease-out';
+        preloaderElement.style.opacity = '0';
+        preloaderElement.addEventListener('transitionend', () => {
+            preloaderElement.remove();
+            document.body.classList.remove('preloader-active');
+        }, { once: true });
+    };
 
-        const now = performance.now();
-        const diff = now - (lastTime || 0);
-        if (diff < interval) return;
-        lastTime = now - diff % interval;
-
-        const elapsedTime = (now - startTime) / 1000; // Geçen süre (saniye)
-
+    const animate = (timestamp) => {
+        if (!startTime) startTime = timestamp;
+        const elapsedTime = timestamp - startTime;
         ctx.clearRect(0, 0, width, height);
+        
+        const centerX = width / 2;
 
-        // Animasyonun yaşam döngüsü
-        const isClosing = elapsedTime >= 3; // 3 saniyeden sonra kapanış başlar
-        
-        // Kapanış aşamasında pikselleri merkeze olan uzaklığa göre sırala
-        // Böylece dıştaki pikseller önce, içteki pikseller sonra kaybolur
-        if (isClosing && !pixels.sorted) {
-            // Her piksel için merkeze olan uzaklığı hesapla
-            pixels.forEach(pixel => {
-                const dx = pixel.x - width / 2;
-                const dy = pixel.y - height / 2;
-                pixel.distanceToCenter = Math.sqrt(dx * dx + dy * dy);
-            });
-            
-            // Pikselleri merkeze olan uzaklığa göre sırala (uzaktan yakına)
-            pixels.sort((a, b) => b.distanceToCenter - a.distanceToCenter);
-            pixels.sorted = true; // Sadece bir kez sıralama yap
+        // DÜZELTİLMİŞ ANİMASYON MANTIĞI
+        let revealProgress = 0;
+
+        if (elapsedTime < showTime) {
+            // Açılış: İlerleme 0'dan 1'e gider
+            revealProgress = easeInOut(elapsedTime / showTime);
         }
-        
-        // Her pikseli güncelle ve çiz
-        let allHidden = true;
-        pixels.forEach((pixel, index) => {
-            if (!isClosing) {
-                // Açılış animasyonu
-                pixel.show();
-                if (!pixel.isHidden) allHidden = false;
-            } else {
-                // Kapanış animasyonu - dıştan içe doğru
-                // Pikselin sırasına göre ek gecikme ekle (0-0.5 saniye arası - daha hızlı kaybolma)
-                const extraDelay = (index / pixels.length) * 0.5;
-                
-                // Geçen süre kapanış başlangıcı + ek gecikmeyi geçtiyse pikseli gizle
-                if (elapsedTime > 3 + extraDelay) {
-                    // Çıkış animasyonu sırasında da titreşme efekti devam etsin
-                    pixel.hide();
-                } else {
-                    // Kapanış başlamış ama henüz bu piksel için hide çağrılmamışsa
-                    // titreşme efektini devam ettir
-                    pixel.flicking();
-                }
-                
-                // Eğer piksel hala görünürse, tüm pikseller kaybolmadı demektir
-                if (!pixel.isHidden) allHidden = false;
+        else if (elapsedTime < showTime + holdTime) {
+            // Bekleme: İlerleme tam olarak 1'de kalır
+            revealProgress = 1;
+        }
+        else if (elapsedTime < totalDuration) {
+            // Kapanış: İlerleme 1'den 0'a geri gider
+            const hideProgress = easeInOut((elapsedTime - (showTime + holdTime)) / hideTime);
+            revealProgress = 1 - hideProgress;
+        }
+        else {
+            if (!isEnding) {
+                isEnding = true;
+                endPreloader();
             }
-            pixel.draw(ctx);
-        });
-
-        // Tüm pikseller kaybolduğunda veya maksimum süre dolduğunda preloader'ı kaldır
-        const allPixelsHidden = allHidden;
-        const maxTimeReached = elapsedTime > 4.0; // Maksimum süreyi 4.0 saniyeye ayarla
-        
-        if (allPixelsHidden || maxTimeReached) {
-            cancelAnimationFrame(request); // Animasyon döngüsünü durdur
-            
-            // Animasyon bittiğinde preloader'ı yavaşça yok et
-            preloaderElement.style.opacity = '0';
-            
-            // CSS geçişi bittikten sonra preloader'ı tamamen kaldır ve ana içeriği göster
-            preloaderElement.addEventListener('transitionend', () => {
-                preloaderElement.remove();
-                document.body.classList.remove('preloader-active');
-            }, { once: true }); // Olay dinleyicisini bir kez çalıştır
+            return;
         }
+
+        // Her piksel için opaklığı yeniden hesapla
+        const revealWidth = (centerX + transitionWidth) * revealProgress;
+        
+        pixels.forEach(p => {
+            const distFromCenter = Math.abs(p.x - centerX);
+            
+            // Opaklık, perdenin ilerlemesine göre hesaplanır
+            // ve 0 ile 1 arasında sınırlandırılır.
+            const opacity = Math.max(0, Math.min(1, (revealWidth - distFromCenter) / transitionWidth));
+            
+            p.draw(opacity);
+        });
+        
+        animationFrameId = requestAnimationFrame(animate);
     };
 
-    // Canvas boyutunu ayarlama ve animasyonu başlatma
+    // --- 5. Başlatma ve Olay Dinleyicileri ---
     const setup = () => {
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        isEnding = false;
+        
         const rect = preloaderElement.getBoundingClientRect();
         width = canvasElement.width = Math.floor(rect.width);
         height = canvasElement.height = Math.floor(rect.height);
         
-        initTextPixels();
-        startTime = performance.now();
-        animate();
+        startTime = null;
+        createTextPixels();
+        animationFrameId = requestAnimationFrame(animate);
     };
-
-    // Font yüklendikten sonra preloader'ı başlat
+    
+    const font = new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFd2JQEk.woff2)');
+    document.body.classList.add('preloader-active');
+    
     font.load().then(() => {
         document.fonts.add(font);
         setup();
     }).catch(err => {
-        console.error('Font yüklenemedi:', err);
-        // Font yüklenemese bile preloader'ı başlat
+        console.error('Font could not be loaded, starting preloader anyway.', err);
         setup();
     });
 
-    // Pencere yeniden boyutlandırıldığında animasyonu yeniden başlat
     window.addEventListener('resize', setup);
 });

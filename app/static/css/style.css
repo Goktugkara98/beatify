@@ -1,63 +1,201 @@
+/*
+==================================
+    GLOBAL STYLE GUIDE (style.css)
+==================================
+Bu dosya, web sitesinin tüm global stil tanımlamalarını içerir.
+Renk paleti, tipografi, boşluklar ve temel bileşenler gibi
+tüm tasarım sistemi (design tokens) burada CSS değişkenleri olarak tanımlanmıştır.
+Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kullanmalıdır.
+
+İÇİNDEKİLER:
+1.  DESIGN SYSTEM (TASARIM SİSTEMİ - DEĞİŞKENLER)
+    1.1. Renk Paleti (Açık ve Koyu Tema)
+    1.2. Tipografi
+    1.3. Boyutlandırma ve Boşluklar
+    1.4. Kenarlıklar ve Gölgeler
+    1.5. Geçişler ve Animasyonlar
+
+2.  GLOBAL RESET & TEMEL STİLLER
+
+3.  LAYOUT (YERLEŞİM) & YARDIMCI SINIFLAR
+
+4.  TYPOGRAPHY (TİPOGRAFİ)
+
+5.  COMPONENTS (BİLEŞENLER)
+    5.1. Butonlar
+    5.2. Tema Değiştirme Düğmesi
+
+==================================
+*/
+
+/* ==================================
+   1. DESIGN SYSTEM (TASARIM SİSTEMİ - DEĞİŞKENLER)
+   ================================== */
 :root {
-    /* Tema Renkleri ve Değişkenler */
-    --primary-color: #333333;
-    --secondary-color: #555555;
-    --accent-color: #777777;
-    --light-bg: #ffffff;
-    --light-text: #333333;
-    --light-text-muted: #666666;
-    --dark-bg: #121212;
-    --dark-text: #e9ecef;
-    --dark-text-muted: #adb5bd;
-    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --dark-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    --transition-speed: 0.3s;
-    --font-header: 'Montserrat', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    /* 1.1. Renk Paleti (Açık Tema) */
+    --color-primary: #1DB954; /* Spotify Yeşili */
+    --color-primary-hover: #1ED760;
+    --color-secondary: #282828;
+    --color-accent: #B3B3B3;
+
+    --color-text-base: #191414; /* Neredeyse Siyah */
+    --color-text-muted: #535353;
+    --color-text-inverted: #FFFFFF;
+
+    --color-bg-base: #FFFFFF;
+    --color-bg-offset: #F5F5F5;
+    --color-bg-navbar: #fdfdfd; /* Hafif kırık beyaz */
+    --color-bg-navbar-rgb: 255, 255, 255;
+    --color-border: #E0E0E0;
+
+    /* 1.2. Tipografi */
+    --font-family-heading: 'Montserrat', 'Helvetica Neue', sans-serif;
+    --font-family-body: 'Inter', 'Arial', sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    /* 1.3. Boyutlandırma ve Boşluklar */
+    --spacing-unit: 8px;
+    --navbar-height: 70px; /* Navbar yüksekliği için merkezi değişken */
+
+    /* 1.4. Kenarlıklar ve Gölgeler */
+    --border-radius-small: 4px;
+    --border-radius-medium: 8px;
+    --border-radius-large: 16px;
+    --border-radius-pill: 50px;
+    --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+    /* 1.5. Geçişler ve Animasyonlar */
+    --transition-speed-fast: 0.15s;
+    --transition-speed-normal: 0.3s;
+    --transition-easing: ease-in-out;
+}
+
+/* Koyu Tema Değişkenleri */
+[data-theme="dark"] {
+    --color-primary: #1DB954;
+    --color-primary-rgb: 29, 185, 84;
+    --color-primary-hover: #1ED760;
+    --color-secondary: #B3B3B3;
+    --color-accent: #535353;
+
+    --color-text-base: #FFFFFF;
+    --color-text-base-rgb: 255, 255, 255;
+    --color-text-muted: #B3B3B3;
+    --color-text-inverted: #191414;
+
+    --color-bg-base: #121212;
+    --color-bg-offset: #181818;
+    --color-bg-navbar: #030303; /* Neredeyse siyah */
+    --color-bg-navbar-rgb: 3, 3, 3;
+    --color-border: #282828;
+
+    --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ==================================
+   2. GLOBAL RESET & TEMEL STİLLER
+   ================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: var(--font-body);
-    padding-top: var(--navbar-height); /* Sabit navbar için boşluk */
-    background-color: var(--light-bg);
-    color: var(--light-text);
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    font-family: var(--font-family-body);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.6;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-base);
+    padding-top: var(--navbar-height);
+    transition: background-color var(--transition-speed-normal) var(--transition-easing), color var(--transition-speed-normal) var(--transition-easing);
 }
 
-/* --- Genel Stiller --- */
+
+/* ==================================
+   3. LAYOUT & YARDIMCI SINIFLAR
+   ================================== */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ==================================
+   4. TYPOGRAPHY (TİPOGRAFİ)
+   ================================== */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-base);
+    line-height: 1.2;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-speed-fast) var(--transition-easing);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+
+/* ==================================
+   5. COMPONENTS (BİLEŞENLER)
+   ================================== */
+
+/* 5.1. Genel Buton Stilleri */
 .btn {
-    border-radius: 50px;
-    padding: 10px 25px;
-    font-weight: 600;
-    border: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    display: inline-block;
+    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    border-radius: var(--border-radius-pill);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform var(--transition-speed-fast) var(--transition-easing), 
+                box-shadow var(--transition-speed-normal) var(--transition-easing), 
+                background-color var(--transition-speed-normal) var(--transition-easing);
 }
 
-.btn:hover {
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverted);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-medium);
 }
 
-/* Yeni Tema Değiştirme Düğmesi */
-.theme-switch-wrapper {
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin-top: 2px;
-}
-
-/* Yeni tema değiştirme düğmesi stilleri */
+/* 5.2. Tema Değiştirme Düğmesi */
 #theme-toggle-container {
     position: relative;
     width: 60px;
     height: 30px;
     overflow: hidden;
-    border-radius: 30px;
+    border-radius: var(--border-radius-pill);
 }
 
 #theme-toggle-container svg {
@@ -70,46 +208,54 @@ body {
 }
 
 #day, #night {
-    width: 60px;
-    height: 30px;
+    width: 100%;
+    height: 100%;
     position: absolute;
     z-index: 1;
     cursor: pointer;
-    border-radius: 30px;
-    background: #9cd6ef;
-    border: 2px solid #65c0e7;
+    border-radius: var(--border-radius-pill);
     top: 0;
     left: 0;
-}
-
-#night {
-    pointer-events: none;
+    transition: background-color var(--transition-speed-normal) var(--transition-easing), border-color var(--transition-speed-normal) var(--transition-easing);
 }
 
 #background {
     width: 100%;
     height: 100%;
     position: absolute;
-    background: #d3edf8;
     z-index: -1;
     top: 0;
     left: 0;
-    border-radius: 30px;
+    border-radius: var(--border-radius-pill);
+    transition: background-color var(--transition-speed-normal) var(--transition-easing);
 }
 
-/* --- KOYU TEMA --- */
-body.dark-theme {
-    background-color: var(--dark-bg);
-    color: var(--dark-text);
+/* Açık Tema Düğme Stilleri */
+#day {
+    background: #9cd6ef;
+    border: 2px solid #65c0e7;
 }
 
-/* Koyu tema için yeni tema değiştirme düğmesi */
-.dark-theme #night {
+#background {
+    background: #d3edf8;
+}
+
+#night {
+    pointer-events: none; /* Başlangıçta gece butonu tıklanamaz */
+}
+
+/* Koyu Tema Düğme Stilleri */
+[data-theme="dark"] #night {
     background: #224f6d;
     border-color: #cad4d8;
+    pointer-events: auto; /* Koyu temada gece butonu tıklanabilir */
 }
 
-.dark-theme #background {
+[data-theme="dark"] #day {
+    pointer-events: none; /* Koyu temada gündüz butonu tıklanamaz */
+}
+
+[data-theme="dark"] #background {
     background-color: #0d1f2b;
 }
 

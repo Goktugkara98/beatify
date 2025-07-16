@@ -1,0 +1,94 @@
+/* --- Pixel Button --- */
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.particle-button {
+    /* Görünüm ve Konumlandırma */
+    display: inline-block;
+    position: relative;
+    padding: 1rem 2.5rem;
+    /* Kenarlık ve Arka Plan */
+    border: 2px solid #4A4A4A; /* Daha belirgin bir kenarlık */
+    border-radius: 50px;
+    
+    overflow: hidden;
+    isolation: isolate;
+    text-decoration: none;
+    text-align: center;
+
+    /* Renk ve Font */
+    color: var(--light-color, #FFFFFF);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+
+    /* Geçişler ve Gölge */
+    transition: color 0.4s ease-in-out, border-color 0.4s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.particle-button:hover,
+.particle-button:focus {
+    border-color: #1ED760;
+    
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+    color: #FFFFFF;
+}
+
+.particle-button-text {
+    position: relative;
+    z-index: 2; /* Metin, canvas'ın üzerinde */
+    transition: color 0.4s ease-in-out;
+}
+
+.particle-button:hover .particle-button-text,
+.particle-button:focus .particle-button-text {
+    color: #FFFFFF; /* Hover durumunda metin rengi sabit kalabilir veya değişebilir */
+}
+
+.particle-button canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ==================================
+   NAVBAR İÇİN ÖZEL STİLLER
+   ================================== */
+.navbar .particle-button {
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-medium);
+    border: 1px solid transparent; /* Kenarlık için yer ayır ama görünmez yap */
+    color: var(--color-text-base);
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: var(--border-radius-medium);
+}
+
+.navbar .particle-button:hover,
+.navbar .particle-button:focus {
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* Hover durumunda metin rengini de ayarla */
+.navbar .particle-button .particle-button-text {
+    color: inherit; /* Rengi parent elementten al */
+    transition: color 0.4s ease-in-out;
+}
+
+.navbar .particle-button.active {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+}
