@@ -76,19 +76,34 @@
 
 .navbar .particle-button:hover,
 .navbar .particle-button:focus {
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    color: var(--color-primary);
+    background-color: rgba(255, 255, 255, 0.05);
     border-color: transparent;
     box-shadow: none;
 }
 
-/* Hover durumunda metin rengini de ayarla */
+/* Navbar'daki tüm linklerin rengini sabit tut */
+.navbar .particle-button,
+.navbar .particle-button:hover,
+.navbar .particle-button:focus,
 .navbar .particle-button .particle-button-text {
-    color: inherit; /* Rengi parent elementten al */
-    transition: color 0.4s ease-in-out;
+    color: var(--color-text-base) !important;
 }
 
 .navbar .particle-button.active {
-    color: var(--color-primary);
+    color: var(--color-text-base) !important;
     font-weight: var(--font-weight-bold);
+    position: relative;
+}
+
+/* Aktif menü öğesi için alt çizgi */
+.navbar .particle-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 2px;
+    background-color: var(--color-primary);
+    border-radius: 2px;
 }
