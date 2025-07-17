@@ -1,54 +1,76 @@
-/* --- Pixel Button --- */
+/* ==================================
+   PARTICLE BUTTON COMPONENT
+   ================================== */
+
+/*
+ * 1. Button Wrapper
+ *    Container for centering the button
+ */
 .button-wrapper {
     display: flex;
     justify-content: center;
     margin-top: 2rem;
 }
 
+/*
+ * 2. Base Button Styles
+ *    Core styles for the particle button
+ */
 .particle-button {
-    /* Görünüm ve Konumlandırma */
+    /* Layout & Positioning */
     display: inline-block;
     position: relative;
     padding: 1rem 2.5rem;
-    /* Kenarlık ve Arka Plan */
-    border: 2px solid #4A4A4A; /* Daha belirgin bir kenarlık */
-    border-radius: 50px;
-    
     overflow: hidden;
     isolation: isolate;
     text-decoration: none;
     text-align: center;
 
-    /* Renk ve Font */
-    color: var(--light-color, #FFFFFF);
+    /* Border & Background */
+    border: 2px solid #4A4A4A;
+    border-radius: 50px;
+    
+    /* Typography */
+    color: var(--color-text-base, #FFFFFF);
     font-size: 1.1rem;
     font-weight: 600;
     font-family: 'Montserrat', sans-serif;
 
-    /* Geçişler ve Gölge */
-    transition: color 0.4s ease-in-out, border-color 0.4s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
+    /* Effects & Transitions */
+    transition: color 0.4s ease-in-out, 
+                border-color 0.4s ease-in-out, 
+                background-color 0.3s ease, 
+                box-shadow 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+/* Hover & Focus States */
 .particle-button:hover,
 .particle-button:focus {
-    border-color: #1ED760;
-    
+    border-color: var(--color-primary, #1ED760);
     box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
-    color: #FFFFFF;
+    color: var(--color-text-base, #FFFFFF);
 }
 
+/*
+ * 3. Button Text
+ *    Styles for the button text element
+ */
 .particle-button-text {
     position: relative;
-    z-index: 2; /* Metin, canvas'ın üzerinde */
+    z-index: 2;
     transition: color 0.4s ease-in-out;
 }
 
 .particle-button:hover .particle-button-text,
 .particle-button:focus .particle-button-text {
-    color: #FFFFFF; /* Hover durumunda metin rengi sabit kalabilir veya değişebilir */
+    color: inherit;
 }
 
+/*
+ * 4. Canvas Element
+ *    Container for the particle effects
+ */
 .particle-button canvas {
     position: absolute;
     top: 50%;
@@ -61,27 +83,40 @@
 }
 
 /* ==================================
-   NAVBAR İÇİN ÖZEL STİLLER
+   NAVBAR SPECIFIC STYLES
    ================================== */
+
+/*
+ * 1. Navbar Button Base
+ *    Override default styles for navbar context
+ */
 .navbar .particle-button {
     padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5);
     font-size: 0.9rem;
     font-weight: var(--font-weight-medium);
-    border: 1px solid transparent; /* Kenarlık için yer ayır ama görünmez yap */
+    border: 1px solid transparent;
     color: var(--color-text-base);
     background-color: transparent;
     box-shadow: none;
     border-radius: var(--border-radius-medium);
 }
 
+/*
+ * 2. Navbar Button States
+ *    Hover, focus, and active states
+ */
 .navbar .particle-button:hover,
 .navbar .particle-button:focus {
     background-color: rgba(255, 255, 255, 0.05);
     border-color: transparent;
     box-shadow: none;
+    color: var(--color-text-base);
 }
 
-/* Navbar'daki tüm linklerin rengini sabit tut */
+/*
+ * 3. Navbar Link Colors
+ *    Ensure consistent text colors in navbar
+ */
 .navbar .particle-button,
 .navbar .particle-button:hover,
 .navbar .particle-button:focus,
@@ -89,13 +124,17 @@
     color: var(--color-text-base) !important;
 }
 
+/*
+ * 4. Active State
+ *    Styles for the active navigation item
+ */
 .navbar .particle-button.active {
     color: var(--color-text-base) !important;
     font-weight: var(--font-weight-bold);
     position: relative;
 }
 
-/* Aktif menü öğesi için alt çizgi */
+/* Active state indicator line */
 .navbar .particle-button.active::after {
     content: '';
     position: absolute;

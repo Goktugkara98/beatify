@@ -59,6 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. Ana Preloader Mantığı ---
     const createTextPixels = () => {
+        // Ensure we have valid dimensions
+        if (width <= 1 || height <= 1) {
+            console.warn('Canvas dimensions are too small:', width, 'x', height);
+            return;
+        }
+        
+        // Clear the canvas
+        ctx.clearRect(0, 0, width, height);
         const colorPalettes = [
             // Mor-Mavi-Yeşil Palette (Genişletilmiş)
             ['#7c4dff', '#536dfe', '#448aff', '#03a9f4', '#1db954', '#651fff', '#304ffe', '#2979ff', '#00b0ff', '#00e676'],
@@ -161,24 +169,49 @@ document.addEventListener('DOMContentLoaded', () => {
         isEnding = false;
         
         const rect = preloaderElement.getBoundingClientRect();
-        width = canvasElement.width = Math.floor(rect.width);
-        height = canvasElement.height = Math.floor(rect.height);
+        
+        // Ensure minimum dimensions
+        width = canvasElement.width = Math.max(1, Math.floor(rect.width));
+        height = canvasElement.height = Math.max(1, Math.floor(rect.height));
+        
+        // Clear any existing content
+        ctx.clearRect(0, 0, width, height);
+        
+        // Only proceed if we have valid dimensions
+        if (width <= 1 || height <= 1) {
+            // If dimensions are still invalid, retry on next frame
+            animationFrameId = requestAnimationFrame(setup);
+            return;
+        }
         
         startTime = null;
         createTextPixels();
         animationFrameId = requestAnimationFrame(animate);
     };
     
-    const font = new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFd2JQEk.woff2)');
-    document.body.classList.add('preloader-active');
+    // Initialize the preloader when the DOM is fully loaded
+    const initPreloader = () => {
+        const font = new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFd2JQEk.woff2)');
+        document.body.classList.add('preloader-active');
+        
+        font.load().then(() => {
+            document.fonts.add(font);
+            // Add a small delay to ensure everything is ready
+            setTimeout(() => {
+                setup();
+            }, 100);
+        }).catch(err => {
+            console.error('Font yüklenirken hata oluştu:', err);
+            // Even if font loading fails, try to set up the preloader
+            setTimeout(() => {
+                setup();
+            }, 100);
+        });
+    };
     
-    font.load().then(() => {
-        document.fonts.add(font);
-        setup();
-    }).catch(err => {
-        console.error('Font could not be loaded, starting preloader anyway.', err);
-        setup();
-    });
-
+    // Start the preloader initialization
+    initPreloader();
+    
+    // Handle window resize
     window.addEventListener('resize', setup);
 });

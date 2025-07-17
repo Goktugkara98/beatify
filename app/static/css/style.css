@@ -32,21 +32,25 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
    1. DESIGN SYSTEM (TASARIM SİSTEMİ - DEĞİŞKENLER)
    ================================== */
 :root {
+    /* Force GPU acceleration for smoother transitions */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
     /* 1.1. Renk Paleti (Açık Tema) */
     --color-primary: #1DB954; /* Spotify Yeşili */
     --color-primary-hover: #1ED760;
     --color-secondary: #282828;
     --color-accent: #B3B3B3;
 
-    --color-text-base: #191414; /* Neredeyse Siyah */
-    --color-text-muted: #535353;
+    --color-text-base: #000000; /* Tam siyah */
+    --color-text-muted: #333333; /* Daha koyu gri */
     --color-text-inverted: #FFFFFF;
 
-    --color-bg-base: #FFFFFF;
-    --color-bg-offset: #F5F5F5;
-    --color-bg-navbar: #fdfdfd; /* Hafif kırık beyaz */
-    --color-bg-navbar-rgb: 255, 255, 255;
-    --color-border: #E0E0E0;
+    --color-bg-base: rgb(252, 252, 252);
+    --color-bg-offset: rgb(252, 252, 252);
+    --color-bg-navbar: rgb(252, 252, 252);
+    --color-bg-navbar-rgb: 252, 252, 252;
+    --color-border: rgba(3, 3, 3, 0.1);
 
     /* 1.2. Tipografi */
     --font-family-heading: 'Montserrat', 'Helvetica Neue', sans-serif;
@@ -69,13 +73,18 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
     --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.1);
 
     /* 1.5. Geçişler ve Animasyonlar */
-    --transition-speed-fast: 0.15s;
-    --transition-speed-normal: 0.3s;
-    --transition-easing: ease-in-out;
+    --transition-speed-fast: 0.2s;
+    --transition-speed-normal: 0.35s;
+    --transition-speed-theme: 0.35s;
+    --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Smooth theme transitions - handled by JavaScript for better synchronization */
 }
 
 /* Koyu Tema Değişkenleri */
+/* Koyu Tema Değişkenleri */
 [data-theme="dark"] {
+    /* Sadece değişen renkleri ve gölgeleri bırakın */
     --color-primary: #1DB954;
     --color-primary-rgb: 29, 185, 84;
     --color-primary-hover: #1ED760;
@@ -87,11 +96,11 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
     --color-text-muted: #B3B3B3;
     --color-text-inverted: #191414;
 
-    --color-bg-base: #121212;
-    --color-bg-offset: #181818;
-    --color-bg-navbar: #030303; /* Neredeyse siyah */
+    --color-bg-base: rgb(3, 3, 3);
+    --color-bg-offset: rgb(3, 3, 3);
+    --color-bg-navbar: rgb(3, 3, 3);
     --color-bg-navbar-rgb: 3, 3, 3;
-    --color-border: #282828;
+    --color-border: rgba(252, 252, 252, 0.1);
 
     --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.2);
     --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -102,6 +111,14 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
 /* ==================================
    2. GLOBAL RESET & TEMEL STİLLER
    ================================== */
+
+/* Tema değiştirici SVG elemanları hariç tüm elemanlara varsayılan bir geçiş verelim */
+*:not(#sun):not(#moon):not(#cloud):not(.star):not(#night):not(#background):not(#day):not([id*="theme"]):not([class*="theme"]) {
+    transition: background-color var(--transition-speed-normal) var(--transition-easing),
+                color var(--transition-speed-normal) var(--transition-easing),
+                border-color var(--transition-speed-normal) var(--transition-easing),
+                box-shadow var(--transition-speed-normal) var(--transition-easing);
+}
 *,
 *::before,
 *::after {
@@ -121,7 +138,6 @@ body {
     background-color: var(--color-bg-base);
     color: var(--color-text-base);
     padding-top: var(--navbar-height);
-    transition: background-color var(--transition-speed-normal) var(--transition-easing), color var(--transition-speed-normal) var(--transition-easing);
 }
 
 

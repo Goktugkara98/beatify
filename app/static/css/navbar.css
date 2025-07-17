@@ -1,74 +1,201 @@
-/* --- Navbar --- */
+/* ==================================
+   NAVIGATION BAR COMPONENT
+   ================================== */
+
+/*
+ * 1. Base Navbar Styles
+ *    Core styles for the navigation bar
+ */
 .navbar {
-    padding: 0.8rem 0;
-    background-color: rgba(var(--color-bg-navbar-rgb), 0.85); /* RGB formatında kullanım */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1rem 0;
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-small);
-    transition: padding var(--transition-speed-normal) var(--transition-easing), 
-                background-color var(--transition-speed-normal) var(--transition-easing), 
-                box-shadow var(--transition-speed-normal) var(--transition-easing);
+    background-color: rgba(var(--color-bg-navbar-rgb), 0.8);
+    border-bottom: 1px solid var(--color-border);
+    /* Ensure navbar transitions synchronize with background */
+    will-change: background-color, border-color, box-shadow;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
+/* Scrolled state for navbar */
 .navbar-scrolled {
     padding: 0.5rem 0;
     background-color: rgba(var(--color-bg-navbar-rgb), 0.95);
     box-shadow: var(--shadow-medium);
 }
 
+/*
+ * 2. Brand & Logo
+ *    Styles for the brand/logo element
+ */
 .navbar-brand {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     letter-spacing: 1px;
     color: var(--color-primary);
     transition: color var(--transition-speed-fast) var(--transition-easing);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .navbar-brand:hover {
     color: var(--color-primary-hover);
+    text-decoration: none;
 }
 
+/*
+ * 3. Navigation Items
+ *    Styles for the navigation links and items
+ */
 .nav-item {
     display: flex;
-    align-items: center; /* Dikeyde ortala */
+    align-items: center;
     margin: 0 calc(var(--spacing-unit) * 0.25);
+    position: relative;
 }
 
+.nav-link {
+    color: var(--color-text-base);
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-medium);
+    transition: all var(--transition-speed-fast) var(--transition-easing);
+}
 
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+}
 
+/* Active state for nav items */
+.nav-item.active .nav-link {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+/*
+ * 4. Right-aligned Elements
+ *    Styles for elements aligned to the right side of the navbar
+ */
+.navbar-right-elements {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Login/Signup specific styles */
 .login-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%; /* Konteynerin ebeveyn yüksekliğini almasını sağlar */
+    height: 100%;
 }
 
+/*
+ * 5. Mobile Navigation
+ *    Styles for mobile menu and toggle button
+ */
 .navbar-toggler {
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius-small);
+    transition: all var(--transition-speed-fast) var(--transition-easing);
+}
+
+.navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
 }
 
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(var(--color-text-base-rgb), 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    width: 1.5em;
+    height: 1.5em;
 }
 
-/* Sağ taraf elementleri için hizalama */
-.navbar-right-elements {
-    margin-left: auto;
-}
-
-/* Mobil görünüm için responsive ayarlar */
+/*
+ * 6. Responsive Adjustments
+ *    Media queries for different screen sizes
+ */
 @media (max-width: 991px) {
     .navbar-collapse {
-        margin-top: var(--spacing-unit);
+        margin-top: 1rem;
         border-top: 1px solid var(--color-border);
-        padding-top: var(--spacing-unit);
+        padding-top: 1rem;
     }
+    
     .navbar-right-elements {
-        margin-top: var(--spacing-unit);
+        margin-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    .nav-item {
+        margin: 0.25rem 0;
+    }
+    
+    .nav-link {
+        padding: 0.75rem 1rem;
+        display: block;
     }
     
     .login-item {
-        margin-right: var(--spacing-unit);
+        margin-right: 0;
+        justify-content: flex-start;
+        width: 100%;
     }
+}
+
+/*
+ * 7. Theme Toggle
+ *    Styles for the theme toggle button in navbar
+ */
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+}
+
+/*
+ * 8. Search Bar
+ *    Styles for search functionality in navbar
+ */
+.navbar-search {
+    position: relative;
+    margin: 0 1rem;
+}
+
+.navbar-search input {
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border-radius: 50px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-offset);
+    color: var(--color-text-base);
+    width: 250px;
+    transition: all var(--transition-speed-fast) var(--transition-easing);
+}
+
+.navbar-search input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.navbar-search::before {
+    content: '\f002';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
 }
