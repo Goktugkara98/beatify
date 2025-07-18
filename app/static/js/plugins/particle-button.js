@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const particleButtons = document.querySelectorAll('.particle-button');
+    // Initialize both regular particle buttons and auth particle buttons
+    const particleButtons = document.querySelectorAll('.particle-button, .auth-particle-button');
     particleButtons.forEach(button => {
         new PixelButton(button);
     });
@@ -8,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 class PixelButton {
     constructor(element) {
         this.element = element;
-        this.textElement = this.element.querySelector('.particle-button-text');
+        // Handle both regular and auth particle button text elements
+        this.textElement = this.element.querySelector('.particle-button-text') || this.element.querySelector('.auth-button-text');
         this.colors = this.element.dataset.colors ? this.element.dataset.colors.split(',') : ['#1DB954', '#1ED760', '#FFFFFF'];
         this.pixelGap = this.element.dataset.gap ? parseInt(this.element.dataset.gap, 10) : 3;
         this.animationFrame = null;

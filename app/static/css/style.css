@@ -61,7 +61,7 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
 
     /* 1.3. Boyutlandırma ve Boşluklar */
     --spacing-unit: 8px;
-    --navbar-height: 70px; /* Navbar yüksekliği için merkezi değişken */
+    --navbar-height: 86px; /* Navbar yüksekliği için merkezi değişken (70px + 1rem padding = ~86px) */
 
     /* 1.4. Kenarlıklar ve Gölgeler */
     --border-radius-small: 4px;

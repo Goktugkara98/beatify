@@ -5,61 +5,78 @@
 
 {%block head%}
     <!-- page name -->
-    <title>Giriş Yap</title>
+    <title>Kayıt Ol - Beatify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 {%endblock head%}
 
 {%block preloader%}
 {%endblock preloader%}
 
 {%block content%}
-<!-- content -->
-<div class="mil-content">
-    <div id="swupMain" class="mil-main-transition">
-        <!-- banner -->
-        <section class="mil-banner mil-soft-bg">
-            <div class="mi-invert-fix">
-                <div class="mil-animation-frame">
-                    <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
-                    <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
-                    <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
-                </div>
-
-                <div class="mil-gradient"></div>
-
-                <div class="container d-flex justify-content-center align-items-start">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="sign-up-container">
-                                <h2 class="sign-up-title">Kayıt Ol</h2>
-                                <form class="sign-up-form" method="POST">
-                                    <div class="form-group">
-                                        <input type="name" name="username" placeholder="Kullanıcı Adı" required>
-                                    </div>
-                                    <div class="sign-up-form-group">
-                                        <input type="email" name="email" placeholder="E-posta" required>
-                                    </div>
-                                    <div class="sign-up-form-group">
-                                        <input type="password" name="password" placeholder="Şifre" required>
-                                    </div>
-                                    <div class="sign-up-form-group">
-                                        <input type="password" name="password" placeholder="Şifre Tekrar" required>
-                                    </div>
-                                    
-                                    <button type="submit" class="sign-up-button">Kayıt Ol</button>
-                                </form>
-                                <div class="sign-up-link">
-                                    Hesabınız var mı? <a href="login">Giriş Yap</a>
-                                </div>
-                            </div>
-                        </div>
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Hesap Oluştur</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-4">
+                        {{ message }}
                     </div>
-                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form class="auth-form" method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Kullanıcı Adı" required>
             </div>
-        </section>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="E-posta Adresi" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Şifre" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="confirm_password" placeholder="Şifre Tekrar" required>
+            </div>
+            
+            <div class="form-footer">
+                <label class="terms-checkbox">
+                    <input type="checkbox" name="terms" required>
+                    <span><a href="#">Kullanım Koşulları</a>'nı ve <a href="#">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.</span>
+                </label>
+            </div>
+            
+            <button type="submit" class="auth-button">
+                <span class="button-text">Kayıt Ol</span>
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            Zaten hesabınız var mı? <a href="{{ url_for('.login') }}">Giriş Yapın</a>
+        </div>
     </div>
 </div>
 {%endblock content%}
 
 {%block script%}
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password match validation
+        const password = document.querySelector('input[name="password"]');
+        const confirmPassword = document.querySelector('input[name="confirm_password"]');
+        
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Şifreler eşleşmiyor');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.addEventListener('change', validatePassword);
+        confirmPassword.addEventListener('keyup', validatePassword);
+    });
+</script>
 {%endblock script%}

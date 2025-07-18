@@ -1,12 +1,10 @@
 {%extends "base.html"%}
 
-{%block style%}
-{%endblock style%}
+{%block title%}Giriş Yap{%endblock title%}
 
-{%block head%}
-    <!-- page name -->
-    <title>Giriş Yap</title>
-{%endblock head%}
+{%block head_content%}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{%endblock head_content%}
 
 {%block preloader%}
 {%endblock preloader%}
@@ -14,53 +12,99 @@
 {%block content%}
 <!-- content -->
  <!-- Flash Mesajlarını Göster -->
-<div class="mil-content">
-    <div id="swupMain" class="mil-main-transition">
-        <!-- banner -->
-        <section class="mil-banner mil-soft-bg">
-            <div class="mi-invert-fix">
-                <div class="mil-animation-frame">
-                    <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
-                    <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
-                    <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
-                </div>
-
-                <div class="mil-gradient"></div>
-
-                <div class="container d-flex justify-content-center align-items-start">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="login-container">
-                                <h2 class="login-title">Giriş Yap</h2>
-                                <form class="login-form" method="POST">
-                                    <div class="form-group">
-                                        <input type="username" name="username" placeholder="Kullanıcı Adı" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="password" name="password" placeholder="Şifre" required>
-                                    </div>
-                                    <div class="form-group remember-forgot">
-                                        <label>
-                                            <input type="checkbox" name="remember">
-                                            <span>Beni Hatırla</span>
-                                        </label>
-                                        <a href="#" class="forgot-password">Şifremi Unuttum</a>
-                                    </div>
-                                    <button type="submit" class="login-button">Giriş Yap</button>
-                                </form>
-                                <div class="sign-up-link">
-                                    Hesabınız yok mu? <a href="register">Kayıt Ol</a>
-                                </div>
-                            </div>
-                        </div>
+<div class="login-container">
+    <div class="login-card">
+        <!-- Brand/Logo Section -->
+        <div class="login-brand">
+            <h1>BEATIFY</h1>
+            <p>Premium Müzik Deneyimi</p>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
                     </div>
-                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Login Form -->
+        <form class="login-form" method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <input type="text" name="username" class="form-input" placeholder="Kullanıcı Adı" required autocomplete="username">
             </div>
-        </section>
+            <div class="form-group">
+                <input type="password" name="password" class="form-input" placeholder="Şifre" required autocomplete="current-password">
+            </div>
+            
+            <div class="form-footer">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember">
+                    <span>Beni Hatırla</span>
+                </label>
+                <a href="#" class="forgot-password">Şifremi Unuttum</a>
+            </div>
+            
+            <button type="submit" class="auth-particle-button" data-colors="#1DB954,#1ED760,#FFFFFF" data-gap="3">
+                <span class="auth-button-text">Giriş Yap</span>
+            </button>
+        </form>
+        
+        <!-- Footer Link -->
+        <div class="login-footer">
+            Hesabınız yok mu?<a href="{{ url_for('register') }}">Kayıt Olun</a>
+        </div>
     </div>
 </div>
 {%endblock content%}
 
 {%block script%}
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('.login-form');
+    const loginButton = document.querySelector('.auth-particle-button');
+    const buttonText = document.querySelector('.auth-button-text');
+    
+    // Form submission with loading state
+    loginForm.addEventListener('submit', function(e) {
+        if (loginButton) {
+            loginButton.classList.add('loading');
+        }
+        if (buttonText) {
+            buttonText.textContent = 'Giriş yapılıyor...';
+        }
+        
+        // Disable form to prevent double submission
+        const inputs = loginForm.querySelectorAll('input, button');
+        inputs.forEach(input => input.disabled = true);
+    });
+    
+    // Enhanced form validation
+    const inputs = loginForm.querySelectorAll('input[required]');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.style.borderColor === 'rgb(220, 53, 69)') {
+                this.style.borderColor = '';
+            }
+        });
+    });
+    
+    // Auto-focus first input
+    const firstInput = loginForm.querySelector('input');
+    if (firstInput) {
+        firstInput.focus();
+    }
+});
+</script>
 {%endblock script%}
