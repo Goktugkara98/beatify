@@ -26,12 +26,19 @@
             
             <!-- Sağ taraf için ayrı bir div -->
             <div class="navbar-right-elements d-flex align-items-center">
-                <!-- Giriş Yap Butonu (Particle Efekti) -->
+                <!-- Giriş / Profil Butonu (Particle Efekti) -->
                 <div class="login-item me-4">
-                    <a href="{{ url_for('login') }}" class="particle-button">
-                        GİRİŞ YAP
-                        <span class="particle-button-text"></span>
-                    </a>
+                    {% if session.get('logged_in') and session.get('username') %}
+                        <a href="{{ url_for('profile') }}" class="particle-button">
+                            PROFİL
+                            <span class="particle-button-text"></span>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="particle-button">
+                            GİRİŞ YAP
+                            <span class="particle-button-text"></span>
+                        </a>
+                    {% endif %}
                 </div>
                 
                 <!-- Yeni Tema Değiştirme Düğmesi -->

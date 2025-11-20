@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/particle-button.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/app-cta-button.css') }}">
     {% block head_content %}{% endblock %}
 </head>
 <body>
@@ -54,6 +55,7 @@
     <script src="{{ url_for('static', filename='js/theme-switcher.js') }}"></script>
 <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins/particle-button.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/components/app-cta-button.js') }}" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

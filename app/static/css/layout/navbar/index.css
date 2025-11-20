@@ -1,0 +1,6 @@
+/* Layout - Navbar entry
+ * Bu dosya sadece navbar component CSS'lerini import eder.
+ */
+@import url('./components/navbar.css');
+
+

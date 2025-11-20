@@ -1,0 +1,85 @@
+/* ==================================
+   APP CTA PARTICLE BUTTON COMPONENT
+   ================================== */
+
+/*
+ * 1. Wrapper
+ *    Centering container for CTA button
+ */
+.cta-button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/*
+ * 2. Base Button Styles
+ *    Core styles for the CTA particle button
+ */
+.app-cta-button {
+    /* Layout & Positioning */
+    display: inline-block;
+    position: relative;
+    padding: 1rem 2.5rem;
+    overflow: hidden;
+    isolation: isolate;
+    text-decoration: none;
+    text-align: center;
+
+    /* Border & Background */
+    border: 2px solid #4A4A4A;
+    border-radius: 50px;
+    
+    /* Typography */
+    color: var(--color-text-base, #FFFFFF);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+
+    /* Effects & Transitions */
+    transition: color 0.4s ease-in-out, 
+                border-color 0.4s ease-in-out, 
+                background-color 0.3s ease, 
+                box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover & Focus States */
+.app-cta-button:hover,
+.app-cta-button:focus {
+    border-color: var(--color-primary, #1ED760);
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+    color: var(--color-text-base, #FFFFFF);
+}
+
+/*
+ * 3. Button Text
+ *    Styles for the CTA button text element
+ */
+.app-cta-button-text {
+    position: relative;
+    z-index: 2;
+    transition: color 0.4s ease-in-out;
+}
+
+.app-cta-button:hover .app-cta-button-text,
+.app-cta-button:focus .app-cta-button-text {
+    color: inherit;
+}
+
+/*
+ * 4. Canvas Element
+ *    Container for the particle effects
+ */
+.app-cta-button canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+

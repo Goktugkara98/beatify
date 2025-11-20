@@ -72,10 +72,6 @@ def _handle_register_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
         flash('Lütfen tüm alanları doldurun.', 'danger')
         return render_template('auth/register.html', title="Kayıt Ol")
 
-    if len(password) < 8:
-        flash('Parola en az 8 karakter uzunluğunda olmalıdır.', 'danger')
-        return render_template('auth/register.html', title="Kayıt Ol")
-
     try:
         logger.info(f"Yeni kullanıcı kaydı deneniyor: Kullanıcı Adı='{username}', Email='{email}'")
         auth_service.beatify_register(username, email, password)

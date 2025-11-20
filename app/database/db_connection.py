@@ -1,107 +1,69 @@
-# =============================================================================
-# Veritabanı Bağlantı Modülü (Database Connection Module)
-# =============================================================================
-# Bu modül, MySQL veritabanı bağlantısını yönetmek için bir sarmalayıcı
-# (wrapper) olan `DatabaseConnection` sınıfını içerir. Bağlantı kurma,
-# sonlandırma ve bağlantının sürekliliğini sağlama işlemlerini merkezileştirir.
-#
-# İÇİNDEKİLER:
-# -----------------------------------------------------------------------------
-# 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  SINIF TANIMI: DatabaseConnection
-#      2.1. Başlatma (Initialization)
-#           - __init__()
-#      2.2. Bağlantı Yönetimi (Connection Management)
-#           - connect()
-#           - close()
-#           - _ensure_connection()
-# =============================================================================
+from __future__ import annotations
 
-# =============================================================================
-# 1.0 İÇE AKTARMALAR (IMPORTS)
-# =============================================================================
-import logging
-import mysql.connector
-from mysql.connector import Error as MySQLError
 from typing import Optional, Dict, Any
-from app.config import DB_CONFIG
 
-# Logger kurulumu
-logger = logging.getLogger(__name__)
+import mysql.connector
+from mysql.connector import MySQLConnection, Error as MySQLError
 
-# =============================================================================
-# 2.0 SINIF TANIMI: DatabaseConnection
-# =============================================================================
+from app.config.config import DB_CONFIG
+
+
 class DatabaseConnection:
     """
-    MySQL veritabanı bağlantısını yönetmek için bir sarmalayıcı (wrapper) sınıf.
+    MySQL veritabanı bağlantısını yöneten yardımcı sınıf.
+
+    - `connection`: aktif MySQL bağlantı nesnesi
+    - `cursor`: dict döndüren cursor (sütun adlarıyla erişim için)
+    - `_ensure_connection()`: bağlantı yoksa/kapalıysa yeniden açar
+    - `close()`: cursor ve bağlantıyı kapatır
     """
 
-    # -------------------------------------------------------------------------
-    # 2.1. Başlatma (Initialization)
-    # -------------------------------------------------------------------------
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        self.config: Dict[str, Any] = {
+            "host": (config or DB_CONFIG).get("host"),
+            "user": (config or DB_CONFIG).get("user"),
+            "password": (config or DB_CONFIG).get("password"),
+            "database": (config or DB_CONFIG).get("database"),
+            "charset": "utf8mb4",
+            "collation": "utf8mb4_unicode_ci",
+        }
+        self.connection: Optional[MySQLConnection] = None
+        self.cursor: Optional[mysql.connector.cursor_cext.CMySQLCursorDict] = None
 
-    def __init__(self):
+    def _ensure_connection(self) -> None:
         """
-        DatabaseConnection sınıfını başlatır.
+        Bağlantı yoksa veya kopmuşsa yeniden bağlanır ve cursor oluşturur.
         """
-        self.connection: Optional[mysql.connector.MySQLConnection] = None
-        self.cursor: Optional[mysql.connector.cursor.MySQLCursor] = None
-        self.db_config: Dict[str, Any] = DB_CONFIG
-        logger.debug("DatabaseConnection nesnesi oluşturuldu.")
+        if self.connection is None or not self.connection.is_connected():
+            self.connection = mysql.connector.connect(
+                host=self.config["host"],
+                user=self.config["user"],
+                password=self.config["password"],
+                database=self.config["database"],
+                charset=self.config.get("charset", "utf8mb4"),
+            )
+            # Dict cursor: sonuçlara `row["kolon_adi"]` ile erişebilmek için
+            self.cursor = self.connection.cursor(dictionary=True)
 
-    # -------------------------------------------------------------------------
-    # 2.2. Bağlantı Yönetimi (Connection Management)
-    # -------------------------------------------------------------------------
-
-    def connect(self):
+    def close(self) -> None:
         """
-        Yapılandırma dosyasındaki bilgileri kullanarak veritabanına bağlanır.
-
-        Raises:
-            MySQLError: Veritabanı bağlantısı kurulamazsa.
+        Cursor ve bağlantıyı güvenli şekilde kapatır.
         """
-        try:
-            logger.debug(f"Veritabanına bağlanılıyor: {self.db_config.get('host')}/{self.db_config.get('database')}")
-            self.connection = mysql.connector.connect(**self.db_config)
-            if self.connection.is_connected():
-                # dictionary=True, sorgu sonuçlarını sözlük olarak döndürür.
-                self.cursor = self.connection.cursor(dictionary=True)
-                logger.info("Veritabanı bağlantısı başarıyla kuruldu.")
-            else:
-                # Bu durum genellikle connect() bir istisna fırlattığı için nadiren tetiklenir.
-                raise MySQLError("Veritabanı bağlantısı kuruldu ancak aktif değil.")
-        except MySQLError as e:
-            logger.critical(f"Veritabanı bağlantısı kurulamadı: {e}", exc_info=True)
-            self.connection = None
-            self.cursor = None
-            raise
-
-    def close(self):
-        """Mevcut imleci ve veritabanı bağlantısını güvenli bir şekilde kapatır."""
-        if self.cursor:
+        if self.cursor is not None:
             try:
                 self.cursor.close()
-            except MySQLError as e:
-                logger.warning(f"Cursor kapatılırken hata oluştu (yoksayılıyor): {e}")
-            self.cursor = None
+            except MySQLError:
+                pass
+            finally:
+                self.cursor = None
 
-        if self.connection and self.connection.is_connected():
+        if self.connection is not None:
             try:
-                self.connection.close()
-                logger.info("Veritabanı bağlantısı kapatıldı.")
-            except MySQLError as e:
-                logger.warning(f"Bağlantı kapatılırken hata oluştu (yoksayılıyor): {e}")
-            self.connection = None
+                if self.connection.is_connected():
+                    self.connection.close()
+            except MySQLError:
+                pass
+            finally:
+                self.connection = None
 
-    def _ensure_connection(self):
-        """
-        Bağlantının veya imlecin aktif olup olmadığını kontrol eder. Değilse, yeniden bağlanır.
-        """
-        try:
-            if not self.connection or not self.connection.is_connected() or not self.cursor:
-                logger.info("Bağlantı kapalı veya mevcut değil. Yeniden bağlanılıyor...")
-                self.connect()
-        except MySQLError:
-            # Connect metodu zaten hatayı loglayıp yükselteceği için burada tekrar loglamaya gerek yok.
-            raise
+

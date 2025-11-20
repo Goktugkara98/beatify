@@ -1,0 +1,6 @@
+/* Index page entry CSS
+ * Bu dosya sadece sayfa içi component CSS dosyalarını import eder.
+ */
+@import url('./components/hero.css');
+
+

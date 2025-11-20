@@ -1,82 +1,131 @@
 {%extends "base.html"%}
 
-{%block style%}
-{%endblock style%}
+{%block title%}Kayıt Ol{%endblock title%}
 
-{%block head%}
-    <!-- page name -->
-    <title>Kayıt Ol - Beatify</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-{%endblock head%}
-
-{%block preloader%}
-{%endblock preloader%}
+{%block head_content%}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register/register.css') }}">
+{%endblock head_content%}
 
 {%block content%}
-<div class="auth-container">
-    <div class="auth-card">
-        <h1 class="auth-title">Hesap Oluştur</h1>
+<div class="login-container">
+    <div class="login-card">
+        <!-- Brand/Logo Section -->
+        <div class="login-brand">
+            <h1>BEATIFY</h1>
+            <p>Premium Müzik Deneyimi</p>
+        </div>
         
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} mb-4">
+                    <div class="alert alert-{{ category }}">
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
         
-        <form class="auth-form" method="POST" action="{{ url_for('register') }}">
+        <!-- Register Form (Login sayfasından türetilmiş) -->
+        <form class="login-form" method="POST" action="{{ url_for('register') }}">
             <div class="form-group">
-                <input type="text" name="username" placeholder="Kullanıcı Adı" required>
+                <input type="text" name="username" class="form-input" placeholder="Kullanıcı Adı" required autocomplete="username">
             </div>
             <div class="form-group">
-                <input type="email" name="email" placeholder="E-posta Adresi" required>
+                <input type="email" name="email" class="form-input" placeholder="E-posta Adresi" required autocomplete="email">
             </div>
             <div class="form-group">
-                <input type="password" name="password" placeholder="Şifre" required>
+                <input type="password" name="password" class="form-input" placeholder="Şifre" required autocomplete="new-password">
             </div>
             <div class="form-group">
-                <input type="password" name="confirm_password" placeholder="Şifre Tekrar" required>
+                <input type="password" name="confirm_password" class="form-input" placeholder="Şifre Tekrar" required autocomplete="new-password">
             </div>
             
-            <div class="form-footer">
-                <label class="terms-checkbox">
+            <div class="form-footer" style="margin-top: 1rem;">
+                <label class="terms-checkbox" style="font-size: 0.9rem; color: var(--color-text-muted);">
                     <input type="checkbox" name="terms" required>
                     <span><a href="#">Kullanım Koşulları</a>'nı ve <a href="#">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.</span>
                 </label>
             </div>
             
-            <button type="submit" class="auth-button">
-                <span class="button-text">Kayıt Ol</span>
+            <button type="submit" class="auth-particle-button" data-colors="#1DB954,#1ED760,#FFFFFF" data-gap="3">
+                <span class="auth-button-text">Kayıt Ol</span>
             </button>
         </form>
         
-        <div class="auth-footer">
-            Zaten hesabınız var mı? <a href="{{ url_for('.login') }}">Giriş Yapın</a>
+        <!-- Footer Link -->
+        <div class="login-footer">
+            Zaten hesabınız var mı?<a href="{{ url_for('login') }}">Giriş Yapın</a>
         </div>
     </div>
 </div>
 {%endblock content%}
 
-{%block script%}
+{%block scripts%}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Password match validation
-        const password = document.querySelector('input[name="password"]');
-        const confirmPassword = document.querySelector('input[name="confirm_password"]');
-        
-        function validatePassword() {
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity('Şifreler eşleşmiyor');
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.querySelector('.login-form');
+    const registerButton = document.querySelector('.auth-particle-button');
+    const buttonText = document.querySelector('.auth-button-text');
+    
+    const password = registerForm.querySelector('input[name="password"]');
+    const confirmPassword = registerForm.querySelector('input[name="confirm_password"]');
+    
+    function validatePasswordMatch() {
+        if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Şifreler eşleşmiyor');
+        } else {
+            confirmPassword.setCustomValidity('');
         }
-        
-        password.addEventListener('change', validatePassword);
-        confirmPassword.addEventListener('keyup', validatePassword);
+    }
+
+    if (password && confirmPassword) {
+        password.addEventListener('input', validatePasswordMatch);
+        confirmPassword.addEventListener('input', validatePasswordMatch);
+    }
+
+    // Form submission with loading state
+    registerForm.addEventListener('submit', function(e) {
+        // Son kontrol: şifreler eşleşiyor mu?
+        validatePasswordMatch();
+        if (!registerForm.checkValidity()) {
+            e.preventDefault();
+            return;
+        }
+
+        if (registerButton) {
+            registerButton.classList.add('loading');
+            // Sadece butonu devre dışı bırak, input değerleri sunucuya gitmeye devam etsin
+            registerButton.disabled = true;
+        }
+        if (buttonText) {
+            buttonText.textContent = 'Kayıt olunuyor...';
+        }
     });
+    
+    // Enhanced form validation (boş alanlar için kırmızı border)
+    const inputs = registerForm.querySelectorAll('input[required]:not([type="checkbox"])');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.style.borderColor === 'rgb(220, 53, 69)') {
+                this.style.borderColor = '';
+            }
+        });
+    });
+    
+    // Auto-focus first input
+    const firstInput = registerForm.querySelector('input');
+    if (firstInput) {
+        firstInput.focus();
+    }
+});
 </script>
-{%endblock script%}
+{%endblock scripts%}

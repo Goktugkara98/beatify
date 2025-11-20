@@ -1,0 +1,397 @@
+/* ==================================
+   AUTH SHARED LAYOUT (Login & Register)
+   ================================== */
+
+/* 1. Login/Register Container */
+.login-container {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - var(--navbar-height));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: var(--color-bg-base);
+    overflow: hidden;
+}
+
+/* 2. Animated background particles */
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at 20% 80%,
+        rgba(29, 185, 84, 0.03) 0%,
+        transparent 50%
+    ),
+    radial-gradient(
+        circle at 80% 20%,
+        rgba(30, 215, 96, 0.04) 0%,
+        transparent 50%
+    ),
+    radial-gradient(
+        circle at 40% 40%,
+        rgba(29, 185, 84, 0.02) 0%,
+        transparent 50%
+    );
+    animation: float 20s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -30px) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+/* 3. Auth Card */
+.login-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 450px;
+    background: var(--color-bg-offset);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-large);
+    padding: 3rem 2.5rem;
+    transition: all var(--transition-speed-normal) var(--transition-easing);
+}
+
+.login-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 4px 20px rgba(29, 185, 84, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 4. Brand/Logo area */
+.login-brand {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-brand h1 {
+    font-family: var(--font-family-heading);
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.login-brand p {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* 5. Form styling */
+.login-form {
+    position: relative;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1.8rem;
+}
+
+/* Inputs */
+.form-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    background: var(--color-bg-base);
+    font-family: var(--font-family-body);
+    font-size: 1rem;
+    color: var(--color-text-base);
+    transition: all var(--transition-speed-fast) var(--transition-easing);
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+    transition: all var(--transition-speed-fast) ease;
+}
+
+.form-input:focus {
+    border-color: var(--color-primary);
+    background: var(--color-bg-offset);
+    box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-input:hover {
+    border-color: var(--color-primary-hover);
+}
+
+/* 6. Footer inside form */
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.remember-me:hover {
+    color: var(--color-text-base);
+}
+
+.remember-me input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--color-primary);
+    border-radius: 4px;
+}
+
+.forgot-password {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.forgot-password::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.forgot-password:hover::after {
+    width: 100%;
+}
+
+/* 7. Auth Particle Button */
+.auth-particle-button {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding: 1rem 2.5rem;
+    overflow: hidden;
+    isolation: isolate;
+    text-decoration: none;
+    text-align: center;
+    border: 2px solid #4A4A4A;
+    border-radius: 50px;
+    background: transparent;
+    color: var(--color-text-base, #FFFFFF);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    transition: color 0.4s ease-in-out, 
+                border-color 0.4s ease-in-out, 
+                background-color 0.3s ease, 
+                box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.auth-particle-button .auth-button-text {
+    position: relative;
+    z-index: 2;
+    transition: color 0.4s ease-in-out;
+}
+
+.auth-particle-button:hover .auth-button-text,
+.auth-particle-button:focus .auth-button-text {
+    color: inherit;
+}
+
+.auth-particle-button canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.auth-particle-button:hover,
+.auth-particle-button:focus {
+    border-color: var(--color-primary, #1ED760);
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+    color: var(--color-text-base, #FFFFFF);
+}
+
+.auth-particle-button:focus {
+    outline: none;
+}
+
+.auth-particle-button:active {
+    transform: translateY(0);
+}
+
+/* Login/Register footer link section */
+.login-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(29, 185, 84, 0.1);
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.login-footer a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.25rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.login-footer a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.login-footer a:hover::after {
+    width: 100%;
+}
+
+/* 8. Alert messages */
+.alert {
+    border-radius: 12px;
+    border: none;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    backdrop-filter: blur(10px);
+}
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-left: 4px solid #dc3545;
+}
+
+.alert-success {
+    background: rgba(29, 185, 84, 0.1);
+    color: var(--color-primary);
+    border-left: 4px solid var(--color-primary);
+}
+
+.alert-info {
+    background: rgba(13, 202, 240, 0.1);
+    color: #0dcaf0;
+    border-left: 4px solid #0dcaf0;
+}
+
+/* 9. Dark theme support */
+[data-theme="dark"] .login-card {
+    background: var(--color-bg-offset);
+    border-color: var(--color-border);
+}
+
+[data-theme="dark"] .form-input {
+    background: var(--color-bg-base);
+    border-color: var(--color-border);
+    color: var(--color-text-base);
+}
+
+[data-theme="dark"] .form-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .form-input:focus {
+    background: var(--color-bg-offset);
+}
+
+/* 10. Loading state for auth particle button */
+.auth-particle-button.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.auth-particle-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 4;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 11. Responsive design */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 1rem;
+    }
+    
+    .login-card {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .login-brand h1 {
+        font-size: 2rem;
+    }
+    
+    .form-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .login-brand h1 {
+        font-size: 1.8rem;
+    }
+}
+
+

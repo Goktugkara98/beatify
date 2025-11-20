@@ -30,9 +30,9 @@ from flask import (Blueprint, render_template, request, jsonify, session, url_fo
 
 # Servisler ve Depolar
 from app.services.auth_service import login_required, session_is_user_logged_in
-from app.services.spotify_services.spotify_player_service import SpotifyPlayerService
-from app.services.spotify_services.widget_token_service import WidgetTokenService
-from app.database.spotify_widget_repository import SpotifyWidgetRepository
+from app.services.spotify.player_service import SpotifyPlayerService
+from app.services.spotify.widget.token_service import WidgetTokenService
+from app.database.repositories.widget_repository import SpotifyWidgetRepository
 
 # Logger kurulumu
 logger = logging.getLogger(__name__)

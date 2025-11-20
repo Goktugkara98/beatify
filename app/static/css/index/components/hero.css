@@ -1,0 +1,201 @@
+/* ==================================
+   INDEX PAGE - HERO SECTION
+   (Taşınan eski homepage.css içeriği)
+   ================================== */
+
+/* Light mode overrides */
+:root {
+    --banner-text-color: #ffffff;
+    --banner-overlay: rgba(0, 0, 0, 0.6);
+    --banner-text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    --banner-lead-text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+    --banner-text-color: rgb(3, 3, 3);
+    --banner-overlay: rgba(252, 252, 252, 0.9);
+    --banner-text-shadow: none;
+    --banner-lead-text-shadow: none;
+    background-color: rgb(252, 252, 252);
+}
+
+[data-theme="light"] .banner-container {
+    color: var(--banner-text-color);
+    background: var(--banner-overlay), 
+                url('https://source.unsplash.com/random/1920x1080/?music,concert,dj') no-repeat center center;
+    background-color: rgb(252, 252, 252);
+    transition: background-color var(--transition-speed-theme) var(--transition-easing),
+                background-image var(--transition-speed-theme) var(--transition-easing);
+    will-change: background-color, background-image;
+}
+
+[data-theme="light"] .banner-container .btn-outline-secondary {
+    color: #000000;
+    border-color: #000000;
+}
+
+[data-theme="light"] .banner-container .btn-outline-secondary:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+/*
+ * 1. Banner Container
+ *    Hero section at the top of the homepage
+ *    NOT: Navbar sabit (fixed) ve body'de
+ *    var(--navbar-height) kadar padding olduğu için
+ *    gerçek görünür alan = 100vh - navbar yüksekliği.
+ */
+.banner-container {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - var(--navbar-height));
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-image: linear-gradient(
+        to bottom,
+        var(--banner-overlay, rgba(0, 0, 0, 0.6)),
+        var(--banner-overlay, rgba(0, 0, 0, 0.6))
+    ), url('https://source.unsplash.com/random/1920x1080/?music,concert,dj');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    background-color: var(--color-bg-base, rgb(3, 3, 3));
+    color: var(--color-text-primary, #fff);
+    overflow: hidden;
+    transition: background-color var(--transition-speed-theme) var(--transition-easing),
+                background-image var(--transition-speed-theme) var(--transition-easing);
+    will-change: background-color, background-image;
+}
+
+/*
+ * 2. Banner Typography
+ *    Styles for headings and text in the banner
+ */
+.banner-container h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: var(--banner-text-shadow);
+    color: var(--banner-text-color, #ffffff);
+}
+
+.banner-container .lead {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    text-shadow: var(--banner-lead-text-shadow);
+    line-height: 1.6;
+    color: var(--banner-text-color, #ffffff);
+}
+
+/*
+ * Global smooth transitions for theme switching */
+* {
+    transition: background-color var(--transition-speed-theme) var(--transition-easing),
+                color var(--transition-speed-theme) var(--transition-easing),
+                border-color var(--transition-speed-theme) var(--transition-easing);
+}
+
+/*
+ * 3. Banner Buttons
+ *    Call-to-action buttons in the banner
+ */
+.banner-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.banner-container .btn {
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Primary Button */
+.banner-container .btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.banner-container .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(29, 185, 84, 0.3);
+}
+
+/* Secondary Button */
+.banner-container .btn-outline-secondary {
+    color: var(--banner-text-color, #ffffff);
+    border-color: var(--banner-text-color, #ffffff);
+    background-color: transparent;
+}
+
+.banner-container .btn-outline-secondary:hover {
+    background-color: var(--banner-text-color, #ffffff);
+    color: var(--color-bg-base, #121212);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/*
+ * 4. Responsive Adjustments
+ *    Media queries for different screen sizes
+ */
+@media (max-width: 992px) {
+    .banner-container h1 {
+        font-size: 2.8rem;
+    }
+    
+    .banner-container .lead {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .banner-container {
+        padding: 1rem;
+    }
+    
+    .banner-container h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .banner-container .lead {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .banner-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .banner-container .btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+

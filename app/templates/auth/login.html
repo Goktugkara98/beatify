@@ -3,11 +3,8 @@
 {%block title%}Giriş Yap{%endblock title%}
 
 {%block head_content%}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login/login.css') }}">
 {%endblock head_content%}
-
-{%block preloader%}
-{%endblock preloader%}
 
 {%block content%}
 <!-- content -->
@@ -61,7 +58,7 @@
 </div>
 {%endblock content%}
 
-{%block script%}
+{%block scripts%}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.querySelector('.login-form');
@@ -72,14 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
     loginForm.addEventListener('submit', function(e) {
         if (loginButton) {
             loginButton.classList.add('loading');
+            // Sadece butonu devre dışı bırak, input değerleri sunucuya gitmeye devam etsin
+            loginButton.disabled = true;
         }
         if (buttonText) {
             buttonText.textContent = 'Giriş yapılıyor...';
         }
-        
-        // Disable form to prevent double submission
-        const inputs = loginForm.querySelectorAll('input, button');
-        inputs.forEach(input => input.disabled = true);
     });
     
     // Enhanced form validation
@@ -107,4 +102,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-{%endblock script%}
+{%endblock scripts%}

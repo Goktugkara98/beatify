@@ -30,8 +30,8 @@ from typing import Dict, Any, Tuple, List, Optional
 from flask import Blueprint, request, session, jsonify, Flask
 
 # Servisler
-from app.services.spotify_services.spotify_player_service import SpotifyPlayerService
-from app.services.spotify_services.spotify_playlist_service import SpotifyPlaylistService
+from app.services.spotify.player_service import SpotifyPlayerService
+from app.services.spotify.playlist_service import SpotifyPlaylistService
 
 # Logger kurulumu
 logger = logging.getLogger(__name__)

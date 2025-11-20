@@ -61,7 +61,8 @@ from flask import (
     Response as FlaskResponse
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.database.beatify_user_repository import BeatifyUserRepository
+from app.database.repositories.user_repository import BeatifyUserRepository
+from app.database.repositories.auth_token_repository import BeatifyTokenRepository
 from app.config import DEBUG
 
 # Logger kurulumu
@@ -116,9 +117,9 @@ def beatify_log_out(username: str) -> None:
     """
     auth_token_cookie = request.cookies.get('auth_token')
     if auth_token_cookie:
-        user_repo = BeatifyUserRepository()
+        token_repo = BeatifyTokenRepository()
         try:
-            user_repo.beatify_deactivate_auth_token(username, auth_token_cookie)
+            token_repo.deactivate_auth_token(username, auth_token_cookie)
             logger.info(f"Kullanıcı '{username}' için auth_token devre dışı bırakıldı.")
         except Exception as e:
             logger.error(f"Kullanıcı '{username}' için auth_token devre dışı bırakılırken hata: {e}", exc_info=True)
@@ -177,9 +178,9 @@ def beatify_create_auth_token(username: str) -> FlaskResponse:
     """
     token = token_hex(32)
     expires_at = datetime.now() + timedelta(days=30)
-    user_repo = BeatifyUserRepository()
+    token_repo = BeatifyTokenRepository()
     try:
-        user_repo.beatify_insert_or_update_auth_token(username, token, expires_at)
+        token_repo.store_auth_token(username, token, expires_at)
         logger.info(f"Kullanıcı '{username}' için auth_token oluşturuldu ve DB'ye kaydedildi.")
     except Exception as e:
         logger.error(f"Auth token DB'ye kaydedilirken hata (Kullanıcı: {username}): {e}", exc_info=True)
@@ -205,8 +206,8 @@ def beatify_validate_auth_token(token: str) -> Optional[str]:
     """
     if not token:
         return None
-    user_repo = BeatifyUserRepository()
-    return user_repo.beatify_validate_auth_token(token)
+    token_repo = BeatifyTokenRepository()
+    return token_repo.validate_auth_token(token)
 
 
 # =============================================================================

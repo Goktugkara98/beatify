@@ -1,0 +1,6 @@
+/* Layout - Footer entry
+ * Bu dosya sadece footer component CSS'lerini import eder.
+ */
+@import url('./components/footer.css');
+
+

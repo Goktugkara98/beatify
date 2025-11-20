@@ -9,8 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
 class PixelButton {
     constructor(element) {
         this.element = element;
-        // Handle both regular and auth particle button text elements
-        this.textElement = this.element.querySelector('.particle-button-text') || this.element.querySelector('.auth-button-text');
+        // Handle text elements for different button variants
+        this.textElement =
+            this.element.querySelector('.particle-button-text') ||
+            this.element.querySelector('.auth-button-text') ||
+            this.element.querySelector('.app-cta-button-text');
         this.colors = this.element.dataset.colors ? this.element.dataset.colors.split(',') : ['#1DB954', '#1ED760', '#FFFFFF'];
         this.pixelGap = this.element.dataset.gap ? parseInt(this.element.dataset.gap, 10) : 3;
         this.animationFrame = null;

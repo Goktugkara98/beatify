@@ -3,11 +3,15 @@
    Inspired by homepage aesthetics with modern touches
    ================================== */
 
-/* Login Container - Full screen hero-style background */
+/* Login Container - Full screen hero-style background
+ * NOT: Navbar sabit (fixed) olduğu ve body'de
+ * var(--navbar-height) kadar padding olduğu için,
+ * gerçek görünür yükseklik = 100vh - navbar yüksekliği.
+ */
 .login-container {
     position: relative;
     width: 100%;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
     display: flex;
     align-items: center;
     justify-content: center;

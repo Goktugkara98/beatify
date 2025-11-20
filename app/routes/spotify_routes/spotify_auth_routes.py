@@ -27,8 +27,8 @@ from typing import Any, Optional, Dict
 from flask import Blueprint, request, redirect, url_for, session, flash, Flask
 
 # Servisler ve Depolar
-from app.database.spotify_user_repository import SpotifyUserRepository
-from app.services.spotify_services.spotify_auth_service import SpotifyAuthService
+from app.database.repositories.spotify_account_repository import SpotifyUserRepository
+from app.services.spotify.auth_service import SpotifyAuthService
 from app.services.auth_service import login_required, session_is_user_logged_in
 
 # Logger kurulumu

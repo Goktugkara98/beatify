@@ -39,9 +39,9 @@ from flask import (
 )
 # Servisler ve Yardımcılar
 from app.services.auth_service import login_required, session_is_user_logged_in
-from app.services.profile_services import handle_get_request
+from app.services.users.profile_service import handle_get_request
 # Veritabanı Depoları (Sadece POST isteğinde gerekli)
-from app.database.spotify_user_repository import SpotifyUserRepository
+from app.database.repositories.spotify_account_repository import SpotifyUserRepository
 
 # Logger kurulumu
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ def init_main_routes(app: Flask) -> None:
         Uygulamanın ana sayfasını (`/homepage`) render eder.
         """
         logger.info("Ana sayfa (homepage) render ediliyor.")
-        return render_template('homepage.html', title="Ana Sayfa")
+        return render_template('index.html', title="Ana Sayfa")
 
     # -------------------------------------------------------------------------
     # 3.2. Kullanıcı Profili Rotaları (User Profile Routes)

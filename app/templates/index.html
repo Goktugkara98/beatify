@@ -1,38 +1,28 @@
 {% extends "base.html" %}
 
 {% block head_content %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/preloader.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index/index.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<!-- Preloader Bölümü -->
-<div id="preloader">
-    <canvas id="preloader-canvas"></canvas>
-</div>
-
 <div class="content-wrapper" style="margin: 0; padding: 0;">
-    <div class="banner-container d-flex vh-100 text-center text-white">
-        <div class="cover-container d-flex w-100 h-100 mx-auto flex-column justify-content-center align-items-center" style="padding: 1rem; padding-top: 80px;">
+    <div class="banner-container d-flex text-center text-white">
+        <div class="cover-container d-flex w-100 h-100 mx-auto flex-column justify-content-center align-items-center" style="padding: 1rem;">
             <main class="px-3">
                 <h1 class="display-4 fw-bold">Müziğin Ritmini Yeniden Keşfet</h1>
                 <p class="lead col-lg-8 mx-auto">
                     Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.
                 </p>
-                <div class="button-wrapper">
-                    <a href="{{ url_for('login') }}" class="particle-button" data-colors="#1DB954,#1ED760,#FFFFFF">
-                        <span class="particle-button-text">Hemen Başla</span>
+                <div class="cta-button-wrapper">
+                    <a href="{{ url_for('login') }}" class="app-cta-button" data-colors="#1DB954,#1ED760,#FFFFFF">
+                        <span class="app-cta-button-text">Hemen Başla</span>
                     </a>
                 </div>
             </main>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/preloader.js') }}"></script>
 {% endblock %}
