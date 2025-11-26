@@ -46,7 +46,7 @@ def spotify_dashboard() -> Any:
     """
     logger.info("Spotify dashboard sayfasına erişildi, profile yönlendiriliyor.")
     # İleride bu rota, render_template ile bir HTML sayfası döndürebilir.
-    return redirect(url_for('main_bp.profile'))
+    return redirect(url_for('profile', tab='spotify'))
 
 # =============================================================================
 # 4.0 ROTA KAYDI (ROUTE REGISTRATION)

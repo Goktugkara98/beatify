@@ -22,6 +22,20 @@
     backface-visibility: hidden;
 }
 
+/* Ensure inner content is vertically centered */
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+/* Make sure nav list items align nicely with brand & actions */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+}
+
 /* Scrolled state for navbar */
 .navbar-scrolled {
     padding: 0.5rem 0;

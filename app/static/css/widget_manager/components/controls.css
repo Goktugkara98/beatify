@@ -1,0 +1,126 @@
+/* Controls Sidebar
+   ========================================================================== */
+
+.widget-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.control-card {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-medium);
+}
+
+.control-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--color-text-base);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.control-group {
+    margin-bottom: 1.25rem;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-muted);
+}
+
+.form-select {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: #f8f9fa;
+    font-size: 0.95rem;
+    color: var(--color-text-base);
+}
+
+.size-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.size-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.size-btn:hover {
+    background: #f8f9fa;
+}
+
+.size-btn.active {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+/* Toggles */
+.toggle-group {
+    margin-bottom: 1rem;
+}
+
+.toggle-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--color-text-base);
+}
+
+.toggle-label input {
+    display: none;
+}
+
+.toggle-switch {
+    width: 40px;
+    height: 22px;
+    background-color: #e9ecef;
+    border-radius: 999px;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.toggle-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.toggle-label input:checked + .toggle-switch {
+    background-color: var(--color-primary);
+}
+
+.toggle-label input:checked + .toggle-switch::after {
+    transform: translateX(18px);
+}
+

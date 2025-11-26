@@ -1,5 +1,21 @@
-from mysql.connector import Error as MySQLError
+"""
+MODÜL: migrations_repository.py
+
+Bu modül, veritabanı tablolarının oluşturulmasını ve yönetilmesini sağlayan
+`MigrationsRepository` sınıfını içerir.
+
+İÇİNDEKİLER:
+    - MigrationsRepository (Sınıf): Tablo oluşturma işlemlerini yönetir.
+        - __init__: Başlatıcı metod.
+        - create_all_tables: Tüm tabloları sırasıyla oluşturur.
+        - create_users_table: Kullanıcılar tablosunu oluşturur.
+        - create_auth_tokens_table: Kimlik doğrulama tokenları tablosunu oluşturur.
+        - create_spotify_accounts_table: Spotify hesapları tablosunu oluşturur.
+        - create_widgets_table: Widget tablosunu oluşturur.
+"""
+
 from typing import Optional
+from mysql.connector import Error as MySQLError
 
 from app.database.db_connection import DatabaseConnection
 from app.database.migrations.users_table import create_users_table
@@ -16,7 +32,14 @@ class MigrationsRepository:
     fonksiyonlara taşınmıştır.
     """
 
-    def __init__(self, db_connection: Optional[DatabaseConnection] = None):
+    def __init__(self, db_connection: Optional[DatabaseConnection] = None) -> None:
+        """
+        MigrationsRepository sınıfını başlatır.
+
+        Args:
+            db_connection (Optional[DatabaseConnection]): Mevcut bir veritabanı bağlantısı.
+                                                          Verilmezse yeni bir tane oluşturulur.
+        """
         if db_connection:
             self.db: DatabaseConnection = db_connection
             self.own_connection: bool = False
@@ -24,31 +47,10 @@ class MigrationsRepository:
             self.db: DatabaseConnection = DatabaseConnection()
             self.own_connection: bool = True
 
-    def _ensure_connection(self):
-        self.db._ensure_connection()
-
-    def _close_if_owned(self):
-        if self.own_connection:
-            self.db.close()
-
-    def create_users_table(self):
-        """`users` tablosunu oluşturur."""
-        create_users_table(self.db)
-
-    def create_auth_tokens_table(self):
-        """`auth_tokens` tablosunu oluşturur."""
-        create_auth_tokens_table(self.db)
-
-    def create_spotify_accounts_table(self):
-        """`spotify_accounts` tablosunu oluşturur."""
-        create_spotify_accounts_table(self.db)
-
-    def create_widgets_table(self):
-        """`widgets` tablosunu oluşturur."""
-        create_widgets_table(self.db)
-
-    def create_all_tables(self):
-        """Tüm tabloların oluşturulmasını sağlar."""
+    def create_all_tables(self) -> None:
+        """
+        Tüm veritabanı tablolarının oluşturulmasını sağlar.
+        """
         self._ensure_connection()
         try:
             self.create_users_table()
@@ -62,4 +64,27 @@ class MigrationsRepository:
         finally:
             self._close_if_owned()
 
+    def create_users_table(self) -> None:
+        """`users` tablosunu oluşturur."""
+        create_users_table(self.db)
 
+    def create_auth_tokens_table(self) -> None:
+        """`auth_tokens` tablosunu oluşturur."""
+        create_auth_tokens_table(self.db)
+
+    def create_spotify_accounts_table(self) -> None:
+        """`spotify_accounts` tablosunu oluşturur."""
+        create_spotify_accounts_table(self.db)
+
+    def create_widgets_table(self) -> None:
+        """`widgets` tablosunu oluşturur."""
+        create_widgets_table(self.db)
+
+    def _ensure_connection(self) -> None:
+        """Veritabanı bağlantısının açık olduğundan emin olur."""
+        self.db.ensure_connection()
+
+    def _close_if_owned(self) -> None:
+        """Eğer bağlantı bu sınıf tarafından oluşturulduysa kapatır."""
+        if self.own_connection:
+            self.db.close()

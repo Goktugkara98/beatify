@@ -1,3 +1,12 @@
+"""
+MODÜL: auth_tokens_table.py
+
+Bu modül, `auth_tokens` veritabanı tablosunun oluşturulmasını sağlar.
+
+İÇİNDEKİLER:
+    - create_auth_tokens_table: Tablo oluşturma fonksiyonu.
+"""
+
 from typing import Optional
 from mysql.connector import Error as MySQLError
 from app.database.db_connection import DatabaseConnection
@@ -7,8 +16,8 @@ def create_auth_tokens_table(db_connection: Optional[DatabaseConnection] = None)
     """
     Kullanıcı erişim token'larının tutulduğu `auth_tokens` tablosunu oluşturur.
 
-    - Program açılışında MigrationsRepository üzerinden çağrılabilir.
-    - Doğrudan bu dosya çalıştırıldığında da tabloyu oluşturur.
+    Args:
+        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -18,7 +27,7 @@ def create_auth_tokens_table(db_connection: Optional[DatabaseConnection] = None)
         own_connection = True
 
     try:
-        db._ensure_connection()
+        db.ensure_connection()
         query = """
             CREATE TABLE IF NOT EXISTS auth_tokens (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,6 +52,3 @@ def create_auth_tokens_table(db_connection: Optional[DatabaseConnection] = None)
 
 if __name__ == "__main__":
     create_auth_tokens_table()
-
-
-

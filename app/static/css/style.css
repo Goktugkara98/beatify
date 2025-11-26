@@ -81,39 +81,13 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
     /* Smooth theme transitions - handled by JavaScript for better synchronization */
 }
 
-/* Koyu Tema Değişkenleri */
-/* Koyu Tema Değişkenleri */
-[data-theme="dark"] {
-    /* Sadece değişen renkleri ve gölgeleri bırakın */
-    --color-primary: #1DB954;
-    --color-primary-rgb: 29, 185, 84;
-    --color-primary-hover: #1ED760;
-    --color-secondary: #B3B3B3;
-    --color-accent: #535353;
-
-    --color-text-base: #FFFFFF;
-    --color-text-base-rgb: 255, 255, 255;
-    --color-text-muted: #B3B3B3;
-    --color-text-inverted: #191414;
-
-    --color-bg-base: rgb(3, 3, 3);
-    --color-bg-offset: rgb(3, 3, 3);
-    --color-bg-navbar: rgb(3, 3, 3);
-    --color-bg-navbar-rgb: 3, 3, 3;
-    --color-border: rgba(252, 252, 252, 0.1);
-
-    --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.2);
-    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-
 /* ==================================
    2. GLOBAL RESET & TEMEL STİLLER
    ================================== */
 
-/* Tema değiştirici SVG elemanları hariç tüm elemanlara varsayılan bir geçiş verelim */
-*:not(#sun):not(#moon):not(#cloud):not(.star):not(#night):not(#background):not(#day):not([id*="theme"]):not([class*="theme"]) {
+/* Tema değiştirici ile ilgili özel elemanlar kaldırıldığı için
+   tüm elemanlara standart geçiş uygulanabilir */
+* {
     transition: background-color var(--transition-speed-normal) var(--transition-easing),
                 color var(--transition-speed-normal) var(--transition-easing),
                 border-color var(--transition-speed-normal) var(--transition-easing),
@@ -204,74 +178,3 @@ a:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
 }
-
-/* 5.2. Tema Değiştirme Düğmesi */
-#theme-toggle-container {
-    position: relative;
-    width: 60px;
-    height: 30px;
-    overflow: hidden;
-    border-radius: var(--border-radius-pill);
-}
-
-#theme-toggle-container svg {
-    transform: scale(0.15);
-    z-index: 2;
-    pointer-events: none;
-    position: absolute;
-    top: -69px;
-    left: -153px;
-}
-
-#day, #night {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: 1;
-    cursor: pointer;
-    border-radius: var(--border-radius-pill);
-    top: 0;
-    left: 0;
-    transition: background-color var(--transition-speed-normal) var(--transition-easing), border-color var(--transition-speed-normal) var(--transition-easing);
-}
-
-#background {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: -1;
-    top: 0;
-    left: 0;
-    border-radius: var(--border-radius-pill);
-    transition: background-color var(--transition-speed-normal) var(--transition-easing);
-}
-
-/* Açık Tema Düğme Stilleri */
-#day {
-    background: #9cd6ef;
-    border: 2px solid #65c0e7;
-}
-
-#background {
-    background: #d3edf8;
-}
-
-#night {
-    pointer-events: none; /* Başlangıçta gece butonu tıklanamaz */
-}
-
-/* Koyu Tema Düğme Stilleri */
-[data-theme="dark"] #night {
-    background: #224f6d;
-    border-color: #cad4d8;
-    pointer-events: auto; /* Koyu temada gece butonu tıklanabilir */
-}
-
-[data-theme="dark"] #day {
-    pointer-events: none; /* Koyu temada gündüz butonu tıklanamaz */
-}
-
-[data-theme="dark"] #background {
-    background-color: #0d1f2b;
-}
-

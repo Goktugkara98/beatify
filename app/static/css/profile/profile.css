@@ -1,0 +1,9 @@
+/*
+ * Profile Sayfası Ana CSS Dosyası
+ * Tüm komponentler buradan import edilir.
+ */
+
+@import "components/layout.css";
+@import "components/sidebar.css";
+@import "components/content.css";
+@import "components/spotify.css";

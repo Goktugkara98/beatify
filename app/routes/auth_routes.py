@@ -104,7 +104,7 @@ def _handle_login_post(form_data: Dict[str, Any]) -> WerkzeugResponse:
     try:
         logger.info(f"Kullanıcı giriş denemesi: Kullanıcı Adı='{username}'")
         response = auth_service.beatify_log_in(username, password, remember_me)
-        flash('Başarıyla giriş yaptınız.', 'success')
+        # flash(f"Hoş geldin, {username}! Girişin tamamlandı.", 'success')
         logger.info(f"Kullanıcı '{username}' başarıyla giriş yaptı.")
         
         # Servis bir response döndürürse (örn. set_cookie) onu kullan

@@ -1,0 +1,16 @@
+/* Right-aligned Elements & Buttons */
+.navbar-right-elements {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Login/Signup specific styles */
+.login-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+

@@ -1,3 +1,16 @@
+"""
+MODÜL: db_connection.py
+
+Bu modül, MySQL veritabanı bağlantılarını yönetmek için kullanılan `DatabaseConnection`
+sınıfını içerir.
+
+İÇİNDEKİLER:
+    - DatabaseConnection (Sınıf): Veritabanı bağlantı ve cursor yönetimini sağlar.
+        - __init__: Yapılandırıcı metod.
+        - ensure_connection: Bağlantıyı kontrol eder ve gerekirse yeniden başlatır.
+        - close: Bağlantıyı ve cursor'ı kapatır.
+"""
+
 from __future__ import annotations
 
 from typing import Optional, Dict, Any
@@ -12,13 +25,18 @@ class DatabaseConnection:
     """
     MySQL veritabanı bağlantısını yöneten yardımcı sınıf.
 
-    - `connection`: aktif MySQL bağlantı nesnesi
-    - `cursor`: dict döndüren cursor (sütun adlarıyla erişim için)
-    - `_ensure_connection()`: bağlantı yoksa/kapalıysa yeniden açar
-    - `close()`: cursor ve bağlantıyı kapatır
+    Bu sınıf, veritabanı bağlantısını başlatmak, açık tutmak ve kapatmak için
+    gerekli yöntemleri sağlar.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        """
+        DatabaseConnection sınıfını başlatır.
+
+        Args:
+            config (Optional[Dict[str, Any]]): Veritabanı yapılandırma sözlüğü.
+                                               Eğer verilmezse, varsayılan `DB_CONFIG` kullanılır.
+        """
         self.config: Dict[str, Any] = {
             "host": (config or DB_CONFIG).get("host"),
             "user": (config or DB_CONFIG).get("user"),
@@ -30,7 +48,7 @@ class DatabaseConnection:
         self.connection: Optional[MySQLConnection] = None
         self.cursor: Optional[mysql.connector.cursor_cext.CMySQLCursorDict] = None
 
-    def _ensure_connection(self) -> None:
+    def ensure_connection(self) -> None:
         """
         Bağlantı yoksa veya kopmuşsa yeniden bağlanır ve cursor oluşturur.
         """
@@ -47,7 +65,7 @@ class DatabaseConnection:
 
     def close(self) -> None:
         """
-        Cursor ve bağlantıyı güvenli şekilde kapatır.
+        Cursor ve bağlantıyı güvenli bir şekilde kapatır.
         """
         if self.cursor is not None:
             try:
@@ -65,5 +83,3 @@ class DatabaseConnection:
                 pass
             finally:
                 self.connection = None
-
-

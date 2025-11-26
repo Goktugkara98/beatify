@@ -1,0 +1,373 @@
+/* Spotify Entegrasyon Bölümü - Yenilenmiş Tasarım
+   ========================================================================== */
+
+/* Action Cards */
+.spotify-action-area {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.spotify-state-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.spotify-state-card.focus-card {
+    border-color: rgba(29, 185, 84, 0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.spotify-state-card.success-card {
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+}
+
+.card-header-icon {
+    width: 72px;
+    height: 72px;
+    background: rgba(29, 185, 84, 0.08);
+    color: #1DB954;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.card-header-icon.icon-connect {
+    background: #000000;
+    color: #1DB954;
+}
+
+.spotify-state-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-base);
+}
+
+.state-description {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+}
+
+/* Guide Box */
+.guide-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+.guide-link {
+    color: #1DB954;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.guide-link:hover {
+    text-decoration: underline;
+}
+
+/* Forms */
+.spotify-form {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-base);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #f1f3f5;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    background: #fbfcfd;
+}
+
+.form-group input:focus {
+    border-color: #1DB954;
+    outline: none;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.1);
+}
+
+/* Buttons */
+.btn-primary-lg {
+    width: 100%;
+    background: #1DB954;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.btn-primary-lg:hover {
+    background: #1ed760;
+    transform: translateY(-1px);
+}
+
+.btn-spotify-connect {
+    display: inline-block;
+    background: #1DB954;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.btn-spotify-connect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(29, 185, 84, 0.4);
+    color: white;
+}
+
+.connect-action {
+    margin-bottom: 2rem;
+}
+
+/* Details & Summary */
+details.edit-credentials-details {
+    margin-top: 1.5rem;
+    border-top: 1px solid #f1f3f5;
+    padding-top: 1.5rem;
+}
+
+details summary {
+    cursor: pointer;
+    color: #868e96;
+    font-size: 0.9rem;
+    font-weight: 500;
+    user-select: none;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details summary::after {
+    content: "";
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #868e96;
+    transition: transform 0.2s;
+}
+
+details[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.edit-form-container {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.compact-form .form-group {
+    margin-bottom: 0.75rem;
+}
+
+.btn-secondary-sm {
+    background: #343a40;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Connected State */
+.connected-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.connected-badge {
+    background: rgba(29, 185, 84, 0.1);
+    color: #1DB954;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #1DB954;
+    border-radius: 50%;
+}
+
+.user-profile-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.user-info h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    color: var(--color-text-base);
+}
+
+.user-info span {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.connected-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 16px;
+    max-width: 400px;
+    margin-inline: auto;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #868e96;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.connected-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-danger-outline {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    background: transparent;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-danger-outline:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-text {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-text:hover {
+    color: #212529;
+}
+
+.warning-text {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ffeeba;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+

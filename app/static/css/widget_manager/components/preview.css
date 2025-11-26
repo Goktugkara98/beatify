@@ -1,0 +1,95 @@
+/* Preview Area
+   ========================================================================== */
+
+.widget-preview-area {
+    background: #fff;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-medium);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.preview-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.status-badge {
+    background: rgba(29, 185, 84, 0.1);
+    color: #1DB954;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.preview-container {
+    background: #f8f9fa;
+    border-radius: 1rem;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    border: 2px dashed var(--color-border);
+}
+
+.widget-placeholder {
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Code Snippet */
+.code-snippet-area {
+    background: #1e1e1e;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: #fff;
+}
+
+.snippet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.btn-copy {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+}
+
+.btn-copy:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+pre {
+    margin: 0;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: #a5d6ff;
+}
+

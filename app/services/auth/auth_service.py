@@ -78,7 +78,7 @@ def beatify_register(username: str, email: str, password: str) -> None:
     Kullanıcı adı veya e-posta zaten mevcutsa ValueError fırlatır.
     """
     user_repo = BeatifyUserRepository()
-    existing_user_details = user_repo.beatify_get_username_or_email_data(username, email)
+    existing_user_details = user_repo.get_user_by_username_or_email(username, email)
 
     if existing_user_details:
         existing_username, existing_email = existing_user_details
@@ -133,7 +133,7 @@ def beatify_check_user_password(username: str, password_to_check: str) -> bool:
     Verilen parolanın, veritabanındaki hash ile eşleşip eşleşmediğini kontrol eder.
     """
     user_repo = BeatifyUserRepository()
-    stored_password_hash = user_repo.beatify_get_password_hash_data(username)
+    stored_password_hash = user_repo.get_password_hash(username)
     if not stored_password_hash:
         logger.debug(f"Parola kontrolü: Kullanıcı '{username}' için hash bulunamadı.")
         return False
@@ -151,7 +151,7 @@ def session_log_in(username: str) -> None:
     session['logged_in'] = True
     session['username'] = username
     user_repo = BeatifyUserRepository()
-    user_data = user_repo.beatify_get_user_data(username)
+    user_data = user_repo.get_user_details(username)
     if user_data and 'id' in user_data:
         session['user_id'] = user_data['id']
         logger.info(f"Kullanıcı '{username}' (ID: {user_data['id']}) için session başlatıldı.")

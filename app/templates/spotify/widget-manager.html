@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Spotify Widget Yöneticisi{% endblock title %}
+
+{% block head_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/widget-manager/widget-manager.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/widget-manager/components/silhouettes.css') }}">
+    <!-- Font Awesome için (ikonlar) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head_content %}
+
+{% block content %}
+{% set widget_url = url_for('spotify_widget_bp.spotify_widget', widget_token=widget_token, _external=True) %}
+<section class="widget-manager-page">
+    <div class="container">
+        <header class="page-header">
+            <h1>Spotify Widget Yöneticisi</h1>
+            <p>Web siteniz için özelleştirilmiş Spotify widget'ınızı oluşturun ve yönetin.</p>
+        </header>
+
+        <!-- 1. Vitrin (Showcase) -->
+        <section class="widget-showcase">
+            <h2 class="section-title">Bir Tasarım Seçin</h2>
+            
+            <div class="carousel-container">
+                <button class="carousel-btn prev-btn" aria-label="Önceki"><i class="fas fa-chevron-left"></i></button>
+                
+                <div class="theme-carousel">
+                    <!-- Modern Widget Card -->
+                    <div class="theme-card {% if current_theme == 'modern' %}active{% endif %}" data-theme="modern">
+                        <div class="card-preview modern-preview">
+                            <!-- CSS ile oluşturulmuş Silüet -->
+                            <div class="silhouette-modern">
+                                <div class="s-bg-image"></div>
+                                <div class="s-overlay"></div>
+                                <div class="s-content">
+                                    <div class="s-info">
+                                        <div class="s-line s-title"></div>
+                                        <div class="s-line s-artist"></div>
+                                    </div>
+                                    <div class="s-controls">
+                                        <div class="s-progress">
+                                            <div class="s-bar"></div>
+                                        </div>
+                                        <div class="s-timestamps">
+                                            <div class="s-time"></div>
+                                            <div class="s-time"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <h3>Modern</h3>
+                            <p>Şık, albüm kapağı odaklı ve dinamik arka planlı tasarım.</p>
+                        </div>
+                        <div class="check-icon"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    
+                    <!-- Classic Widget Card -->
+                    <div class="theme-card {% if current_theme == 'classic' %}active{% endif %}" data-theme="classic">
+                        <div class="card-preview classic-preview">
+                            <!-- CSS ile oluşturulmuş Silüet -->
+                            <div class="silhouette-classic">
+                                <div class="s-cover"></div>
+                                <div class="s-right-col">
+                                    <div class="s-info">
+                                        <div class="s-line s-title"></div>
+                                        <div class="s-line s-artist"></div>
+                                    </div>
+                                    <div class="s-controls">
+                                        <div class="s-progress">
+                                            <div class="s-bar"></div>
+                                        </div>
+                                        <div class="s-timestamps">
+                                            <div class="s-time"></div>
+                                            <div class="s-time"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <h3>Klasik</h3>
+                            <p>Geleneksel, yatay yerleşimli ve kompakt tasarım.</p>
+                        </div>
+                        <div class="check-icon"><i class="fas fa-check-circle"></i></div>
+                    </div>
+
+                    <!-- Gelecek Tasarımlar İçin Yer Tutucular -->
+                    <div class="theme-card coming-soon">
+                        <div class="card-preview coming-soon-preview">
+                            <i class="fas fa-plus" style="font-size: 2rem; color: #adb5bd;"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Yakında</h3>
+                            <p>Yeni tasarımlar ekleniyor...</p>
+                        </div>
+                    </div>
+                    
+                     <div class="theme-card coming-soon">
+                        <div class="card-preview coming-soon-preview">
+                            <i class="fas fa-plus" style="font-size: 2rem; color: #adb5bd;"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Yakında</h3>
+                            <p>Yeni tasarımlar ekleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-btn next-btn" aria-label="Sonraki"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <div class="manager-layout">
+            <!-- 2. Sol: Önizleme (Preview) -->
+            <section class="preview-section panel-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-eye"></i> Canlı Önizleme</h3>
+                    <button id="refreshPreview" class="btn-refresh" title="Yenile">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="iframe-wrapper">
+                        <iframe id="widgetPreviewFrame" src="{{ widget_url }}" frameborder="0" scrolling="no"></iframe>
+                    </div>
+                </div>
+                <div class="preview-note">
+                    <p><i class="fas fa-info-circle"></i> Şarkı çalarken otomatik güncellenir.</p>
+                </div>
+            </section>
+
+            <!-- 3. Sağ: Özelleştirme/Kod (Customization) -->
+            <aside class="customization-section">
+                 <div class="panel-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-code"></i> Entegrasyon & Ayarlar</h3>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">Widget Token</label>
+                        <div class="input-group">
+                            <input type="text" id="widgetToken" value="{{ widget_token }}" readonly>
+                            <button class="btn-copy" data-clipboard-target="#widgetToken" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <small class="hint">Bu token widget'ınızın benzersiz kimliğidir.</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label class="setting-label">Gömme Kodu (Embed)</label>
+                         <div class="code-area">
+                            <textarea id="embedCode" readonly></textarea>
+                            <button class="btn-copy-code" data-clipboard-target="#embedCode">
+                                <i class="fas fa-copy"></i> Kodu Kopyala
+                            </button>
+                        </div>
+                        <small class="hint">Bu kodu web sitenizin HTML'ine yapıştırın.</small>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = "{{ widget_token }}";
+        const widgetUrl = "{{ widget_url }}";
+        const themeCards = document.querySelectorAll('.theme-card:not(.coming-soon)');
+        const previewFrame = document.getElementById('widgetPreviewFrame');
+        const iframeWrapper = document.querySelector('.iframe-wrapper');
+        const refreshBtn = document.getElementById('refreshPreview');
+        const embedCodeArea = document.getElementById('embedCode');
+        const previewContainer = document.querySelector('.preview-container');
+
+        // Carousel Logic
+        const carousel = document.querySelector('.theme-carousel');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+
+        if (carousel && prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: -320, behavior: 'smooth' });
+            });
+            nextBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: 320, behavior: 'smooth' });
+            });
+        }
+
+        // Widget Boyutları Tanımları
+        const widgetDimensions = {
+            'modern': { width: 600, height: 600 },
+            'classic': { width: 600, height: 250 }
+        };
+
+        // Sayfa yüklendiğinde varsayılan tema ile başlat
+        const initialTheme = "{{ current_theme }}";
+        updatePreviewDimensions(initialTheme);
+        updateEmbedCode(initialTheme);
+
+        // Tema Seçimi
+        themeCards.forEach(card => {
+            card.addEventListener('click', async () => {
+                // UI Güncelle
+                themeCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Geçiş pürüzsüzlüğü için hemen gizle
+                iframeWrapper.style.opacity = '0';
+
+                const selectedTheme = card.dataset.theme;
+
+                // Backend'e kaydet
+                try {
+                    const response = await fetch('/spotify/widget/update-config', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            widget_token: token,
+                            theme: selectedTheme
+                        })
+                    });
+
+                    if (response.ok) {
+                        // UI ve Embed Kodu Güncelle
+                        updatePreviewDimensions(selectedTheme);
+                        updateEmbedCode(selectedTheme);
+                        // Önizlemeyi yenile (Load olunca opacity 1 olacak)
+                        refreshPreview();
+                    } else {
+                        alert('Tema güncellenirken bir hata oluştu.');
+                        iframeWrapper.style.opacity = '1'; // Hata durumunda geri göster
+                    }
+                } catch (error) {
+                    console.error('Hata:', error);
+                    alert('Bağlantı hatası.');
+                    iframeWrapper.style.opacity = '1'; // Hata durumunda geri göster
+                }
+            });
+        });
+
+        // Embed Kodu Güncelleme
+        function updateEmbedCode(theme) {
+            const dims = widgetDimensions[theme] || widgetDimensions['modern'];
+            const code = `<iframe src="${widgetUrl}" width="${dims.width}" height="${dims.height}" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+            embedCodeArea.value = code;
+        }
+
+        // Önizleme Boyutlandırma ve Ölçekleme
+        function updatePreviewDimensions(theme) {
+            const dims = widgetDimensions[theme] || widgetDimensions['modern'];
+            
+            // Iframe ve Wrapper boyutlarını gerçek widget boyutlarına ayarla
+            previewFrame.style.width = `${dims.width}px`;
+            previewFrame.style.height = `${dims.height}px`;
+            iframeWrapper.style.width = `${dims.width}px`;
+            iframeWrapper.style.height = `${dims.height}px`;
+
+            // Ölçekleme işlemini tetikle
+            fitPreviewToContainer(dims.width, dims.height);
+        }
+
+        function fitPreviewToContainer(widgetWidth, widgetHeight) {
+            const containerStyles = window.getComputedStyle(previewContainer);
+            // Paddingleri çıkar
+            const containerW = previewContainer.clientWidth - parseFloat(containerStyles.paddingLeft) - parseFloat(containerStyles.paddingRight);
+            const containerH = previewContainer.clientHeight - parseFloat(containerStyles.paddingTop) - parseFloat(containerStyles.paddingBottom);
+
+            // Ölçek faktörünü hesapla
+            const scaleW = containerW / widgetWidth;
+            const scaleH = containerH / widgetHeight;
+            
+            // %10 boşluk bırakalım
+            let scale = Math.min(scaleW, scaleH) * 0.9;
+
+            // Büyütme yapma
+            if (scale > 1) scale = 1; 
+
+            // Ölçekleme ve Ortalama (Absolute Center + Scale)
+            iframeWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            iframeWrapper.style.transformOrigin = 'center center';
+            
+            // Margin sıfırla
+            iframeWrapper.style.margin = '0';
+        }
+
+        // Pencere yeniden boyutlandırıldığında tekrar hesapla
+        window.addEventListener('resize', () => {
+            const activeCard = document.querySelector('.theme-card.active');
+            const theme = activeCard ? activeCard.dataset.theme : initialTheme;
+            const dims = widgetDimensions[theme] || widgetDimensions['modern'];
+            fitPreviewToContainer(dims.width, dims.height);
+        });
+
+        // Önizleme Yenileme
+        function refreshPreview() {
+            // Yükleniyor efekti için opaklığı düşür
+            iframeWrapper.style.opacity = '0';
+            
+            const currentSrc = previewFrame.src;
+            const url = new URL(currentSrc);
+            url.searchParams.set('t', new Date().getTime());
+            
+            // Yeni URL'i yükle
+            previewFrame.src = url.toString();
+            
+            // Yüklendiğinde opaklığı geri getir
+            previewFrame.onload = () => {
+                setTimeout(() => {
+                    iframeWrapper.style.opacity = '1';
+                }, 300);
+            };
+        }
+
+        refreshBtn.addEventListener('click', refreshPreview);
+
+        // Kopyalama İşlemleri
+        document.querySelectorAll('.btn-copy, .btn-copy-code').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetSelector = btn.dataset.clipboardTarget;
+                const target = document.querySelector(targetSelector);
+                
+                target.select();
+                target.setSelectionRange(0, 99999);
+                
+                navigator.clipboard.writeText(target.value).then(() => {
+                    const originalIcon = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = originalIcon;
+                    }, 2000);
+                });
+            });
+        });
+    });
+</script>
+{% endblock content %}

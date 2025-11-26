@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}Profilim{% endblock title %}
+
+{% block head_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile/profile.css') }}">
+{% endblock head_content %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="container profile-container">
+        <div class="profile-layout">
+            <!-- Sidebar -->
+            <aside class="profile-sidebar">
+                <div class="profile-sidebar-header">
+                    {% if spotify_data.image_url %}
+                        <img src="{{ spotify_data.image_url }}" alt="Profile Avatar" class="profile-avatar-img" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="profile-avatar-placeholder" style="width: 56px; height: 56px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                            {{ user_data.username[:1].upper() }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="profile-identity">
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--color-text-base);">{{ user_data.username }}</h3>
+                        <span style="font-size: 0.85rem; color: var(--color-text-muted);">Üye</span>
+                    </div>
+                </div>
+
+                <nav class="profile-sidebar-nav">
+                    <button class="profile-nav-item" type="button" data-target="#tab-overview">
+                        <span class="profile-nav-icon"></span>
+                        <span class="profile-nav-label">Genel Bakış</span>
+                    </button>
+                    <button class="profile-nav-item" type="button" data-target="#tab-account">
+                        <span class="profile-nav-icon"></span>
+                        <span class="profile-nav-label">Hesap Bilgileri</span>
+                    </button>
+                    <button class="profile-nav-item" type="button" data-target="#tab-spotify">
+                        <span class="profile-nav-icon"></span>
+                        <span class="profile-nav-label">Spotify Entegrasyonu</span>
+                    </button>
+                    <button class="profile-nav-item" type="button" data-target="#tab-security">
+                        <span class="profile-nav-icon"></span>
+                        <span class="profile-nav-label">Güvenlik</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Ana içerik alanı -->
+            <section class="profile-main">
+                
+                <!-- GENEL BAKIŞ TAB -->
+                <div id="tab-overview" class="tab-content">
+                    <header class="profile-main-header">
+                        <div class="profile-main-title-group">
+                            <h1 class="profile-main-title">Genel Bakış</h1>
+                            <p class="profile-main-subtitle">
+                                Hesabınızın durumunu ve entegrasyonlarınızı buradan takip edebilirsiniz.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div class="profile-main-content">
+                        <!-- Welcome Card -->
+                        <div class="spotify-state-card focus-card" style="text-align: left; display: flex; align-items: center; gap: 2rem; padding: 2rem;">
+                             <div style="flex: 1;">
+                                <h2>Merhaba, {{ user_data.username }}! 👋</h2>
+                                <p class="state-description" style="margin: 0.5rem 0 0; max-width: 100%;">
+                                    Beatify hesabınız aktif. Müzik deneyiminizi özelleştirmek için buradayız.
+                                </p>
+                                <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-muted);">
+                                    <span style="margin-right: 1rem;">📧 {{ user_data.email }}</span>
+                                    <span>📅 Üyelik: {{ user_data.created_at }}</span>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- Quick Stats Row -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            
+                            <!-- Spotify Status Widget -->
+                            <div class="spotify-state-card" style="padding: 1.5rem; text-align: left;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                        <img src="{{ url_for('static', filename='img/icons/Spotify/Primary_Logo_Green_RGB.svg') }}" width="32" height="32" alt="Spotify">
+                                        <h3 style="margin: 0; font-size: 1.1rem;">Spotify</h3>
+                                    </div>
+                                    {% if spotify_data.get('spotify_data_status') == 'Bağlı' %}
+                                        <div class="connected-badge"><span class="dot"></span> Bağlı</div>
+                                    {% else %}
+                                        <div class="connected-badge" style="background: rgba(220, 53, 69, 0.1); color: #dc3545;"><span class="dot" style="background: #dc3545;"></span> Pasif</div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if spotify_data.get('spotify_data_status') == 'Bağlı' %}
+                                    <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+                                        <strong>{{ spotify_data.display_name }}</strong> olarak bağlısınız.
+                                    </p>
+                                    <button class="btn-secondary-sm" onclick="document.querySelector('[data-target=\'#tab-spotify\']').click()">Ayarları Yönet</button>
+                                {% else %}
+                                    <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+                                        Müzik analizi için Spotify hesabınızı bağlamanız gerekiyor.
+                                    </p>
+                                    <button class="btn-secondary-sm" onclick="document.querySelector('[data-target=\'#tab-spotify\']').click()">Bağlantıyı Kur</button>
+                                {% endif %}
+                            </div>
+
+                            <!-- Account Security Widget (Mockup) -->
+                             <div class="spotify-state-card" style="padding: 1.5rem; text-align: left;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#4f46e5" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80Zm-96,88a16,16,0,1,1,16-16A16,16,0,0,1,112,168Zm48-88H96V56a32,32,0,0,1,64,0Z"></path></svg>
+                                        <h3 style="margin: 0; font-size: 1.1rem;">Güvenlik</h3>
+                                    </div>
+                                    <div class="connected-badge" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;"><span class="dot" style="background: #4f46e5;"></span> Güvenli</div>
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+                                    Hesabınız şifre koruması altında. Son giriş başarılı.
+                                </p>
+                                <button class="btn-secondary-sm" onclick="document.querySelector('[data-target=\'#tab-security\']').click()">Detaylar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HESAP BILGILERI TAB -->
+                <div id="tab-account" class="tab-content" style="display: none;">
+                    <header class="profile-main-header">
+                        <div class="profile-main-title-group">
+                            <h1 class="profile-main-title">Hesap Bilgileri</h1>
+                            <p class="profile-main-subtitle">Kişisel bilgilerinizi güncelleyin.</p>
+                        </div>
+                    </header>
+                    <div class="profile-main-content">
+                         <div class="spotify-state-card" style="padding: 2rem; text-align: left;">
+                             <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                                 <input type="hidden" name="action" value="update_profile">
+                                 
+                                 <div class="form-group">
+                                     <label>Profil Resmi</label>
+                                     <div style="display: flex; align-items: center; gap: 1rem;">
+                                        {% if spotify_data.image_url %}
+                                            <img src="{{ spotify_data.image_url }}" alt="Mevcut Profil Resmi" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #eee;">
+                                        {% endif %}
+                                        <input type="file" name="profile_image" accept=".png, .jpg, .jpeg, .gif" style="padding: 0.5rem;">
+                                     </div>
+                                     <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem;">Desteklenen formatlar: PNG, JPG, JPEG, GIF. Maksimum 2MB.</small>
+                                 </div>
+
+                                 <div class="form-group" style="margin-top: 1.5rem;">
+                                     <label>Kullanıcı Adı</label>
+                                     <input type="text" value="{{ user_data.username }}" disabled style="background-color: #e9ecef; cursor: not-allowed; opacity: 0.7;">
+                                     <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem;">Kullanıcı adı güvenlik nedeniyle değiştirilemez.</small>
+                                 </div>
+
+                                 <div class="form-group" style="margin-top: 1.5rem;">
+                                     <label>E-posta Adresi</label>
+                                     <input type="email" name="email" value="{{ user_data.email }}" required>
+                                 </div>
+                                 
+                                 <div style="margin-top: 2rem; text-align: right;">
+                                     <button type="submit" class="btn-primary-lg" style="width: auto; padding-inline: 2rem;">Değişiklikleri Kaydet</button>
+                                 </div>
+                             </form>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- SPOTIFY ENTEGRASYONU TAB -->
+                <div id="tab-spotify" class="tab-content" style="display: none;">
+                    <header class="profile-main-header">
+                        <div class="profile-main-title-group">
+                            <h1 class="profile-main-title">Spotify Entegrasyonu</h1>
+                            <p class="profile-main-subtitle">
+                                Müzik deneyiminizi özelleştirmek için Spotify hesabınızı bağlayın.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div class="profile-main-content">
+
+                        {% set creds = spotify_credentials or {} %}
+                        {% set has_creds = creds.get('client_id') and creds.get('client_secret') %}
+                        {% set is_connected = creds.get('refresh_token') %}
+                        {% set spotify_status = spotify_data.get('spotify_data_status', 'Veri Yok') %}
+
+                        <!-- Main Action Area -->
+                        <div class="spotify-action-area">
+                            
+                            <!-- STATE 1: MISSING CREDENTIALS -->
+                            {% if not has_creds %}
+                            <div class="spotify-state-card focus-card">
+                                <div class="card-header-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-80-88a20,20,0,1,0,20,20A20,20,0,0,0,128,120Z"></path></svg>
+                                </div>
+                                <h2>API Anahtarlarını Ayarla</h2>
+                                <p class="state-description">
+                                    Beatify'ın çalışabilmesi için Spotify Developer Dashboard'dan alacağınız kimlik bilgilerine ihtiyacımız var.
+                                </p>
+
+                                <div class="guide-box">
+                                    <span>Nasıl yaparım?</span>
+                                    <a href="https://developer.spotify.com/dashboard/" target="_blank" class="guide-link">Spotify Dashboard'a git <i class="arrow-icon">↗</i></a>
+                                </div>
+
+                            <form class="spotify-form" method="POST" action="{{ url_for('profile') }}">
+                                <input type="hidden" name="action" value="update_spotify_creds">
+                                <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Client ID</label>
+                                            <input type="text" name="client_id" placeholder="Spotify Client ID" required autocomplete="off">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Client Secret</label>
+                                            <input type="password" name="client_secret" placeholder="Spotify Client Secret" required autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn-primary-lg">Kaydet ve İlerle</button>
+                                </form>
+                            </div>
+
+                            <!-- STATE 2: CREDENTIALS EXIST, NOT CONNECTED -->
+                            {% elif has_creds and not is_connected %}
+                            <div class="spotify-state-card focus-card">
+                                <div class="card-header-icon icon-connect">
+                                    <img src="{{ url_for('static', filename='img/icons/Spotify/Primary_Logo_Green_RGB.svg') }}" alt="Spotify Logo" width="48" height="48">
+                                </div>
+                                <h2>Spotify'ı Bağla</h2>
+                                <p class="state-description">
+                                    API ayarları tamamlandı. Şimdi hesabını bağlayarak entegrasyonu aktifleştir.
+                                </p>
+
+                                <div class="connect-action">
+                                    <a href="{{ url_for('spotify_auth_bp.spotify_auth') }}" class="btn-spotify-connect">
+                                        Spotify ile Bağlan
+                                    </a>
+                                </div>
+
+                                <details class="edit-credentials-details">
+                                    <summary>API Ayarlarını Düzenle</summary>
+                                    <div class="edit-form-container">
+                                    <form class="spotify-form compact-form" method="POST" action="{{ url_for('profile') }}">
+                                        <input type="hidden" name="action" value="update_spotify_creds">
+                                        <div class="form-group">
+                                                <label>Client ID</label>
+                                                <input type="text" name="client_id" value="{{ creds.get('client_id', '') }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Client Secret</label>
+                                                <input type="password" name="client_secret" value="{{ creds.get('client_secret', '') }}" required>
+                                            </div>
+                                            <button type="submit" class="btn-secondary-sm">Güncelle</button>
+                                        </form>
+                                    </div>
+                                </details>
+                            </div>
+
+                            <!-- STATE 3: CONNECTED -->
+                            {% else %}
+                            <div class="spotify-state-card success-card">
+                                <div class="connected-header">
+                                    <div class="connected-badge">
+                                        <span class="dot"></span> Aktif
+                                    </div>
+                                    <div class="user-profile-mini">
+                                        <img src="{{ spotify_data.image_url }}" alt="Avatar" class="user-avatar">
+                                        <div class="user-info">
+                                            <h3>{{ spotify_data.display_name }}</h3>
+                                            <span>{{ spotify_data.product|capitalize }} Plan</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="connected-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Takipçi</span>
+                                        <span class="stat-value">{{ spotify_data.followers.total }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Ülke</span>
+                                        <span class="stat-value">{{ spotify_data.country }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="connected-actions">
+                                    <a href="{{ url_for('spotify_auth_bp.spotify_unlink') }}" class="btn-danger-outline">Bağlantıyı Kes</a>
+                                    {% if spotify_data.external_urls and spotify_data.external_urls.spotify %}
+                                        <a href="{{ spotify_data.external_urls.spotify }}" target="_blank" class="btn-text">Spotify'da Aç ↗</a>
+                                    {% endif %}
+                                </div>
+
+                                <details class="edit-credentials-details">
+                                    <summary>API Ayarlarını Düzenle</summary>
+                                    <div class="edit-form-container">
+                                        <p class="warning-text">⚠️ Bu ayarları değiştirmek mevcut bağlantınızı koparabilir.</p>
+                                    <form class="spotify-form compact-form" method="POST" action="{{ url_for('profile') }}">
+                                        <input type="hidden" name="action" value="update_spotify_creds">
+                                        <div class="form-group">
+                                                <label>Client ID</label>
+                                                <input type="text" name="client_id" value="{{ creds.get('client_id', '') }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Client Secret</label>
+                                                <input type="password" name="client_secret" value="{{ creds.get('client_secret', '') }}" required>
+                                            </div>
+                                            <button type="submit" class="btn-secondary-sm">Güncelle</button>
+                                        </form>
+                                    </div>
+                                </details>
+                            </div>
+                            {% endif %}
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GUVENLIK TAB (Placeholder) -->
+                <div id="tab-security" class="tab-content" style="display: none;">
+                    <header class="profile-main-header">
+                        <div class="profile-main-title-group">
+                            <h1 class="profile-main-title">Güvenlik</h1>
+                            <p class="profile-main-subtitle">Şifre ve güvenlik ayarlarınızı yönetin.</p>
+                        </div>
+                    </header>
+                    <div class="profile-main-content">
+                         <p style="color: var(--color-text-muted);">Bu özellik yakında eklenecek.</p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navItems = document.querySelectorAll('.profile-nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // URL'den 'tab' parametresini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+
+        // Tab değiştirme fonksiyonu
+        function switchTab(targetId) {
+            // Reset active state
+            navItems.forEach(nav => nav.classList.remove('active'));
+            tabContents.forEach(content => content.style.display = 'none');
+
+            // İlgili butonu ve içeriği aktif yap
+            const targetButton = document.querySelector(`[data-target="${targetId}"]`);
+            const targetContent = document.querySelector(targetId);
+
+            if (targetButton && targetContent) {
+                targetButton.classList.add('active');
+                targetContent.style.display = 'block';
+            }
+        }
+
+        // Başlangıçta hangi tab'ın açılacağını belirle
+        if (activeTab) {
+            // Eğer URL'de tab parametresi varsa (örn: ?tab=spotify), o tabı aç
+            switchTab(`#tab-${activeTab}`);
+        } else {
+            // Varsayılan olarak "Genel Bakış"
+            // HTML yapısında 'active' class'ı zaten var, ancak JS ile de tetikleyelim
+            // ki diğerleri kapansın.
+            switchTab('#tab-overview');
+        }
+
+        // Tıklama olaylarını dinle
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                if (targetId) {
+                    switchTab(targetId);
+                    
+                    // URL'i güncelle (sayfa yenilenmeden)
+                    const tabName = targetId.replace('#tab-', '');
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('tab', tabName);
+                    window.history.pushState({}, '', newUrl);
+                }
+            });
+        });
+    });
+</script>
+{% endblock scripts %}

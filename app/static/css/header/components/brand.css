@@ -1,0 +1,18 @@
+/* Brand & Logo */
+.navbar-brand {
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    color: var(--color-primary);
+    transition: color var(--transition-speed-fast) var(--transition-easing);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-brand:hover {
+    color: var(--color-primary-hover);
+    text-decoration: none;
+}
+

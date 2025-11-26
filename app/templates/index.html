@@ -2,16 +2,15 @@
 
 {% block head_content %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index/index.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<div class="content-wrapper" style="margin: 0; padding: 0;">
-    <div class="banner-container d-flex text-center text-white">
-        <div class="cover-container d-flex w-100 h-100 mx-auto flex-column justify-content-center align-items-center" style="padding: 1rem;">
-            <main class="px-3">
+<div class="content-wrapper">
+    <div class="banner-container">
+        <div class="cover-container">
+            <main class="hero-main">
                 <h1 class="display-4 fw-bold">Müziğin Ritmini Yeniden Keşfet</h1>
                 <p class="lead col-lg-8 mx-auto">
                     Beatify ile çalma listelerinizi yönetin, yeni sanatçılar keşfedin ve müziğin keyfini premium bir deneyimle çıkarın.

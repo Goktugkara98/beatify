@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="spotifyWidgetModern" class="WidgetMasterContainer widget-inactive"
-         data-token="j5Bp8lwM6iad"
+         data-token="{{ widget_token }}"
          data-endpoint-template="/spotify/api/widget-data/{TOKEN}"
          data-type="WidgetMasterContainer">
         
@@ -318,16 +318,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <!-- Load our improved services -->
-    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ThemeService.js"></script>
+    <script src="/static/js/spotify/widget-manager/widgets/widget_modern/themeService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/GSAPAnimationService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/ContentUpdaterService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/SpotifyStateService.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/WidgetDOMManager.js"></script>
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/main.js"></script>
     
-    <!-- Load demo controller for testing -->
+    <!-- Load demo controller for testing (isteğe bağlı demo modu) -->
     <script src="/static/js/spotify/widget-manager/widgets/widget_modern/demo_data.js"></script>
-    
-    </script>
 </body>
 </html>

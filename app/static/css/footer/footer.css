@@ -1,0 +1,5 @@
+/* Footer CSS Entry Point */
+@import url('./components/layout.css');
+@import url('./components/content.css');
+@import url('./components/responsive.css');
+

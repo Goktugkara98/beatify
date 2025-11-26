@@ -57,14 +57,14 @@ def spotify_auth() -> Any:
         if not credentials or not credentials.get('client_id') or not credentials.get('client_secret'):
             logger.warning(f"Kullanıcı '{username}' için Spotify kimlik bilgileri eksik.")
             flash("Lütfen profil sayfanızdan Spotify Client ID ve Secret bilgilerinizi girin.", "error")
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', tab='spotify'))
 
         auth_url = spotify_auth_service.get_authorization_url(username, credentials['client_id'])
         return redirect(auth_url)
     except Exception as e:
         logger.error(f"Spotify yetkilendirme URL'si alınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
         flash(f"Spotify bağlantısı sırasında bir hata oluştu.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
 
 @spotify_auth_bp.route('/callback', methods=['GET'])
 @login_required
@@ -76,11 +76,11 @@ def spotify_callback() -> Any:
     if error := request.args.get('error'):
         logger.error(f"Spotify yetkilendirme hatası (Kullanıcı: {username}): {error}")
         flash(f"Spotify yetkilendirme hatası: {error}. Lütfen tekrar deneyin.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
 
     if not (auth_code := request.args.get('code')):
         flash("Yetkilendirme kodu bulunamadı. Lütfen tekrar deneyin.", "warning")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
 
     try:
         logger.info(f"[DEBUG] Starting Spotify callback for user: {username}")
@@ -92,7 +92,7 @@ def spotify_callback() -> Any:
         if not credentials or not credentials.get('client_id') or not credentials.get('client_secret'):
             logger.error("[DEBUG] Missing client_id or client_secret in credentials")
             flash("Spotify kimlik bilgileri bulunamadı. Lütfen profil sayfanızı kontrol edin.", "error")
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', tab='spotify'))
 
         logger.info("[DEBUG] Exchanging authorization code for tokens...")
         token_info = spotify_auth_service.exchange_code_for_token(auth_code, credentials['client_id'], credentials['client_secret'])
@@ -101,7 +101,7 @@ def spotify_callback() -> Any:
         if not token_info or 'access_token' not in token_info:
             logger.error("[DEBUG] Failed to get access token from token info")
             flash("Spotify erişim token'ı alınamadı. Lütfen tekrar deneyin.", "error")
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', tab='spotify'))
             
         access_token = token_info.get('access_token')
         refresh_token = token_info.get('refresh_token')
@@ -118,16 +118,16 @@ def spotify_callback() -> Any:
             flash("Spotify hesap bilgileri kaydedilemedi. Lütfen tekrar deneyin.", "error")
         else:
             logger.info(f"[DEBUG] Successfully saved Spotify info for user: {username}")
-            flash("Spotify hesabınız başarıyla bağlandı!", "success")
-        return redirect(url_for('profile'))
+            # flash("Spotify hesabınız başarıyla bağlandı!", "success")
+        return redirect(url_for('profile', tab='spotify'))
     except requests.exceptions.RequestException as req_err:
         logger.error(f"Spotify callback ağ hatası (Kullanıcı: {username}): {req_err}", exc_info=True)
         flash(f"Spotify ile iletişim sırasında bir ağ hatası oluştu.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
     except Exception as e:
         logger.error(f"Spotify callback işlenirken hata (Kullanıcı: {username}): {e}", exc_info=True)
         flash(f"Spotify bağlantısı sırasında beklenmedik bir hata oluştu.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
 
 @spotify_auth_bp.route('/unlink', methods=['GET'])
 @login_required
@@ -144,11 +144,11 @@ def spotify_unlink() -> Any:
         else:
             logger.warning(f"Kullanıcı '{username}' için Spotify bağlantısı kaldırılamadı (zaten bağlı olmayabilir).")
             flash("Spotify hesap bağlantısı kaldırılırken bir sorun oluştu.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
     except Exception as e:
         logger.error(f"Spotify bağlantısı kesilirken hata (Kullanıcı: {username}): {e}", exc_info=True)
         flash(f"Spotify bağlantısı kesilirken bir hata oluştu.", "error")
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', tab='spotify'))
 
 # =============================================================================
 # 4.0 ROTA KAYDI (ROUTE REGISTRATION)

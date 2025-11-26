@@ -1,0 +1,46 @@
+/* ==========================================================================
+   Widget Manager Layout
+   ========================================================================== */
+
+.widget-manager-page {
+    padding: 3rem 0;
+    min-height: calc(100vh - 96px);
+    background: var(--color-bg-base);
+}
+
+.widget-manager-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.widget-manager-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-base);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+}
+
+.widget-manager-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 991.98px) {
+    .widget-manager-layout {
+        grid-template-columns: 1fr;
+    }
+}
+

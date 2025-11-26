@@ -1,3 +1,12 @@
+"""
+MODÜL: spotify_accounts_table.py
+
+Bu modül, `spotify_accounts` veritabanı tablosunun oluşturulmasını sağlar.
+
+İÇİNDEKİLER:
+    - create_spotify_accounts_table: Tablo oluşturma fonksiyonu.
+"""
+
 from typing import Optional
 from mysql.connector import Error as MySQLError
 from app.database.db_connection import DatabaseConnection
@@ -7,8 +16,8 @@ def create_spotify_accounts_table(db_connection: Optional[DatabaseConnection] = 
     """
     Spotify entegrasyon bilgilerini tutan `spotify_accounts` tablosunu oluşturur.
 
-    - Program açılışında MigrationsRepository üzerinden çağrılabilir.
-    - Doğrudan bu dosya çalıştırıldığında da tabloyu oluşturur.
+    Args:
+        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -18,7 +27,7 @@ def create_spotify_accounts_table(db_connection: Optional[DatabaseConnection] = 
         own_connection = True
 
     try:
-        db._ensure_connection()
+        db.ensure_connection()
         query = """
             CREATE TABLE IF NOT EXISTS spotify_accounts (
                 username VARCHAR(255) PRIMARY KEY,
@@ -47,6 +56,3 @@ def create_spotify_accounts_table(db_connection: Optional[DatabaseConnection] = 
 
 if __name__ == "__main__":
     create_spotify_accounts_table()
-
-
-

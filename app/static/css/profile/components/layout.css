@@ -1,0 +1,51 @@
+/* ==========================================================================
+   Profil Sayfası Ana Yerleşim (Profile Page Layout)
+   ========================================================================== */
+
+.profile-page {
+    padding: 3rem 0;
+    background:
+        radial-gradient(circle at top left, rgba(29, 185, 84, 0.06), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.03), transparent 60%),
+        var(--color-bg-base);
+    min-height: calc(100vh - 96px); /* navbar + footer için alan bırak */
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* Responsive (Global) */
+@media (max-width: 991.98px) {
+    .profile-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .profile-sidebar {
+        order: 1;
+    }
+    .profile-main {
+        order: 2;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .profile-page {
+        padding: 1.75rem 0 2.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .profile-container {
+        padding-inline: 1rem;
+    }
+}
+
+

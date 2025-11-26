@@ -1,3 +1,12 @@
+"""
+MODÜL: widgets_table.py
+
+Bu modül, `widgets` veritabanı tablosunun oluşturulmasını sağlar.
+
+İÇİNDEKİLER:
+    - create_widgets_table: Tablo oluşturma fonksiyonu.
+"""
+
 from typing import Optional
 from mysql.connector import Error as MySQLError
 from app.database.db_connection import DatabaseConnection
@@ -7,8 +16,8 @@ def create_widgets_table(db_connection: Optional[DatabaseConnection] = None) -> 
     """
     Kullanıcıların oluşturduğu widget'ları tutan genel `widgets` tablosunu oluşturur.
 
-    - Program açılışında MigrationsRepository üzerinden çağrılabilir.
-    - Doğrudan bu dosya çalıştırıldığında da tabloyu oluşturur.
+    Args:
+        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -18,7 +27,7 @@ def create_widgets_table(db_connection: Optional[DatabaseConnection] = None) -> 
         own_connection = True
 
     try:
-        db._ensure_connection()
+        db.ensure_connection()
         query = """
             CREATE TABLE IF NOT EXISTS widgets (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,6 +58,3 @@ def create_widgets_table(db_connection: Optional[DatabaseConnection] = None) -> 
 
 if __name__ == "__main__":
     create_widgets_table()
-
-
-

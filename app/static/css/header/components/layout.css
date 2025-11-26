@@ -1,0 +1,43 @@
+/* Base Navbar Styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1rem 0;
+    backdrop-filter: blur(10px);
+    background-color: rgba(var(--color-bg-navbar-rgb), 0.8);
+    border-bottom: 1px solid var(--color-border);
+    /* Ensure navbar transitions synchronize with background */
+    will-change: background-color, border-color, box-shadow;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Scrolled state for navbar */
+.navbar-scrolled {
+    padding: 0.5rem 0;
+    background-color: rgba(var(--color-bg-navbar-rgb), 0.95);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Mobile Navigation Toggler */
+.navbar-toggler {
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius-small);
+    transition: all var(--transition-speed-fast) var(--transition-easing);
+}
+
+.navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(var(--color-text-base-rgb), 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    width: 1.5em;
+    height: 1.5em;
+}
+

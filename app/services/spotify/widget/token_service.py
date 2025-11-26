@@ -34,21 +34,39 @@ class WidgetTokenService:
     # -------------------------------------------------------------------------
     def get_or_create_widget_token(self, username: str) -> Optional[str]:
         """Kullanıcı için mevcut widget token'ını alır veya yoksa yeni bir tane oluşturur."""
+        logger.debug("WidgetTokenService.get_or_create_widget_token() çağrıldı: username='%s'", username)
         existing_token = self.get_widget_token(username)
         if existing_token:
+            logger.info("Mevcut widget token bulundu: username='%s', token='%s'", username, existing_token)
             return existing_token
-        return self.generate_and_insert_widget_token(username)
+
+        logger.info("Kullanıcı için widget token bulunamadı, yeni token oluşturulacak: username='%s'", username)
+        token = self.generate_and_insert_widget_token(username)
+        logger.info("Yeni widget token oluşturuldu: username='%s', token='%s'", username, token)
+        return token
 
     def get_widget_token(self, username: str) -> Optional[str]:
         """Belirtilen kullanıcı için mevcut widget token'ını veritabanından alır."""
+        logger.debug("WidgetTokenService.get_widget_token() DB sorgusu: username='%s'", username)
         db = SpotifyWidgetRepository()
-        return db.get_widget_token_by_username(username)
+        token = db.get_widget_token_by_username(username)
+        logger.debug("WidgetTokenService.get_widget_token() sonucu: username='%s', token='%s'", username, token)
+        return token
 
     def generate_and_insert_widget_token(self, username: str) -> Optional[str]:
         """Belirtilen kullanıcı için yeni bir widget token'ı oluşturur ve veritabanına kaydeder."""
         try:
+            logger.debug("WidgetTokenService.generate_and_insert_widget_token() başlatıldı: username='%s'", username)
             token = self.generate_widget_token(username)
-            spotify_user_id = SpotifyUserRepository().get_spotify_user_data(username)["spotify_user_id"]
+            logger.debug("Yeni widget token üretildi: username='%s', token='%s'", username, token)
+
+            spotify_data = SpotifyUserRepository().get_spotify_user_data(username)
+            spotify_user_id = spotify_data["spotify_user_id"]
+            logger.debug(
+                "Spotify kullanıcı verisi alındı: username='%s', spotify_user_id='%s'",
+                username,
+                spotify_user_id,
+            )
 
             token_data = {
                 "beatify_username": username,
@@ -59,10 +77,22 @@ class WidgetTokenService:
                 "spotify_user_id": spotify_user_id,
             }
 
-            SpotifyWidgetRepository().store_widget_config(token_data)
+            stored = SpotifyWidgetRepository().store_widget_config(token_data)
+            logger.info(
+                "Widget config veritabanına kaydedildi mi? %s (username='%s', token='%s')",
+                stored,
+                username,
+                token,
+            )
             return token
-        except (KeyError, TypeError):
+        except (KeyError, TypeError) as e:
             # spotify_get_user_data veya sonucu None/hatalı ise
+            logger.error(
+                "Widget token oluşturulurken Spotify kullanıcı verisi alınamadı: username='%s', hata=%s",
+                username,
+                e,
+                exc_info=True,
+            )
             return None
 
     def generate_widget_token(self, username: str, length: int = 12) -> str:
@@ -71,7 +101,9 @@ class WidgetTokenService:
             raise ValueError("Token oluşturmak için kullanıcı adı gereklidir.")
         try:
             alphabet = string.digits + string.ascii_letters
-            return "".join(secrets.choice(alphabet) for _ in range(length))
+            token = "".join(secrets.choice(alphabet) for _ in range(length))
+            logger.debug("generate_widget_token(): username='%s' için token üretildi: '%s'", username, token)
+            return token
         except Exception as e:
             raise RuntimeError(f"Token oluşturulamadı: {e}") from e
 
@@ -114,20 +146,27 @@ class WidgetTokenService:
             token_data = db.get_data_by_widget_token(token)
 
             if not token_data:
-                logger.warning(f"Token bulunamadı: {token}")
+                logger.warning("Token bulunamadı veya platform='spotify' değil: token='%s'", token)
                 return False, None
 
+            # Gelen satırın tüm sütunlarını tek tek logla
+            logger.debug("validate_widget_token(): veritabanından gelen satır (token='%s'):", token)
+            for key, value in token_data.items():
+                logger.debug("    %s = %r", key, value)
+
             if not token_data.get("beatify_username"):
-                logger.error(f"Token geçerli ancak kullanıcı adı eksik: {token}")
+                logger.error("Token geçerli ancak kullanıcı adı eksik: token='%s'", token)
                 return False, None
 
             logger.info(
-                f"Token başarıyla doğrulandı: {token[:8]}... (Kullanıcı: {token_data['beatify_username']})"
+                "Token başarıyla doğrulandı: token='%s', kullanıcı='%s'",
+                token,
+                token_data["beatify_username"],
             )
             return True, token_data
 
         except Exception as e:
-            logger.error(f"Token doğrulanırken beklenmeyen hata (Token: {token}): {e}", exc_info=True)
+            logger.error("Token doğrulanırken beklenmeyen hata (token='%s'): %s", token, e, exc_info=True)
             return False, None
 
 

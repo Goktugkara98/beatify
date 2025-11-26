@@ -1,0 +1,19 @@
+/* ==========================================================================
+   WIDGET ANIMATIONS - ORTAK ANİMASYON YARDIMCILARI
+   ========================================================================== */
+
+/**
+ * Not:
+ * - Modern ve Classic widget şablonları bu dosyayı yüklüyor.
+ * - Şu anda tüm animasyonlar GSAP üzerinden yönetildiği için bu dosya
+ *   sadece geriye dönük uyumluluk ve gerektiğinde ek CSS animasyonları
+ *   tanımlamak için boş bırakılmıştır.
+ *
+ * İleride ihtiyaç olursa:
+ * - .widget-active, .widget-inactive için ek geçişler
+ * - basit @keyframes tanımları
+ * - belirli bileşenler için hover / focus efektleri
+ * buraya eklenebilir.
+ */
+
+

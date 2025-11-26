@@ -1,0 +1,29 @@
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+        border-top: 1px solid var(--color-border);
+        padding-top: 1rem;
+    }
+    
+    .navbar-right-elements {
+        margin-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    .nav-item {
+        margin: 0.25rem 0;
+    }
+    
+    .nav-link {
+        padding: 0.75rem 1rem;
+        display: block;
+    }
+    
+    .login-item {
+        margin-right: 0;
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+

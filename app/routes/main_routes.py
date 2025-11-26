@@ -26,7 +26,9 @@
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
 import logging
+import os
 from typing import Any, Optional, Dict
+from werkzeug.utils import secure_filename
 
 from flask import (
     render_template,
@@ -42,9 +44,16 @@ from app.services.auth_service import login_required, session_is_user_logged_in
 from app.services.users.profile_service import handle_get_request
 # Veritabanı Depoları (Sadece POST isteğinde gerekli)
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
+from app.database.repositories.user_repository import BeatifyUserRepository
 
 # Logger kurulumu
 logger = logging.getLogger(__name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # =============================================================================
 # 2.0 ROTA BAŞLATMA (ROUTE INITIALIZATION)
@@ -127,9 +136,7 @@ def handle_profile_get_request(username: str) -> Response:
     
     # Spotify bağlantı durumu hakkında kullanıcıyı bilgilendir
     spotify_status = spotify_data.get('spotify_data_status', 'Bilinmiyor')
-    if spotify_status == 'Veri Yok':
-        flash("Spotify hesabınız bağlı değil. Müzik özelliklerini kullanmak için lütfen Spotify hesabınıza bağlanın.", "info")
-    elif 'Hata' in spotify_status:
+    if 'Hata' in spotify_status:
         flash(f"Spotify bağlantınızda bir sorun oluştu: {spotify_status}", "warning")
         
     return render_template(
@@ -142,27 +149,92 @@ def handle_profile_get_request(username: str) -> Response:
 
 def handle_profile_post_request(username: str) -> Response:
     """
-    Profil sayfasındaki POST isteğini işler (Spotify kimlik bilgileri güncelleme).
+    Profil sayfasındaki POST isteğini işler.
+    - action='update_profile': Kullanıcı bilgilerini günceller.
+    - action='update_spotify_creds': Spotify kimlik bilgilerini günceller.
     """
     logger.info(f"Profil sayfası için POST isteği işleniyor: Kullanıcı='{username}'")
+    
+    action = request.form.get('action')
+
+    # 1. Profil Güncelleme İşlemi
+    if action == 'update_profile':
+        new_email = request.form.get('email', '').strip()
+        
+        # Kullanıcı nesnesi oluştur
+        user_repo = BeatifyUserRepository()
+        
+        # -- Profil Resmi Yükleme --
+        if 'profile_image' in request.files:
+            file = request.files['profile_image']
+            if file and file.filename != '':
+                if allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    ext = filename.rsplit('.', 1)[1].lower()
+                    
+                    # Benzersiz dosya adı oluştur (uuid4)
+                    # Önbellek sorunlarını önlemek için bu yöntem tercih edilir
+                    import uuid
+                    unique_filename = f"{uuid.uuid4().hex}.{ext}"
+                    
+                    # Klasörün varlığından emin ol
+                    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    upload_folder = os.path.join(base_dir, 'static', 'img', 'uploads', 'profiles')
+                    
+                    if not os.path.exists(upload_folder):
+                        os.makedirs(upload_folder)
+                    
+                    # Yeni dosyayı kaydet
+                    try:
+                        file_path = os.path.join(upload_folder, unique_filename)
+                        file.save(file_path)
+                        
+                        # Veritabanını güncelle
+                        if user_repo.update_profile_image(username, unique_filename):
+                            logger.info(f"Kullanıcı '{username}' profil resmini güncelledi: {unique_filename}")
+                            
+                            # (Opsiyonel) Eski resmi silmek için veritabanından eski değeri okuyup silmek gerekirdi
+                            # Şimdilik eski resimler kalıyor, bir temizlik scripti ile temizlenebilir.
+                        else:
+                             logger.error(f"Profil resmi veritabanına kaydedilemedi: {username}")
+                             
+                    except Exception as e:
+                        logger.error(f"Dosya kaydedilirken hata oluştu: {e}")
+                else:
+                    # Geçersiz dosya formatı sessizce loglanabilir
+                    logger.warning(f"Kullanıcı '{username}' geçersiz dosya yüklemeye çalıştı.")
+
+        if not new_email:
+            # E-posta boşsa işlem yapma, sessizce redirect
+            return redirect(url_for('.profile'))
+        
+        if user_repo.update_user_email(username, new_email):
+            # Eğer sadece resim güncellendiyse ve email değişmediyse bile burası çalışır ve sorun olmaz.
+            logger.info(f"Kullanıcı '{username}' e-posta adresini güncelledi.")
+        else:
+            logger.error(f"Kullanıcı '{username}' profil güncelleme hatası.")
+            
+        return redirect(url_for('.profile', tab='account'))
+
+    # 2. Spotify Credential Güncelleme İşlemi (Varsayılan veya 'update_spotify_creds')
     client_id = request.form.get('client_id', '').strip()
     client_secret = request.form.get('client_secret', '').strip()
 
     if not client_id or not client_secret:
         flash("Spotify Client ID ve Client Secret alanları boş bırakılamaz.", "warning")
-        return redirect(url_for('.profile'))
+        # Hata durumunda da spotify sekmesinde kalması iyi olur
+        return redirect(url_for('.profile', tab='spotify'))
 
     spotify_repo = SpotifyUserRepository()
     success = spotify_repo.store_client_info(username, client_id, client_secret)
 
     if success:
-        flash('Spotify Client ID ve Secret bilgileri başarıyla güncellendi.', 'success')
         logger.info(f"Kullanıcı '{username}' için Spotify kimlik bilgileri güncellendi.")
     else:
-        flash('Spotify bilgileri güncellenirken bir sorun oluştu.', 'danger')
         logger.error(f"Kullanıcı '{username}' için Spotify kimlik bilgileri güncellenemedi.")
 
-    return redirect(url_for('.profile'))
+    # İşlem başarılı olsa da olmasa da Spotify sekmesine yönlendir
+    return redirect(url_for('.profile', tab='spotify'))
 
 # =============================================================================
 # Ana Rota Modülü Sonu

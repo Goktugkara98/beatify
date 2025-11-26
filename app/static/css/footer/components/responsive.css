@@ -1,0 +1,7 @@
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .site-footer {
+        padding: 1.5rem 0;
+    }
+}
+
