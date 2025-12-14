@@ -1,5 +1,15 @@
 <footer class="site-footer">
     <div class="container">
-        <p>&copy; 2024 Beatify. Tüm hakları saklıdır.</p>
+        <p>
+            &copy; 2024 Beatify. Tüm hakları saklıdır.
+            ·
+            <a href="{{ url_for('index') }}">Anasayfa</a>
+            ·
+            <a href="{{ url_for('spotify_widget_bp.widget_manager') }}">Widget Studio</a>
+            ·
+            <a href="{{ url_for('docs') }}">Dökümantasyon</a>
+            ·
+            <a href="{{ url_for('changelog') }}">Yenilikler</a>
+        </p>
     </div>
 </footer>

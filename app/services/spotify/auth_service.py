@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import requests
+from urllib.parse import urlparse, urlunparse
 from datetime import datetime, timedelta
 from flask import session
 from app.config.spotify_config import SpotifyConfig
@@ -35,27 +36,75 @@ class SpotifyAuthService:
         self.spotify_repo: SpotifyUserRepository = SpotifyUserRepository()
         self.profile_url: str = SpotifyConfig.PROFILE_URL
 
+    def normalize_redirect_uri(self, redirect_uri: str) -> str:
+        """
+        Spotify OAuth için redirect URI'yi normalize eder.
+
+        Güncel Spotify güvenlik kuralı:
+        - HTTP yalnızca loopback adresleri için kabul edilir (örn: 127.0.0.1 veya ::1)
+        - `localhost` artık kabul edilmeyebilir.
+
+        Bu yüzden, dev ortamında yanlışlıkla localhost / 0.0.0.0 / LAN IP ile oluşan
+        redirect_uri'leri loopback'e çevirir.
+        """
+        if not redirect_uri:
+            return self.redirect_uri
+
+        try:
+            parsed = urlparse(redirect_uri)
+            host = (parsed.hostname or "").lower()
+
+            # Sadece http akışında normalize et (prod'da https + domain olabilir)
+            if parsed.scheme == "http":
+                # localhost / 0.0.0.0 -> 127.0.0.1
+                if host in {"localhost", "0.0.0.0"}:
+                    netloc = parsed.netloc.replace(parsed.hostname or "", "127.0.0.1")
+                    parsed = parsed._replace(netloc=netloc)
+
+                # LAN IP vb. durumlarda da loopback'e çek (Spotify http+domain/ip kabul etmeyebilir)
+                # Not: 127.0.0.1 ve ::1 zaten loopback.
+                if host and host not in {"127.0.0.1", "::1"}:
+                    netloc = parsed.netloc.replace(parsed.hostname or "", "127.0.0.1")
+                    parsed = parsed._replace(netloc=netloc)
+
+            return urlunparse(parsed)
+        except Exception:
+            return redirect_uri
+
     # -------------------------------------------------------------------------
     # OAUTH AKIŞI METOTLARI (OAUTH FLOW METHODS)
     # -------------------------------------------------------------------------
-    def get_authorization_url(self, username: str, client_id: Optional[str]) -> str:
+    def get_authorization_url(
+        self,
+        username: str,
+        client_id: Optional[str],
+        redirect_uri: Optional[str] = None,
+    ) -> str:
         """
         Kullanıcıyı Spotify'da yetkilendirme yapması için yönlendirilecek URL'yi oluşturur.
         """
         if not client_id or not client_id.strip():
             raise ValueError("Spotify Client ID sağlanmadı veya geçersiz.")
 
+        redirect_value = self.normalize_redirect_uri(redirect_uri or self.redirect_uri)
+
         auth_params: Dict[str, str] = {
             "client_id": client_id,
             "response_type": "code",
-            "redirect_uri": self.redirect_uri,
+            "redirect_uri": redirect_value,
             "scope": self.scopes,
             "show_dialog": "true",
         }
         url_args: str = "&".join([f"{key}={requests.utils.quote(str(val))}" for key, val in auth_params.items()])
         return f"{self.auth_url}?{url_args}"
 
-    def exchange_code_for_token(self, code: str, client_id: str, client_secret: str) -> Optional[Dict[str, Any]]:
+    def exchange_code_for_token(
+        self,
+        code: str,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
         """
         Spotify'dan alınan yetkilendirme kodunu erişim ve yenileme token'larını almak için kullanır.
         """
@@ -63,10 +112,11 @@ class SpotifyAuthService:
             credentials: str = f"{client_id}:{client_secret}"
             base64_credentials: str = base64.b64encode(credentials.encode()).decode()
 
+            redirect_value = self.normalize_redirect_uri(redirect_uri or self.redirect_uri)
             payload: Dict[str, str] = {
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": self.redirect_uri,
+                "redirect_uri": redirect_value,
             }
             headers: Dict[str, str] = {
                 "Authorization": f"Basic {base64_credentials}",

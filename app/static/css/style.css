@@ -32,9 +32,6 @@ Diğer tüm CSS dosyaları, tutarlılığı sağlamak için bu değişkeleri kul
    1. DESIGN SYSTEM (TASARIM SİSTEMİ - DEĞİŞKENLER)
    ================================== */
 :root {
-    /* Force GPU acceleration for smoother transitions */
-    transform: translateZ(0);
-    backface-visibility: hidden;
     -webkit-font-smoothing: antialiased;
     /* 1.1. Renk Paleti (Açık Tema) */
     --color-primary: #1DB954; /* Spotify Yeşili */

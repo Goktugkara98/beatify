@@ -1,57 +1,67 @@
-"""
-MODÜL: db_connection.py
-
-Bu modül, MySQL veritabanı bağlantılarını yönetmek için kullanılan `DatabaseConnection`
-sınıfını içerir.
-
-İÇİNDEKİLER:
-    - DatabaseConnection (Sınıf): Veritabanı bağlantı ve cursor yönetimini sağlar.
-        - __init__: Yapılandırıcı metod.
-        - ensure_connection: Bağlantıyı kontrol eder ve gerekirse yeniden başlatır.
-        - close: Bağlantıyı ve cursor'ı kapatır.
-"""
+# =============================================================================
+# Veritabanı Bağlantı Modülü (db_connection.py)
+# =============================================================================
+# Bu modül, MySQL veritabanı bağlantılarını yönetmek için kullanılan
+# `DatabaseConnection` sınıfını içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#      : Standart kütüphane, üçüncü parti paketler ve uygulama içi modüller.
+#
+# 2.0  SINIFLAR (CLASSES)
+#      2.1. DatabaseConnection
+#           2.1.1. __init__(config=None)
+#           2.1.2. ensure_connection()
+#           2.1.3. close()
+# =============================================================================
 
 from __future__ import annotations
 
-from typing import Optional, Dict, Any
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
+from typing import Any, Dict, Optional
+
+# Üçüncü parti
 import mysql.connector
-from mysql.connector import MySQLConnection, Error as MySQLError
+from mysql.connector import Error as MySQLError
+from mysql.connector import MySQLConnection
 
+# Uygulama içi
 from app.config.config import DB_CONFIG
 
 
-class DatabaseConnection:
-    """
-    MySQL veritabanı bağlantısını yöneten yardımcı sınıf.
+# =============================================================================
+# 2.0 SINIFLAR (CLASSES)
+# =============================================================================
 
-    Bu sınıf, veritabanı bağlantısını başlatmak, açık tutmak ve kapatmak için
-    gerekli yöntemleri sağlar.
-    """
+class DatabaseConnection:
+    """MySQL veritabanı bağlantısını yöneten yardımcı sınıf."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
-        """
-        DatabaseConnection sınıfını başlatır.
+        """DatabaseConnection sınıfını başlatır.
 
         Args:
-            config (Optional[Dict[str, Any]]): Veritabanı yapılandırma sözlüğü.
-                                               Eğer verilmezse, varsayılan `DB_CONFIG` kullanılır.
+            config: Veritabanı yapılandırma sözlüğü. Verilmezse `DB_CONFIG` kullanılır.
         """
+        effective_config = config or DB_CONFIG
         self.config: Dict[str, Any] = {
-            "host": (config or DB_CONFIG).get("host"),
-            "user": (config or DB_CONFIG).get("user"),
-            "password": (config or DB_CONFIG).get("password"),
-            "database": (config or DB_CONFIG).get("database"),
+            "host": effective_config.get("host"),
+            "user": effective_config.get("user"),
+            "password": effective_config.get("password"),
+            "database": effective_config.get("database"),
             "charset": "utf8mb4",
             "collation": "utf8mb4_unicode_ci",
         }
+
         self.connection: Optional[MySQLConnection] = None
         self.cursor: Optional[mysql.connector.cursor_cext.CMySQLCursorDict] = None
 
     def ensure_connection(self) -> None:
-        """
-        Bağlantı yoksa veya kopmuşsa yeniden bağlanır ve cursor oluşturur.
-        """
+        """Bağlantı yoksa veya kopmuşsa yeniden bağlanır ve cursor oluşturur."""
         if self.connection is None or not self.connection.is_connected():
             self.connection = mysql.connector.connect(
                 host=self.config["host"],
@@ -64,9 +74,7 @@ class DatabaseConnection:
             self.cursor = self.connection.cursor(dictionary=True)
 
     def close(self) -> None:
-        """
-        Cursor ve bağlantıyı güvenli bir şekilde kapatır.
-        """
+        """Cursor ve bağlantıyı güvenli bir şekilde kapatır."""
         if self.cursor is not None:
             try:
                 self.cursor.close()
@@ -83,3 +91,8 @@ class DatabaseConnection:
                 pass
             finally:
                 self.connection = None
+
+
+# =============================================================================
+# Veritabanı Bağlantı Modülü Sonu
+# =============================================================================

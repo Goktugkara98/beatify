@@ -92,6 +92,24 @@ def init_main_routes(app: Flask) -> None:
         logger.info("Ana sayfa (homepage) render ediliyor.")
         return render_template('index.html', title="Ana Sayfa")
 
+    @app.route('/docs', methods=['GET'])
+    def docs() -> str:
+        """
+        Dokümantasyon sayfasını (`/docs`) render eder.
+        (Şimdilik boş bir şablon kullanılır.)
+        """
+        logger.info("Dokümantasyon sayfası (docs.html) render ediliyor.")
+        return render_template('docs.html', title="Dokümantasyon")
+
+    @app.route('/changelog', methods=['GET'])
+    def changelog() -> str:
+        """
+        Yenilikler / değişiklikler sayfasını (`/changelog`) render eder.
+        (Şimdilik boş bir şablon kullanılır.)
+        """
+        logger.info("Yenilikler sayfası (changelog.html) render ediliyor.")
+        return render_template('changelog.html', title="Yenilikler")
+
     # -------------------------------------------------------------------------
     # 3.2. Kullanıcı Profili Rotaları (User Profile Routes)
     # -------------------------------------------------------------------------

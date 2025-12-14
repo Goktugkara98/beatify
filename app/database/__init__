@@ -1,0 +1,11 @@
+# =============================================================================
+# Database Paket Tanımı (app.database)
+# =============================================================================
+# Not: Bu depo içinde `app.database` altındaki modüller veritabanı bağlantısı,
+# migration yönetimi ve repository katmanını içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  AÇIKLAMA
+#      : Bu dosya, package seviyesi açıklama amaçlıdır.
+# =============================================================================

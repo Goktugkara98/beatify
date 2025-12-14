@@ -1,8 +1,11 @@
-"""
-Seed (örnek veri) katmanı.
-
-Bu paket içinde tablolara başlangıç/örnek verisi eklemek için seed dosyaları bulunacaktır.
-Şu an için sadece yapı oluşturulmuştur, mevcut seed akışına dokunulmamalıdır.
-"""
-
-
+# =============================================================================
+# Seeds Paket Tanımı (app.database.seeds)
+# =============================================================================
+# Bu paket, tablolara başlangıç/örnek verisi eklemek için seed dosyalarını
+# barındırır.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  AÇIKLAMA
+#      : Seed akışı ileride eklenecektir; mevcut akışa dokunulmamalıdır.
+# =============================================================================

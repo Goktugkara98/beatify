@@ -1,23 +1,42 @@
-"""
-MODÜL: users_table.py
+# =============================================================================
+# Users Tablo Migration Modülü (users_table.py)
+# =============================================================================
+# Bu modül, `users` veritabanı tablosunun oluşturulmasını sağlar.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  FONKSİYONLAR (FUNCTIONS)
+#      2.1. create_users_table(db_connection=None)
+#
+# 3.0  KOMUT SATIRI (CLI)
+#      3.1. __main__ (doğrudan çalıştırma)
+# =============================================================================
 
-Bu modül, `users` veritabanı tablosunun oluşturulmasını sağlar.
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
-İÇİNDEKİLER:
-    - create_users_table: Tablo oluşturma fonksiyonu.
-"""
-
+# Standart kütüphane
 from typing import Optional
+
+# Üçüncü parti
 from mysql.connector import Error as MySQLError
+
+# Uygulama içi
 from app.database.db_connection import DatabaseConnection
 
 
+# =============================================================================
+# 2.0 FONKSİYONLAR (FUNCTIONS)
+# =============================================================================
+
 def create_users_table(db_connection: Optional[DatabaseConnection] = None) -> None:
-    """
-    Uygulamanın ana kullanıcı tablosu olan `users` tablosunu oluşturur.
+    """Uygulamanın ana kullanıcı tablosu olan `users` tablosunu oluşturur.
 
     Args:
-        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
+        db_connection: Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -52,5 +71,14 @@ def create_users_table(db_connection: Optional[DatabaseConnection] = None) -> No
             db.close()
 
 
+# =============================================================================
+# 3.0 KOMUT SATIRI (CLI)
+# =============================================================================
+
 if __name__ == "__main__":
     create_users_table()
+
+
+# =============================================================================
+# Users Tablo Migration Modülü Sonu
+# =============================================================================

@@ -20,6 +20,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         stateService.init();
 
+        // Parent pencereden (Widget Manager) gelen mesajları dinle
+        window.addEventListener('message', (event) => {
+            if (event.data === 'startOutro') {
+                // Outro animasyonunu tetikle
+                widgetElement.dispatchEvent(new CustomEvent('widget:outro'));
+            } else if (event.data && event.data.type === 'changeTrack') {
+                // Demo modunda track değiştir, değilse sadece yeni veri çek
+                if (window.demoController && window.demoController.mockAPI) {
+                    // Demo açık değilse otomatik başlat
+                    if (!window.demoController.isActive) {
+                        window.demoController.start();
+                    }
+                    window.demoController.mockAPI.nextTrack();
+                }
+                // Veriyi hemen yenile ki transition tetiklensin
+                stateService.fetchData();
+            }
+        });
+
     } catch (error) {
         // Hata durumunda konsola bir şey yazdırılmayacak.
     }

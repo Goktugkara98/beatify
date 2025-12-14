@@ -4,10 +4,8 @@
 
 .profile-page {
     padding: 3rem 0;
-    background:
-        radial-gradient(circle at top left, rgba(29, 185, 84, 0.06), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.03), transparent 60%),
-        var(--color-bg-base);
+    /* Diğer sayfalarla uyum: düz beyaz arkaplan */
+    background: #ffffff;
     min-height: calc(100vh - 96px); /* navbar + footer için alan bırak */
 }
 

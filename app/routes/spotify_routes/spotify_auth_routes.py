@@ -22,6 +22,7 @@
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
 import logging
+import os
 import requests
 from typing import Any, Optional, Dict
 from flask import Blueprint, request, redirect, url_for, session, flash, Flask
@@ -59,7 +60,18 @@ def spotify_auth() -> Any:
             flash("Lütfen profil sayfanızdan Spotify Client ID ve Secret bilgilerinizi girin.", "error")
             return redirect(url_for('profile', tab='spotify'))
 
-        auth_url = spotify_auth_service.get_authorization_url(username, credentials['client_id'])
+        # Redirect URI önceliği:
+        # 1) Env: SPOTIFY_REDIRECT_URI (prod veya özel kurulum)
+        # 2) SpotifyConfig.REDIRECT_URI (varsayılan: 127.0.0.1)
+        redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI") or spotify_auth_service.redirect_uri
+        redirect_uri = spotify_auth_service.normalize_redirect_uri(redirect_uri)
+        session["spotify_redirect_uri"] = redirect_uri
+
+        auth_url = spotify_auth_service.get_authorization_url(
+            username,
+            credentials["client_id"],
+            redirect_uri=redirect_uri,
+        )
         return redirect(auth_url)
     except Exception as e:
         logger.error(f"Spotify yetkilendirme URL'si alınırken hata (Kullanıcı: {username}): {e}", exc_info=True)
@@ -95,7 +107,13 @@ def spotify_callback() -> Any:
             return redirect(url_for('profile', tab='spotify'))
 
         logger.info("[DEBUG] Exchanging authorization code for tokens...")
-        token_info = spotify_auth_service.exchange_code_for_token(auth_code, credentials['client_id'], credentials['client_secret'])
+        redirect_uri = session.get("spotify_redirect_uri") or os.environ.get("SPOTIFY_REDIRECT_URI")
+        token_info = spotify_auth_service.exchange_code_for_token(
+            auth_code,
+            credentials["client_id"],
+            credentials["client_secret"],
+            redirect_uri=redirect_uri,
+        )
         logger.info(f"[DEBUG] Token info received: {bool(token_info)}")
         
         if not token_info or 'access_token' not in token_info:

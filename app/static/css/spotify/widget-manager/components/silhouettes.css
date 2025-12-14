@@ -9,7 +9,9 @@
 }
 
 .theme-card:hover .silhouette-modern,
-.theme-card:hover .silhouette-classic {
+.theme-card:hover .silhouette-classic,
+.preset-card:hover .silhouette-modern,
+.preset-card:hover .silhouette-classic {
     transform: scale(1.05);
 }
 

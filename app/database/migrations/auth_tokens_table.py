@@ -1,23 +1,42 @@
-"""
-MODÜL: auth_tokens_table.py
+# =============================================================================
+# Auth Tokens Tablo Migration Modülü (auth_tokens_table.py)
+# =============================================================================
+# Bu modül, `auth_tokens` veritabanı tablosunun oluşturulmasını sağlar.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  FONKSİYONLAR (FUNCTIONS)
+#      2.1. create_auth_tokens_table(db_connection=None)
+#
+# 3.0  KOMUT SATIRI (CLI)
+#      3.1. __main__ (doğrudan çalıştırma)
+# =============================================================================
 
-Bu modül, `auth_tokens` veritabanı tablosunun oluşturulmasını sağlar.
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
-İÇİNDEKİLER:
-    - create_auth_tokens_table: Tablo oluşturma fonksiyonu.
-"""
-
+# Standart kütüphane
 from typing import Optional
+
+# Üçüncü parti
 from mysql.connector import Error as MySQLError
+
+# Uygulama içi
 from app.database.db_connection import DatabaseConnection
 
 
+# =============================================================================
+# 2.0 FONKSİYONLAR (FUNCTIONS)
+# =============================================================================
+
 def create_auth_tokens_table(db_connection: Optional[DatabaseConnection] = None) -> None:
-    """
-    Kullanıcı erişim token'larının tutulduğu `auth_tokens` tablosunu oluşturur.
+    """Kullanıcı erişim token'larının tutulduğu `auth_tokens` tablosunu oluşturur.
 
     Args:
-        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
+        db_connection: Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -50,5 +69,14 @@ def create_auth_tokens_table(db_connection: Optional[DatabaseConnection] = None)
             db.close()
 
 
+# =============================================================================
+# 3.0 KOMUT SATIRI (CLI)
+# =============================================================================
+
 if __name__ == "__main__":
     create_auth_tokens_table()
+
+
+# =============================================================================
+# Auth Tokens Tablo Migration Modülü Sonu
+# =============================================================================

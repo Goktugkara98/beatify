@@ -32,48 +32,193 @@ class WidgetTokenService:
     # -------------------------------------------------------------------------
     # TOKEN OLUŞTURMA VE YÖNETME (TOKEN CREATION & MANAGEMENT)
     # -------------------------------------------------------------------------
-    def get_or_create_widget_token(self, username: str) -> Optional[str]:
-        """Kullanıcı için mevcut widget token'ını alır veya yoksa yeni bir tane oluşturur."""
-        logger.debug("WidgetTokenService.get_or_create_widget_token() çağrıldı: username='%s'", username)
-        existing_token = self.get_widget_token(username)
+    def get_or_create_widget_token(self, username: str, widget_type: str = 'modern') -> Optional[str]:
+        """
+        Kullanıcı ve belirtilen tip için mevcut widget token'ını alır veya yoksa yeni bir tane oluşturur.
+        """
+        logger.debug("WidgetTokenService.get_or_create_widget_token() çağrıldı: username='%s', type='%s'", username, widget_type)
+        
+        existing_token = self.get_widget_token_by_type(username, widget_type)
         if existing_token:
-            logger.info("Mevcut widget token bulundu: username='%s', token='%s'", username, existing_token)
+            logger.info("Mevcut widget token bulundu (%s): username='%s', token='%s'", widget_type, username, existing_token)
             return existing_token
 
-        logger.info("Kullanıcı için widget token bulunamadı, yeni token oluşturulacak: username='%s'", username)
-        token = self.generate_and_insert_widget_token(username)
-        logger.info("Yeni widget token oluşturuldu: username='%s', token='%s'", username, token)
+        logger.info("Kullanıcı için %s tipinde widget token bulunamadı, yeni token oluşturulacak: username='%s'", widget_type, username)
+        token = self.generate_and_insert_widget_token(username, widget_type)
+        logger.info("Yeni widget token oluşturuldu (%s): username='%s', token='%s'", widget_type, username, token)
         return token
 
+    def get_widget_token_by_type(self, username: str, widget_type: str) -> Optional[str]:
+        """Belirtilen kullanıcı ve tip için widget token'ını veritabanından alır."""
+        db = SpotifyWidgetRepository()
+        widget = db.get_widget_by_username_and_type(username, widget_type)
+        if widget:
+            return widget.get('widget_token')
+        return None
+
     def get_widget_token(self, username: str) -> Optional[str]:
-        """Belirtilen kullanıcı için mevcut widget token'ını veritabanından alır."""
+        """
+        DEPRECATED: Kullan `get_or_create_widget_token(username, type)` instead.
+        Geriye dönük uyumluluk için ilk bulunan tokeni döner.
+        """
         logger.debug("WidgetTokenService.get_widget_token() DB sorgusu: username='%s'", username)
         db = SpotifyWidgetRepository()
         token = db.get_widget_token_by_username(username)
         logger.debug("WidgetTokenService.get_widget_token() sonucu: username='%s', token='%s'", username, token)
         return token
 
-    def generate_and_insert_widget_token(self, username: str) -> Optional[str]:
-        """Belirtilen kullanıcı için yeni bir widget token'ı oluşturur ve veritabanına kaydeder."""
+    def get_default_widget_config(self, widget_type: str) -> Dict[str, Any]:
+        """
+        Belirtilen widget tipi için varsayılan, kapsamlı yapılandırmayı döndürür.
+        """
+        return {
+            "components": {
+                "AlbumArtBackground": {
+                    "set_a": {
+                        "animationContainer": "AlbumArtBackgroundAnimationContainer_a",
+                        "animations": {
+                            "intro": {"animation": "fade-in", "delay": 0, "duration": 0, "type": "fade-in"},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    },
+                    "set_b": {
+                        "animationContainer": "AlbumArtBackgroundAnimationContainer_b",
+                        "animations": {
+                            "intro": {"animation": "none", "delay": 0, "duration": 0},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    }
+                },
+                "ArtistName": {
+                    "set_a": {
+                        "animationContainer": "ArtistNameAnimationContainer_a",
+                        "animations": {
+                            "intro": {"animation": "none", "delay": 0, "duration": 0, "type": "none"},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    },
+                    "set_b": {
+                        "animationContainer": "ArtistNameAnimationContainer_b",
+                        "animations": {
+                            "intro": {"animation": "none", "delay": 0, "duration": 0},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    }
+                },
+                "Cover": {
+                    "set_a": {
+                        "animationContainer": "CoverAnimationContainer_a",
+                        "animations": {
+                            "intro": {"animation": "slide-up", "delay": 0, "duration": 0, "type": "slide-up"},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    },
+                    "set_b": {
+                        "animationContainer": "CoverAnimationContainer_b",
+                        "animations": {
+                            "intro": {"animation": "none", "delay": 0, "duration": 0},
+                            "outro": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionIn": {"animation": "none", "delay": 0, "duration": 0},
+                            "transitionOut": {"animation": "none", "delay": 0, "duration": 0}
+                        }
+                    }
+                },
+                "CurrentTime": {"set_a": {"animations": {}}, "set_b": {"animations": {}}},
+                "GradientOverlay": {
+                    "set_a": {
+                        "animationContainer": "GradientOverlayAnimationContainer_a",
+                        "animations": {
+                            "intro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "outro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionIn": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionOut": {"delay": 0, "duration": 0, "ease": "none", "type": "none"}
+                        }
+                    },
+                    "set_b": {
+                        "animationContainer": "GradientOverlayAnimationContainer_b",
+                        "animations": {
+                            "intro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "outro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionIn": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionOut": {"delay": 0, "duration": 0, "ease": "none", "type": "none"}
+                        }
+                    }
+                },
+                "ProgressBar": {
+                    "set_a": {
+                        "animationContainer": "ProgressBarAnimationContainer_a", 
+                        "animations": {}
+                    }, 
+                    "set_b": {
+                        "animationContainer": "ProgressBarAnimationContainer_b", 
+                        "animations": {}
+                    }
+                },
+                "ProviderBadge": {
+                    "set_a": {
+                        "animationContainer": "ProviderBadgeAnimationContainer_a",
+                        "animations": {
+                            "intro": {"animation": "fade-in", "delay": 0, "duration": 0, "ease": "none", "type": "fade-in"},
+                            "outro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionIn": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionOut": {"delay": 0, "duration": 0, "ease": "none", "type": "none"}
+                        }
+                    },
+                    "set_b": {
+                        "animationContainer": "ProviderBadgeAnimationContainer_b",
+                        "animations": {
+                            "intro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "outro": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionIn": {"delay": 0, "duration": 0, "ease": "none", "type": "none"},
+                            "transitionOut": {"delay": 0, "duration": 0, "ease": "none", "type": "none"}
+                        }
+                    }
+                },
+                "TimeDisplay": {
+                    "set_a": {"animationContainer": "TimeDisplayLayoutContainer_a", "animations": {}}, 
+                    "set_b": {"animationContainer": "TimeDisplayLayoutContainer_b", "animations": {}}
+                },
+                "TotalTime": {"set_a": {"animations": {}}, "set_b": {"animations": {}}},
+                "TrackName": {
+                    "set_a": {"animationContainer": "TrackNameAnimationContainer_a", "animations": {}}, 
+                    "set_b": {"animationContainer": "TrackNameAnimationContainer_b", "animations": {}}
+                }
+            },
+            "theme": {
+                "name": widget_type, 
+                "version": "1.0.0"
+            }
+        }
+
+    def generate_and_insert_widget_token(self, username: str, widget_type: str = 'modern') -> Optional[str]:
+        """Belirtilen kullanıcı ve tip için yeni bir widget token'ı oluşturur ve veritabanına kaydeder."""
         try:
-            logger.debug("WidgetTokenService.generate_and_insert_widget_token() başlatıldı: username='%s'", username)
+            logger.debug("WidgetTokenService.generate_and_insert_widget_token() başlatıldı: username='%s', type='%s'", username, widget_type)
             token = self.generate_widget_token(username)
             logger.debug("Yeni widget token üretildi: username='%s', token='%s'", username, token)
 
             spotify_data = SpotifyUserRepository().get_spotify_user_data(username)
             spotify_user_id = spotify_data["spotify_user_id"]
-            logger.debug(
-                "Spotify kullanıcı verisi alındı: username='%s', spotify_user_id='%s'",
-                username,
-                spotify_user_id,
-            )
-
+            
+            # Varsayılan detaylı config
+            default_config = self.get_default_widget_config(widget_type)
+            
             token_data = {
                 "beatify_username": username,
                 "widget_token": token,
-                "widget_name": "Unknown",
-                "widget_type": "Unknown",
-                "config_data": "{}",  # Varsayılan boş JSON
+                "widget_name": f"Spotify Widget ({widget_type})",
+                "widget_type": widget_type,
+                "config_data": json.dumps(default_config),
                 "spotify_user_id": spotify_user_id,
             }
 

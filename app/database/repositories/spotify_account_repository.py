@@ -1,49 +1,63 @@
-"""
-MODÜL: spotify_account_repository.py
+# =============================================================================
+# Spotify Account Repository Modülü (spotify_account_repository.py)
+# =============================================================================
+# Bu modül, `spotify_accounts` tablosu üzerindeki işlemleri yürüten
+# `SpotifyUserRepository` sınıfını içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SINIFLAR (CLASSES)
+#      2.1. SpotifyUserRepository
+#           2.1.1. __init__(db_connection=None)
+#           2.1.2. store_client_info(username, client_id, client_secret)
+#           2.1.3. update_user_connection(username, spotify_user_id, refresh_token)
+#           2.1.4. update_refresh_token(username, new_refresh_token)
+#           2.1.5. get_spotify_user_data(username)
+#           2.1.6. delete_linked_account(username)
+#           2.1.7. _ensure_connection()
+#           2.1.8. _close_if_owned()
+# =============================================================================
 
-Bu modül, `spotify_accounts` tablosu üzerindeki işlemleri yürüten
-`SpotifyUserRepository` sınıfını içerir.
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
-İÇİNDEKİLER:
-    - SpotifyUserRepository (Sınıf): Spotify hesap bilgilerini yönetir.
-        - __init__: Sınıfı başlatır.
-        - store_client_info: Client ID ve Secret bilgilerini kaydeder.
-        - update_user_connection: Kullanıcının Spotify bağlantısını günceller.
-        - update_refresh_token: Refresh token'ı günceller.
-        - get_spotify_user_data: Spotify kullanıcı verilerini getirir.
-        - delete_linked_account: Spotify bağlantısını kaldırır.
-"""
-
-from typing import Optional, Dict, Any
+# Standart kütüphane
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+# Üçüncü parti
 from mysql.connector import Error as MySQLError
+
+# Uygulama içi
 from app.database.db_connection import DatabaseConnection
 from app.database.repositories.user_repository import BeatifyUserRepository
 
 
+# =============================================================================
+# 2.0 SINIFLAR (CLASSES)
+# =============================================================================
+
 class SpotifyUserRepository:
-    """
-    Spotify entegrasyon bilgilerini yöneten repository sınıfı.
-    """
+    """Spotify entegrasyon bilgilerini yöneten repository sınıfı."""
 
     def __init__(self, db_connection: Optional[DatabaseConnection] = None) -> None:
-        """
-        SpotifyUserRepository sınıfını başlatır.
+        """SpotifyUserRepository sınıfını başlatır.
 
         Args:
-            db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
+            db_connection: Mevcut veritabanı bağlantısı.
         """
         if db_connection:
             self.db: DatabaseConnection = db_connection
             self.own_connection: bool = False
         else:
-            self.db: DatabaseConnection = DatabaseConnection()
-            self.own_connection: bool = True
+            self.db = DatabaseConnection()
+            self.own_connection = True
 
     def store_client_info(self, username: str, client_id: str, client_secret: str) -> bool:
-        """
-        Kullanıcının Spotify Client ID ve Secret bilgilerini kaydeder.
-        """
+        """Kullanıcının Spotify Client ID ve Secret bilgilerini kaydeder."""
         self._ensure_connection()
         try:
             query = """
@@ -62,9 +76,9 @@ class SpotifyUserRepository:
             self._close_if_owned()
 
     def update_user_connection(self, username: str, spotify_user_id: str, refresh_token: str) -> bool:
-        """
-        Kullanıcının Spotify bağlantı bilgilerini (ID, refresh token) günceller
-        ve user tablosundaki bağlantı durumunu aktif eder.
+        """Kullanıcının Spotify bağlantı bilgilerini (ID, refresh token) günceller.
+
+        Ayrıca user tablosundaki bağlantı durumunu aktif eder.
         """
         self._ensure_connection()
         try:
@@ -94,9 +108,7 @@ class SpotifyUserRepository:
             self._close_if_owned()
 
     def update_refresh_token(self, username: str, new_refresh_token: str) -> bool:
-        """
-        Süresi dolan veya yenilenen refresh token'ı günceller.
-        """
+        """Süresi dolan veya yenilenen refresh token'ı günceller."""
         self._ensure_connection()
         try:
             query = "UPDATE spotify_accounts SET refresh_token = %s WHERE username = %s"
@@ -113,9 +125,7 @@ class SpotifyUserRepository:
             self._close_if_owned()
 
     def get_spotify_user_data(self, username: str) -> Optional[Dict[str, Any]]:
-        """
-        Kullanıcının Spotify hesap verilerini döndürür.
-        """
+        """Kullanıcının Spotify hesap verilerini döndürür."""
         self._ensure_connection()
         try:
             query = """
@@ -130,10 +140,10 @@ class SpotifyUserRepository:
             if not spotify_data:
                 return None
 
-            if isinstance(spotify_data.get('created_at'), datetime):
-                spotify_data['created_at'] = spotify_data['created_at'].strftime('%Y-%m-%d %H:%M:%S')
-            if isinstance(spotify_data.get('updated_at'), datetime):
-                spotify_data['updated_at'] = spotify_data['updated_at'].strftime('%Y-%m-%d %H:%M:%S')
+            if isinstance(spotify_data.get("created_at"), datetime):
+                spotify_data["created_at"] = spotify_data["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+            if isinstance(spotify_data.get("updated_at"), datetime):
+                spotify_data["updated_at"] = spotify_data["updated_at"].strftime("%Y-%m-%d %H:%M:%S")
 
             return spotify_data
         except MySQLError:
@@ -142,9 +152,7 @@ class SpotifyUserRepository:
             self._close_if_owned()
 
     def delete_linked_account(self, username: str) -> bool:
-        """
-        Spotify bağlantısını kaldırır (verileri siler) ve user tablosunu günceller.
-        """
+        """Spotify bağlantısını kaldırır (verileri siler) ve user tablosunu günceller."""
         self._ensure_connection()
         try:
             spotify_query = """
@@ -166,6 +174,10 @@ class SpotifyUserRepository:
         finally:
             self._close_if_owned()
 
+    # -------------------------------------------------------------------------
+    # 2.2. Dahili yardımcılar (Internal helpers)
+    # -------------------------------------------------------------------------
+
     def _ensure_connection(self) -> None:
         """Veritabanı bağlantısını kontrol eder."""
         self.db.ensure_connection()
@@ -174,3 +186,8 @@ class SpotifyUserRepository:
         """Bağlantıyı bu sınıf oluşturduysa kapatır."""
         if self.own_connection:
             self.db.close()
+
+
+# =============================================================================
+# Spotify Account Repository Modülü Sonu
+# =============================================================================

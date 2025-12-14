@@ -1,23 +1,42 @@
-"""
-MODÜL: widgets_table.py
+# =============================================================================
+# Widgets Tablo Migration Modülü (widgets_table.py)
+# =============================================================================
+# Bu modül, `widgets` veritabanı tablosunun oluşturulmasını sağlar.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  FONKSİYONLAR (FUNCTIONS)
+#      2.1. create_widgets_table(db_connection=None)
+#
+# 3.0  KOMUT SATIRI (CLI)
+#      3.1. __main__ (doğrudan çalıştırma)
+# =============================================================================
 
-Bu modül, `widgets` veritabanı tablosunun oluşturulmasını sağlar.
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
-İÇİNDEKİLER:
-    - create_widgets_table: Tablo oluşturma fonksiyonu.
-"""
-
+# Standart kütüphane
 from typing import Optional
+
+# Üçüncü parti
 from mysql.connector import Error as MySQLError
+
+# Uygulama içi
 from app.database.db_connection import DatabaseConnection
 
 
+# =============================================================================
+# 2.0 FONKSİYONLAR (FUNCTIONS)
+# =============================================================================
+
 def create_widgets_table(db_connection: Optional[DatabaseConnection] = None) -> None:
-    """
-    Kullanıcıların oluşturduğu widget'ları tutan genel `widgets` tablosunu oluşturur.
+    """Kullanıcıların oluşturduğu widget'ları tutan genel `widgets` tablosunu oluşturur.
 
     Args:
-        db_connection (Optional[DatabaseConnection]): Mevcut veritabanı bağlantısı.
+        db_connection: Mevcut veritabanı bağlantısı.
     """
     own_connection = False
     db = db_connection
@@ -56,5 +75,14 @@ def create_widgets_table(db_connection: Optional[DatabaseConnection] = None) -> 
             db.close()
 
 
+# =============================================================================
+# 3.0 KOMUT SATIRI (CLI)
+# =============================================================================
+
 if __name__ == "__main__":
     create_widgets_table()
+
+
+# =============================================================================
+# Widgets Tablo Migration Modülü Sonu
+# =============================================================================

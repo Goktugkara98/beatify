@@ -30,7 +30,13 @@ class SpotifyConfig:
     # -----------------------------------------------------------------------------
     CLIENT_ID: str | None = os.environ.get("SPOTIFY_CLIENT_ID")
     CLIENT_SECRET: str | None = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    REDIRECT_URI: str = os.environ.get("SPOTIFY_REDIRECT_URI", "http://localhost:5000/spotify/callback")
+    # Spotify güvenlik politikası gereği `localhost` yerine loopback IP kullanmak gerekir.
+    # Geliştirme için önerilen: http://127.0.0.1:5000/spotify/callback
+    # Prod için env ile HTTPS bir domain ver: SPOTIFY_REDIRECT_URI=https://your-domain/spotify/callback
+    REDIRECT_URI: str = os.environ.get(
+        "SPOTIFY_REDIRECT_URI",
+        "http://127.0.0.1:5000/spotify/callback",
+    )
     SCOPES: str = " ".join([
         "user-read-private",
         "user-read-email",
