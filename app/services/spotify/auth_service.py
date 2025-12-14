@@ -1,22 +1,57 @@
-"""
-Spotify Kimlik Doğrulama Servis Modülü (SpotifyAuthService)
+# =============================================================================
+# Spotify Auth Servis Modülü (auth_service.py)
+# =============================================================================
+# Bu modül, Spotify OAuth 2.0 kimlik doğrulama akışını yöneten
+# `SpotifyAuthService` sınıfını içerir. Erişim/yenileme token'larını işleme,
+# kullanıcı hesabı bağlantısını kaydetme ve bağlantıyı kesme gibi işlemleri
+# kapsar.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  SINIFLAR (CLASSES)
+#      3.1. SpotifyAuthService
+#           3.1.1. __init__()
+#           3.1.2. normalize_redirect_uri(redirect_uri)
+#           3.1.3. get_authorization_url(username, client_id, redirect_uri=None)
+#           3.1.4. exchange_code_for_token(code, client_id, client_secret, redirect_uri=None)
+#           3.1.5. get_valid_access_token(username)
+#           3.1.6. refresh_access_token(username)
+#           3.1.7. save_spotify_user_info(username, access_token, refresh_token_to_save)
+#           3.1.8. unlink_spotify_account(username)
+#           3.1.9. get_spotify_user_id_from_token(access_token)
+#           3.1.10. _ensure_datetime_naive(dt)
+# =============================================================================
 
-Spotify OAuth 2.0 kimlik doğrulama akışını yönetmek, erişim ve yenileme
-token'larını işlemek, kullanıcıların Spotify hesap bilgilerini kaydetmek
-ve bağlantıyı kesmek için servis sınıfı içerir.
-"""
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
 import base64
-import json
 import logging
-import os
-import requests
-from urllib.parse import urlparse, urlunparse
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional, Union
+from urllib.parse import urlparse, urlunparse
+
+# Üçüncü parti
+import requests
 from flask import session
+
+# Uygulama içi
 from app.config.spotify_config import SpotifyConfig
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
-from typing import Optional, Dict, Any, Union
+
+
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
+
+logger = logging.getLogger(__name__)
 
 
 class SpotifyAuthService:
@@ -224,36 +259,38 @@ class SpotifyAuthService:
         """
         Spotify kullanıcı ID'sini alır ve token bilgilerini veritabanına kaydeder/günceller.
         """
-        logger = logging.getLogger(__name__)
-        logger.info(f"[DEBUG] save_spotify_user_info called for user: {username}")
-        logger.info(f"[DEBUG] Access token: {'Exists' if access_token else 'Missing'}")
-        logger.info(f"[DEBUG] Refresh token provided: {'Yes' if refresh_token_to_save else 'No'}")
+        # Not: Bu metod içinde yerel logger tekrar alınmıştı; davranışı değiştirmemek için
+        # mevcut pattern korunuyor, ancak modül seviyesi `logger` da kullanılabilir.
+        local_logger = logging.getLogger(__name__)
+        local_logger.info(f"[DEBUG] save_spotify_user_info called for user: {username}")
+        local_logger.info(f"[DEBUG] Access token: {'Exists' if access_token else 'Missing'}")
+        local_logger.info(f"[DEBUG] Refresh token provided: {'Yes' if refresh_token_to_save else 'No'}")
 
         try:
-            logger.info("[DEBUG] Getting Spotify user ID from token...")
+            local_logger.info("[DEBUG] Getting Spotify user ID from token...")
             spotify_user_id = self.get_spotify_user_id_from_token(access_token)
-            logger.info(f"[DEBUG] Spotify user ID: {spotify_user_id}")
+            local_logger.info(f"[DEBUG] Spotify user ID: {spotify_user_id}")
 
             if not spotify_user_id:
-                logger.error("[DEBUG] Failed to get Spotify user ID from token")
+                local_logger.error("[DEBUG] Failed to get Spotify user ID from token")
                 return None
 
             final_refresh_token = refresh_token_to_save
             if not final_refresh_token:
-                logger.info("[DEBUG] No refresh token provided, checking existing data...")
+                local_logger.info("[DEBUG] No refresh token provided, checking existing data...")
                 existing_data = self.spotify_repo.get_spotify_user_data(username)
                 if existing_data:
                     final_refresh_token = existing_data.get("refresh_token")
-                    logger.info(f"[DEBUG] Found existing refresh token: {bool(final_refresh_token)}")
+                    local_logger.info(f"[DEBUG] Found existing refresh token: {bool(final_refresh_token)}")
 
             if not final_refresh_token:
-                logger.error("[DEBUG] No refresh token available")
+                local_logger.error("[DEBUG] No refresh token available")
                 return None
 
-            logger.info("[DEBUG] Updating user connection in database...")
-            logger.info(f"[DEBUG] Username: {username}")
-            logger.info(f"[DEBUG] Spotify User ID: {spotify_user_id}")
-            logger.info(
+            local_logger.info("[DEBUG] Updating user connection in database...")
+            local_logger.info(f"[DEBUG] Username: {username}")
+            local_logger.info(f"[DEBUG] Spotify User ID: {spotify_user_id}")
+            local_logger.info(
                 f"[DEBUG] Using refresh token: {final_refresh_token[:10]}..."
                 if final_refresh_token
                 else "[DEBUG] No refresh token"
@@ -265,20 +302,20 @@ class SpotifyAuthService:
                 refresh_token=final_refresh_token,
             )
 
-            logger.info(f"[DEBUG] Update user connection result: {success}")
+            local_logger.info(f"[DEBUG] Update user connection result: {success}")
 
             if not success:
-                logger.error("[DEBUG] Failed to update user connection in database")
+                local_logger.error("[DEBUG] Failed to update user connection in database")
                 return None
 
-            logger.info("[DEBUG] Updating session data...")
+            local_logger.info("[DEBUG] Updating session data...")
             session["spotify_refresh_token"] = final_refresh_token
             session["spotify_user_id"] = spotify_user_id
-            logger.info("[DEBUG] Session data updated successfully")
+            local_logger.info("[DEBUG] Session data updated successfully")
 
             return spotify_user_id
         except Exception as e:
-            logger.error(f"[DEBUG] Error in save_spotify_user_info: {str(e)}", exc_info=True)
+            local_logger.error(f"[DEBUG] Error in save_spotify_user_info: {str(e)}", exc_info=True)
             return None
 
     def unlink_spotify_account(self, username: str) -> bool:

@@ -1,13 +1,45 @@
-"""
-Spotify Çalma Listesi Servis Modülü (SpotifyPlaylistService)
+# =============================================================================
+# Spotify Çalma Listesi Servis Modülü (playlist_service.py)
+# =============================================================================
+# Bu modül, Spotify çalma listeleri ile ilgili işlemleri yöneten
+# `SpotifyPlaylistService` sınıfını içerir. API etkileşimleri için
+# `SpotifyApiService` kullanır.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SINIFLAR (CLASSES)
+#      2.1. SpotifyPlaylistService
+#           2.1.1. __init__(api_service=None)
+#           2.1.2. get_user_playlists(username, limit=50, offset=0)
+#           2.1.3. get_playlist(username, playlist_id)
+#           2.1.4. get_playlist_tracks(username, playlist_id, limit=100, offset=0)
+#           2.1.5. get_featured_playlists(username, limit=20, offset=0)
+#           2.1.6. get_category_playlists(username, category_id, limit=20, offset=0)
+#           2.1.7. get_categories(username, limit=20, offset=0)
+#           2.1.8. create_playlist(username, user_id, name, public=True, collaborative=False, description=\"\")
+#           2.1.9. update_playlist_details(username, playlist_id, name=None, public=None, collaborative=None, description=None)
+#           2.1.10. follow_playlist(username, playlist_id, public=True)
+#           2.1.11. unfollow_playlist(username, playlist_id)
+#           2.1.12. add_items_to_playlist(username, playlist_id, uris, position=None)
+#           2.1.13. remove_items_from_playlist(username, playlist_id, uris)
+#           2.1.14. reorder_playlist_items(username, playlist_id, range_start, insert_before, range_length=1, snapshot_id=None)
+#           2.1.15. search_items(username, query, item_types=[\"track\"], limit=20, offset=0, market=None)
+#           2.1.16. format_playlist_for_display(playlist_data)
+#           2.1.17. format_track_for_display(track_data)
+# =============================================================================
 
-Spotify çalma listeleri ile ilgili çeşitli işlemleri yöneten servis sınıfı.
-API etkileşimleri için SpotifyApiService'i kullanır.
-"""
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
 import logging
 import urllib.parse
-from typing import Optional, Dict, Any, List, Union
+from typing import Any, Dict, List, Optional, Union
+
+# Uygulama içi
 from app.services.spotify.api_service import SpotifyApiService
 
 

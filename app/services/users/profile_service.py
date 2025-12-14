@@ -1,26 +1,51 @@
-"""
-Kullanıcı profil verisi ile ilgili yüksek seviye servis fonksiyonları.
+# =============================================================================
+# Kullanıcı Profil Servis Modülü (profile_service.py)
+# =============================================================================
+# Bu modül, kullanıcı profil sayfası için gerekli verileri hazırlayan yüksek
+# seviye servis fonksiyonlarını içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  SERVİS FONKSİYONLARI (SERVICE FUNCTIONS)
+#      3.1. handle_get_request(username)
+# =============================================================================
 
-Bu modül, kullanıcı profili sayfası için gerekli verileri hazırlama ve
-ilgili işlemleri yönetme gibi servis fonksiyonlarını içerir.
-"""
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
 import logging
-import os
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
 
+# Üçüncü parti
 from flask import url_for
-from app.database.repositories.user_repository import BeatifyUserRepository
+
+# Uygulama içi
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
-from app.services.spotify.api_service import SpotifyApiService
+from app.database.repositories.user_repository import BeatifyUserRepository
 from app.services.spotify.account_service import create_default_spotify_data
+from app.services.spotify.api_service import SpotifyApiService
+
+
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
 
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# 3.0 SERVİS FONKSİYONLARI (SERVICE FUNCTIONS)
+# =============================================================================
+
 def handle_get_request(username: str) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
-    """
-    Kullanıcının profil sayfası için gerekli verileri toplar.
+    """Kullanıcının profil sayfası için gerekli verileri toplar.
 
     Bu fonksiyon, kullanıcının temel bilgilerini, Spotify kimlik bilgilerini
     (Client ID/Secret) ve Spotify API'sinden alınan güncel profil verilerini

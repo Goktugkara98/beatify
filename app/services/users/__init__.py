@@ -1,8 +1,13 @@
-"""
-Kullanıcı (user) domain servis paketi.
-
-Profil verisi gibi kullanıcı odaklı yüksek seviye servis fonksiyonları
-bu paket altında tutulur.
-"""
+# =============================================================================
+# Users Servis Paket Tanımı (app.services.users)
+# =============================================================================
+# Bu paket; profil verisi gibi kullanıcı odaklı yüksek seviye servis fonksiyonlarını
+# içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  MODÜLLER (MODULES)
+#      1.1. profile_service
+# =============================================================================
 
 

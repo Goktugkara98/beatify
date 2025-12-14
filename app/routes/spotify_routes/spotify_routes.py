@@ -9,14 +9,23 @@
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  ANA BAŞLATICI (MAIN INITIALIZER)
-#      2.1. init_spotify_routes(app)
+#      1.1. Alt rota başlatıcıları (auth/ui/api/widget)
+#
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  ANA BAŞLATICI (MAIN INITIALIZER)
+#      3.1. init_spotify_routes(app)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+
+# Standart kütüphane
 import logging
+
+# Üçüncü parti
 from flask import Flask
 
 # Alt rota modüllerinin başlatıcıları
@@ -25,11 +34,14 @@ from app.routes.spotify_routes.spotify_auth_routes import init_spotify_auth_rout
 from app.routes.spotify_routes.spotify_ui_routes import init_spotify_ui_routes
 from app.routes.spotify_routes.spotify_widget_routes import init_spotify_widget_routes
 
-# Logger kurulumu
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
+
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# 2.0 ANA BAŞLATICI (MAIN INITIALIZER)
+# 3.0 ANA BAŞLATICI (MAIN INITIALIZER)
 # =============================================================================
 def init_spotify_routes(app: Flask) -> None:
     """

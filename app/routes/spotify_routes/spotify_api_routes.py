@@ -9,8 +9,15 @@
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
-# 3.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+#      3.1. spotify_api_bp
+#      3.2. spotify_player_service
+#      3.3. spotify_playlist_service
+#
+# 4.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
 #      3.1. Oynatıcı Kontrolü (Player Control)
 #           3.1.1. api_spotify_player_control() -> @spotify_api_bp.route('/player-control', methods=['POST'])
 #      3.2. Oynatıcı Durumu (Player Status)
@@ -18,33 +25,40 @@
 #      3.3. Çalma Listeleri (Playlists)
 #           3.3.1. api_spotify_playlists() -> @spotify_api_bp.route('/playlists', methods=['GET'])
 #           3.3.2. api_spotify_playlist_details() -> @spotify_api_bp.route('/playlists/<string:playlist_id>', methods=['GET'])
-# 4.0  ROTA KAYDI (ROUTE REGISTRATION)
-#      4.1. init_spotify_api_routes(app)
+# 5.0  ROTA KAYDI (ROUTE REGISTRATION)
+#      5.1. init_spotify_api_routes(app)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+
+# Standart kütüphane
 import logging
-from typing import Dict, Any, Tuple, List, Optional
-from flask import Blueprint, request, session, jsonify, Flask
+from typing import Any, Dict, Optional, Tuple
+
+# Üçüncü parti
+from flask import Blueprint, Flask, jsonify, request, session
 
 # Servisler
 from app.services.spotify.player_service import SpotifyPlayerService
 from app.services.spotify.playlist_service import SpotifyPlaylistService
 
-# Logger kurulumu
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
+
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# 2.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+# 3.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
 # =============================================================================
 spotify_api_bp = Blueprint(name='spotify_api_bp', import_name=__name__)
 spotify_player_service = SpotifyPlayerService()
 spotify_playlist_service = SpotifyPlaylistService()
 
 # =============================================================================
-# 3.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
+# 4.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
 # =============================================================================
 
 # -------------------------------------------------------------------------
@@ -156,7 +170,7 @@ def api_spotify_playlist_details(playlist_id: str) -> Tuple[Dict[str, Any], int]
         return jsonify({"error": "Çalma listesi detayı alınırken bir hata oluştu.", "success": False}), 500
 
 # =============================================================================
-# 4.0 ROTA KAYDI (ROUTE REGISTRATION)
+# 5.0 ROTA KAYDI (ROUTE REGISTRATION)
 # =============================================================================
 def init_spotify_api_routes(app: Flask):
     """Spotify API blueprint'ini Flask uygulamasına kaydeder."""

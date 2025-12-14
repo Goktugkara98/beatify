@@ -10,53 +10,64 @@
 # 1.0  İÇE AKTARMALAR (IMPORTS)
 #      : Gerekli Flask bileşenleri, servisler ve veritabanı depoları.
 #
-# 2.0  ROTA BAŞLATMA (ROUTE INITIALIZATION)
-#      2.1. init_main_routes(app)
+# 2.0  SABİTLER & YARDIMCILAR (CONSTANTS & HELPERS)
+#      2.1. logger
+#      2.2. ALLOWED_EXTENSIONS
+#      2.3. allowed_file(filename)
+#
+# 3.0  ROTA BAŞLATMA (ROUTE INITIALIZATION)
+#      3.1. init_main_routes(app)
 #           : Tüm ana rotaları Flask uygulamasına kaydeder.
 #
-# 3.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
-#      3.1. Genel Rotalar (Public Routes)
-#           3.1.1. index() -> @app.route('/')
-#           3.1.2. homepage() -> @app.route('/homepage')
-#      3.2. Kullanıcı Profili Rotaları (User Profile Routes)
-#           3.2.1. profile() -> @app.route('/profile', methods=['GET', 'POST'])
+# 4.0  ROTA TANIMLARI (ROUTE DEFINITIONS) [init_main_routes içinde]
+#      4.1. Genel Rotalar (Public Routes)
+#           4.1.1. index() -> @app.route('/', methods=['GET'])
+#           4.1.2. homepage() -> @app.route('/homepage', methods=['GET'])
+#           4.1.3. docs() -> @app.route('/docs', methods=['GET'])
+#           4.1.4. changelog() -> @app.route('/changelog', methods=['GET'])
+#      4.2. Kullanıcı Profili Rotaları (User Profile Routes)
+#           4.2.1. profile() -> @app.route('/profile', methods=['GET', 'POST'])
+#
+# 5.0  PROFİL YARDIMCILARI (PROFILE HELPERS)
+#      5.1. handle_profile_get_request(username)
+#      5.2. handle_profile_post_request(username)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+
+# Standart kütüphane
 import logging
 import os
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
+
+# Üçüncü parti
+from flask import Flask, Response, flash, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 
-from flask import (
-    render_template,
-    request,
-    redirect,
-    url_for,
-    flash,
-    Flask,
-    Response
-)
-# Servisler ve Yardımcılar
+# Uygulama içi: servisler ve yardımcılar
 from app.services.auth_service import login_required, session_is_user_logged_in
 from app.services.users.profile_service import handle_get_request
-# Veritabanı Depoları (Sadece POST isteğinde gerekli)
+
+# Uygulama içi: veritabanı depoları (sadece POST/işlem tarafında gerekli)
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
 from app.database.repositories.user_repository import BeatifyUserRepository
 
-# Logger kurulumu
+# =============================================================================
+# 2.0 SABİTLER & YARDIMCILAR (CONSTANTS & HELPERS)
+# =============================================================================
+
 logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def allowed_file(filename: str) -> bool:
+    """Yüklenen dosya uzantısının izinli olup olmadığını kontrol eder."""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # =============================================================================
-# 2.0 ROTA BAŞLATMA (ROUTE INITIALIZATION)
+# 3.0 ROTA BAŞLATMA (ROUTE INITIALIZATION)
 # =============================================================================
 def init_main_routes(app: Flask) -> None:
     """
@@ -68,11 +79,11 @@ def init_main_routes(app: Flask) -> None:
     """
     
     # =========================================================================
-    # 3.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
+    # 4.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
     # =========================================================================
 
     # -------------------------------------------------------------------------
-    # 3.1. Genel Rotalar (Public Routes)
+    # 4.1. Genel Rotalar (Public Routes)
     # -------------------------------------------------------------------------
 
     @app.route('/', methods=['GET'])
@@ -111,7 +122,7 @@ def init_main_routes(app: Flask) -> None:
         return render_template('changelog.html', title="Yenilikler")
 
     # -------------------------------------------------------------------------
-    # 3.2. Kullanıcı Profili Rotaları (User Profile Routes)
+    # 4.2. Kullanıcı Profili Rotaları (User Profile Routes)
     # -------------------------------------------------------------------------
     
     @app.route('/profile', methods=['GET', 'POST'])
@@ -126,19 +137,23 @@ def init_main_routes(app: Flask) -> None:
         # login_required dekoratörü sayesinde username'in None olma ihtimali yok,
         # ancak yine de kontrol eklemek güvenli bir yaklaşımdır.
         if not username:
-             # Bu kod normalde çalışmaz çünkü login_required yönlendirme yapar.
+            # Bu kod normalde çalışmaz çünkü login_required yönlendirme yapar.
             flash("Kullanıcı oturumu bulunamadı. Lütfen tekrar giriş yapın.", "error")
             return redirect(url_for('auth_bp.login_page'))
 
         try:
             if request.method == 'POST':
                 return handle_profile_post_request(username)
-            else: # GET isteği
+            else:  # GET isteği
                 return handle_profile_get_request(username)
         except Exception as e:
             logger.error(f"Profil sayfasında beklenmeyen hata (Kullanıcı: {username}): {e}", exc_info=True)
             flash("Profil sayfası işlenirken beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.", "danger")
             return redirect(url_for('homepage'))
+
+# =============================================================================
+# 5.0 PROFİL YARDIMCILARI (PROFILE HELPERS)
+# =============================================================================
 
 def handle_profile_get_request(username: str) -> Response:
     """

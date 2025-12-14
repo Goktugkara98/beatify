@@ -7,28 +7,43 @@
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
-# 3.0  YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
-#      3.1. _get_widget_playback_data(username)
-# 4.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
-#      4.1. Arayüz Rotaları (UI Routes)
-#           4.1.1. widget_manager() @spotify_widget_bp.route('/widget-manager', methods=['GET'])
-#           4.1.2. spotify_widget() @spotify_widget_bp.route('/widget/<string:widget_token>', methods=['GET'])
-#      4.2. API Rotaları (API Routes)
-#           4.2.1. get_widget_list() @spotify_widget_bp.route('/widget-list', methods=['GET'])
-#           4.2.2. widget_data() @spotify_widget_bp.route('/api/widget-data/<string:widget_token>', methods=['GET'])
-# 5.0  ROTA KAYDI (ROUTE REGISTRATION)
-#      5.1. init_spotify_widget_routes(app)
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+#      3.1. spotify_widget_bp
+#      3.2. widget_token_service
+#      3.3. spotify_player_service
+#      3.4. widget_repo
+#
+# 4.0  YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
+#      4.1. _get_widget_playback_data(username)
+#
+# 5.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
+#      5.1. Arayüz Rotaları (UI Routes)
+#           5.1.1. widget_manager(theme=None) -> @spotify_widget_bp.route('/widget-manager[/<theme>]', methods=['GET'])
+#           5.1.2. update_widget_config() -> @spotify_widget_bp.route('/widget/update-config', methods=['POST'])
+#           5.1.3. create_widget() -> @spotify_widget_bp.route('/widget/create', methods=['POST'])
+#           5.1.4. delete_widget() -> @spotify_widget_bp.route('/widget/delete', methods=['POST'])
+#           5.1.5. debug_widgets() -> @spotify_widget_bp.route('/debug/widgets', methods=['GET'])
+#           5.1.6. spotify_widget(widget_token) -> @spotify_widget_bp.route('/widget/<string:widget_token>', methods=['GET'])
+#      5.2. API Rotaları (API Routes)
+#           5.2.1. get_widget_list() -> @spotify_widget_bp.route('/widget-list', methods=['GET'])
+#           5.2.2. widget_data(widget_token) -> @spotify_widget_bp.route('/api/widget-data/<string:widget_token>', methods=['GET'])
+#
+# 6.0  ROTA KAYDI (ROUTE REGISTRATION)
+#      6.1. init_spotify_widget_routes(app)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
-import logging
-import json
 import datetime
-from typing import Dict, Any, Tuple, Optional
-from flask import (Blueprint, render_template, request, jsonify, session, url_for, redirect, Flask, flash)
+import json
+import logging
+from typing import Any, Dict, Optional, Tuple
+
+from flask import Blueprint, Flask, jsonify, render_template, request
 
 # Servisler ve Depolar
 from app.services.auth_service import login_required, session_is_user_logged_in
@@ -36,11 +51,14 @@ from app.services.spotify.player_service import SpotifyPlayerService
 from app.services.spotify.widget.token_service import WidgetTokenService
 from app.database.repositories.widget_repository import SpotifyWidgetRepository
 
-# Logger kurulumu
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
+
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# 2.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+# 3.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
 # =============================================================================
 spotify_widget_bp = Blueprint('spotify_widget_bp', __name__, template_folder='../templates')
 widget_token_service = WidgetTokenService()
@@ -48,7 +66,7 @@ spotify_player_service = SpotifyPlayerService()
 widget_repo = SpotifyWidgetRepository()
 
 # =============================================================================
-# 3.0 YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
+# 4.0 YARDIMCI FONKSİYONLAR (HELPER FUNCTIONS)
 # =============================================================================
 
 def _get_widget_playback_data(username: str) -> Dict[str, Any]:
@@ -70,11 +88,11 @@ def _get_widget_playback_data(username: str) -> Dict[str, Any]:
         logger.error("Playback verisi alınırken hata (Kullanıcı: %s): %s", username, e, exc_info=True)
         return {"is_playing": False, "error": str(e)}
 # =============================================================================
-# 4.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
+# 5.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
 # =============================================================================
 
 # -------------------------------------------------------------------------
-# 4.1. Arayüz Rotaları (UI Routes)
+# 5.1. Arayüz Rotaları (UI Routes)
 # -------------------------------------------------------------------------
 
 @spotify_widget_bp.route('/widget-manager', defaults={'theme': None}, methods=['GET'])
@@ -421,7 +439,7 @@ def spotify_widget(widget_token: str) -> Any:
         return render_template("spotify/widgets/widget-error.html", error="Widget yüklenirken bir hata oluştu."), 500
 
 # -------------------------------------------------------------------------
-# 4.2. API Rotaları (API Routes)
+# 5.2. API Rotaları (API Routes)
 # -------------------------------------------------------------------------
 
 @spotify_widget_bp.route('/widget-list', methods=['GET'])
@@ -535,7 +553,7 @@ def widget_data(widget_token: str) -> Tuple[Dict[str, Any], int]:
         }), 500
 
 # =============================================================================
-# 5.0 ROTA KAYDI (ROUTE REGISTRATION)
+# 6.0 ROTA KAYDI (ROUTE REGISTRATION)
 # =============================================================================
 def init_spotify_widget_routes(app: Flask) -> None:
     """Spotify widget blueprint'ini Flask uygulamasına kaydeder."""

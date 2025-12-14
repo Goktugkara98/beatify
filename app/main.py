@@ -1,19 +1,42 @@
-import os
+# =============================================================================
+# Uygulama Başlatma Modülü (main.py)
+# =============================================================================
+# Bu modül, Flask uygulamasını oluşturmak ve yapılandırmak için uygulamanın
+# giriş noktası olan `create_app()` fonksiyonunu içerir. Ayrıca WSGI sunucuları
+# için hazır `app` nesnesini üretir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  UYGULAMA FABRİKASI (APP FACTORY)
+#      2.1. create_app()
+#           2.1.1. Flask app oluşturma
+#           2.1.2. Migration (tablo oluşturma) akışı
+#           2.1.3. Session/Cookie güvenlik ayarları
+#           2.1.4. Jinja2 filtreleri
+#           2.1.5. Route kayıtları
+#
+# 3.0  WSGI GİRİŞİ (WSGI ENTRYPOINT)
+#      3.1. app (create_app çıktısı)
+# =============================================================================
+
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
+
+# Standart kütüphane
 import datetime
 from typing import Any, Optional
 
+# Üçüncü parti
 from flask import Flask
 
+# Uygulama içi
+from app.config.config import COOKIE_HTTPONLY, COOKIE_SAMESITE, COOKIE_SECURE, DEBUG, SECRET_KEY
 from app.database.migrations_repository import MigrationsRepository
-from app.routes import main_routes, auth_routes
+from app.routes import auth_routes, main_routes
 from app.routes.spotify_routes import spotify_routes
-from app.config.config import (
-    DEBUG,
-    SECRET_KEY,
-    COOKIE_SECURE,
-    COOKIE_HTTPONLY,
-    COOKIE_SAMESITE,
-)
 
 
 def create_app() -> Flask:
@@ -28,7 +51,9 @@ def create_app() -> Flask:
     - Rotaları (routes) uygular
     """
 
-    # Flask uygulamasını başlat
+    # -------------------------------------------------------------------------
+    # 2.1.1. Flask uygulamasını başlat
+    # -------------------------------------------------------------------------
     # Bu dosya `app` paketinin içinde olduğu için, statik ve template klasörleri
     # paket köküne göre sadece "static" ve "templates" olarak verilmelidir.
     # (Gerçek yollar: <proje_kökü>/app/static ve <proje_kökü>/app/templates)
@@ -38,7 +63,9 @@ def create_app() -> Flask:
         template_folder="templates",
     )
 
-    # Veritabanı tablolarını oluştur (migrations)
+    # -------------------------------------------------------------------------
+    # 2.1.2. Veritabanı tablolarını oluştur (migrations)
+    # -------------------------------------------------------------------------
     try:
         migrations_repo = MigrationsRepository()
         migrations_repo.create_all_tables()
@@ -47,7 +74,9 @@ def create_app() -> Flask:
         # loglama altyapısı eklendiğinde burada loglanabilir.
         pass
 
-    # Güvenlik ayarları
+    # -------------------------------------------------------------------------
+    # 2.1.3. Güvenlik ayarları (session/cookie)
+    # -------------------------------------------------------------------------
     app.secret_key = SECRET_KEY
     # Session cookie ayarları:
     # - HTTP'de (DEBUG=True) yerel geliştirme rahat çalışsın
@@ -56,7 +85,9 @@ def create_app() -> Flask:
     app.config["SESSION_COOKIE_HTTPONLY"] = COOKIE_HTTPONLY
     app.config["SESSION_COOKIE_SAMESITE"] = COOKIE_SAMESITE
 
-    # Jinja2 filtreleri
+    # -------------------------------------------------------------------------
+    # 2.1.4. Jinja2 filtreleri
+    # -------------------------------------------------------------------------
     @app.template_filter("strftime")
     def _jinja2_filter_datetime(
         date_input: Any, fmt: Optional[str] = None
@@ -86,7 +117,9 @@ def create_app() -> Flask:
             return parsed_date.strftime(fmt)
         return str(date_input)
 
-    # Rotaları kaydet
+    # -------------------------------------------------------------------------
+    # 2.1.5. Rotaları kaydet
+    # -------------------------------------------------------------------------
     try:
         main_routes.init_main_routes(app)
         auth_routes.init_auth_routes(app)
@@ -98,6 +131,10 @@ def create_app() -> Flask:
 
     return app
 
+
+# =============================================================================
+# 3.0 WSGI GİRİŞİ (WSGI ENTRYPOINT)
+# =============================================================================
 
 # WSGI için hazır `app` nesnesi (Gunicorn: `gunicorn app.main:app`)
 app = create_app()

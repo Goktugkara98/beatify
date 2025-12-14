@@ -1,24 +1,50 @@
-"""
-Ana Spotify Servis Modülü (spotify_service)
+# =============================================================================
+# Spotify Account Servis Modülü (account_service.py)
+# =============================================================================
+# Bu modül, Spotify entegrasyonunda hesap seviyesindeki işlemler için yüksek
+# seviye servis fonksiyonlarını içerir. Örn:
+# - Kullanıcının Spotify Client ID / Client Secret bilgilerini güncelleme
+# - Spotify profil verisini çekme ve bağlantı durumuna göre normalize etme
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  SERVİS FONKSİYONLARI (SERVICE FUNCTIONS)
+#      3.1. update_client_id_and_secret_data(username, client_id, client_secret)
+#      3.2. get_spotify_profile_data(username)
+#      3.3. create_default_spotify_data(status)
+# =============================================================================
 
-Spotify entegrasyonuyla ilgili genel amaçlı, üst seviye servis fonksiyonlarını
-içerir. Kullanıcıların Spotify Client ID/Secret bilgilerini güncellemek ve
-Spotify profil verilerini almak gibi işlemleri kapsar.
-"""
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
+# Uygulama içi
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
 from app.services.spotify.api_service import SpotifyApiService
+
+
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
 
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# 3.0 SERVİS FONKSİYONLARI (SERVICE FUNCTIONS)
+# =============================================================================
+
 def update_client_id_and_secret_data(username: str, client_id: str, client_secret: str) -> bool:
-    """
-    Kullanıcının veritabanındaki Spotify Client ID ve Secret bilgilerini günceller.
-    """
+    """Kullanıcının veritabanındaki Spotify Client ID ve Secret bilgilerini günceller."""
     try:
         if not all([username, client_id, client_secret]):
             logger.warning("Client ID/Secret güncelleme için eksik parametre.")
@@ -36,9 +62,7 @@ def update_client_id_and_secret_data(username: str, client_id: str, client_secre
 
 
 def get_spotify_profile_data(username: str) -> Dict[str, Any]:
-    """
-    Kullanıcının Spotify profil verilerini alır, bağlantı durumuna göre işler.
-    """
+    """Kullanıcının Spotify profil verilerini alır, bağlantı durumuna göre işler."""
     try:
         api_service = SpotifyApiService()
         spotify_data = api_service.get_user_profile(username)
@@ -61,9 +85,7 @@ def get_spotify_profile_data(username: str) -> Dict[str, Any]:
 
 
 def create_default_spotify_data(status: str) -> Dict[str, Any]:
-    """
-    Varsayılan bir Spotify profil veri yapısı oluşturur.
-    """
+    """Varsayılan bir Spotify profil veri yapısı oluşturur."""
     default_image_url = "/static/img/default_profile.png"
     return {
         "display_name": "Bağlı Değil",

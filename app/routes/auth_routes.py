@@ -34,21 +34,16 @@
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
-import logging
-from typing import Any, Optional, Dict
-from werkzeug.wrappers import Response as WerkzeugResponse
-from flask import (
-    render_template,
-    request,
-    redirect,
-    url_for,
-    flash,
-    session,
-    Flask,
-    Response
-)
 
-# Servisler ve Yardımcılar
+# Standart kütüphane
+import logging
+from typing import Any, Dict, Optional
+
+# Üçüncü parti
+from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+# Uygulama içi: servisler ve yardımcılar
 from app.services import auth_service
 
 # Logger kurulumu

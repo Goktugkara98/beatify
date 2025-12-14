@@ -1,13 +1,42 @@
-"""
-Spotify Oynatıcı Servis Modülü (SpotifyPlayerService)
+# =============================================================================
+# Spotify Oynatıcı Servis Modülü (player_service.py)
+# =============================================================================
+# Bu modül, Spotify oynatıcısı ile ilgili işlemleri (çalma, duraklatma, parça
+# değiştirme, ses ayarı vb.) ve oynatma durumu hakkında bilgi almayı sağlayan
+# `SpotifyPlayerService` sınıfını içerir. Temel API etkileşimleri için
+# `SpotifyApiService` kullanır.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  İÇE AKTARMALAR (IMPORTS)
+#
+# 2.0  SINIFLAR (CLASSES)
+#      2.1. SpotifyPlayerService
+#           2.1.1. __init__(api_service=None)
+#           2.1.2. get_playback_state(username)
+#           2.1.3. get_currently_playing(username)
+#           2.1.4. get_recently_played(username, limit=20)
+#           2.1.5. get_available_devices(username)
+#           2.1.6. play(username, context_uri=None, uris=None, device_id=None)
+#           2.1.7. pause(username, device_id=None)
+#           2.1.8. next_track(username, device_id=None)
+#           2.1.9. previous_track(username, device_id=None)
+#           2.1.10. seek_to_position(username, position_ms, device_id=None)
+#           2.1.11. set_volume(username, volume_percent, device_id=None)
+#           2.1.12. set_repeat_mode(username, repeat_state, device_id=None)
+#           2.1.13. set_shuffle(username, shuffle_state, device_id=None)
+#           2.1.14. get_recommendations(username, seed_artists=None, seed_tracks=None, seed_genres=None, limit=20, **kwargs)
+# =============================================================================
 
-Spotify oynatıcısı ile ilgili işlemleri (çalma, duraklatma, parça değiştirme,
-ses ayarı vb.) ve oynatma durumu hakkında bilgi almayı sağlayan bir servis
-sınıfı içerir. Temel API etkileşimleri için SpotifyApiService'i kullanır.
-"""
+# =============================================================================
+# 1.0 İÇE AKTARMALAR (IMPORTS)
+# =============================================================================
 
+# Standart kütüphane
+from typing import Any, Dict, List, Optional
+
+# Uygulama içi
 from app.services.spotify.api_service import SpotifyApiService
-from typing import Optional, List, Dict, Any
 
 
 class SpotifyPlayerService:

@@ -9,41 +9,56 @@
 # İÇİNDEKİLER:
 # -----------------------------------------------------------------------------
 # 1.0  İÇE AKTARMALAR (IMPORTS)
-# 2.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
-# 3.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
-#      3.1. spotify_auth()      -> @spotify_auth_bp.route('/auth', methods=['GET'])
-#      3.2. spotify_callback()  -> @spotify_auth_bp.route('/callback', methods=['GET'])
-#      3.3. spotify_unlink()    -> @spotify_auth_bp.route('/unlink', methods=['GET'])
-# 4.0  ROTA KAYDI (ROUTE REGISTRATION)
-#      4.1. init_spotify_auth_routes(app)
+# 2.0  SABİTLER & LOGGER (CONSTANTS & LOGGER)
+#      2.1. logger
+#
+# 3.0  BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+#      3.1. spotify_auth_bp
+#      3.2. spotify_auth_service
+#      3.3. spotify_repo
+#
+# 4.0  ROTA TANIMLARI (ROUTE DEFINITIONS)
+#      4.1. spotify_auth()      -> @spotify_auth_bp.route('/auth', methods=['GET'])
+#      4.2. spotify_callback()  -> @spotify_auth_bp.route('/callback', methods=['GET'])
+#      4.3. spotify_unlink()    -> @spotify_auth_bp.route('/unlink', methods=['GET'])
+#
+# 5.0  ROTA KAYDI (ROUTE REGISTRATION)
+#      5.1. init_spotify_auth_routes(app)
 # =============================================================================
 
 # =============================================================================
 # 1.0 İÇE AKTARMALAR (IMPORTS)
 # =============================================================================
+
+# Standart kütüphane
 import logging
 import os
-import requests
-from typing import Any, Optional, Dict
-from flask import Blueprint, request, redirect, url_for, session, flash, Flask
+from typing import Any
 
-# Servisler ve Depolar
+# Üçüncü parti
+import requests
+from flask import Blueprint, Flask, flash, redirect, request, session, url_for
+
+# Uygulama içi: servisler ve depolar
 from app.database.repositories.spotify_account_repository import SpotifyUserRepository
 from app.services.spotify.auth_service import SpotifyAuthService
 from app.services.auth_service import login_required, session_is_user_logged_in
 
-# Logger kurulumu
+# =============================================================================
+# 2.0 SABİTLER & LOGGER (CONSTANTS & LOGGER)
+# =============================================================================
+
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# 2.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
+# 3.0 BLUEPRINT VE SERVİS BAŞLATMA (BLUEPRINT & SERVICE INITIALIZATION)
 # =============================================================================
 spotify_auth_bp = Blueprint('spotify_auth_bp', __name__, template_folder='../templates')
 spotify_auth_service = SpotifyAuthService()
 spotify_repo = SpotifyUserRepository()
 
 # =============================================================================
-# 3.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
+# 4.0 ROTA TANIMLARI (ROUTE DEFINITIONS)
 # =============================================================================
 
 @spotify_auth_bp.route('/auth', methods=['GET'])
@@ -169,7 +184,7 @@ def spotify_unlink() -> Any:
         return redirect(url_for('profile', tab='spotify'))
 
 # =============================================================================
-# 4.0 ROTA KAYDI (ROUTE REGISTRATION)
+# 5.0 ROTA KAYDI (ROUTE REGISTRATION)
 # =============================================================================
 def init_spotify_auth_routes(app: Flask):
     """Spotify kimlik doğrulama blueprint'ini Flask uygulamasına kaydeder."""

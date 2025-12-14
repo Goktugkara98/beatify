@@ -53,6 +53,7 @@ class DatabaseConnection:
             "user": effective_config.get("user"),
             "password": effective_config.get("password"),
             "database": effective_config.get("database"),
+            "port": effective_config.get("port"),
             "charset": "utf8mb4",
             "collation": "utf8mb4_unicode_ci",
         }
@@ -68,6 +69,7 @@ class DatabaseConnection:
                 user=self.config["user"],
                 password=self.config["password"],
                 database=self.config["database"],
+                port=self.config.get("port") or 3306,
                 charset=self.config.get("charset", "utf8mb4"),
             )
             # Dict cursor: sonuçlara `row["kolon_adi"]` ile erişebilmek için

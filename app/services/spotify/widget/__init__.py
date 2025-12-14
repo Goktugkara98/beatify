@@ -1,7 +1,12 @@
-"""
-Spotify widget servis paketi.
-
-Widget token yönetimi ve widget ile ilgili yardımcı servisler bu paket altında yer alır.
-"""
+# =============================================================================
+# Spotify Widget Servis Paket Tanımı (app.services.spotify.widget)
+# =============================================================================
+# Bu paket; widget token yönetimi ve widget ile ilgili yardımcı servisleri içerir.
+#
+# İÇİNDEKİLER:
+# -----------------------------------------------------------------------------
+# 1.0  MODÜLLER (MODULES)
+#      1.1. token_service
+# =============================================================================
 
 
