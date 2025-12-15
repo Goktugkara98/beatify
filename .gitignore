@@ -1,47 +1,54 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging
-build/
-*.egg-info/
-
 # Virtual environments
+.venv/
 venv/
 env/
-.env/
 
-# IDE specific files
-.idea/
+# Packaging / build
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Test / typecheck / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+coverage.xml
+htmlcov/
+
+# IDEs / editors
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# OS specific files
+# OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Local configuration
-instance/
+# App local config & secrets
 .env
+.env.*
+!env.example
+instance/
 
 # Logs
 logs/
 *.log
 
-# Scripts
-scripts/
+# User uploads (generated content)
+app/static/img/uploads/
 
-# .venv
-.venv/
-
-# Notebooks
-*.ipynb
-.ipynb_checkpoints/
-
-JSON EDITOR/
-
+# Tooling / local workspace
 .cursor/
-
 addons/
