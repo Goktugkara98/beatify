@@ -29,3 +29,19 @@ instance/
 # Logs
 logs/
 *.log
+
+# Scripts
+scripts/
+
+# .venv
+.venv/
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+JSON EDITOR/
+
+.cursor/
+
+addons/
